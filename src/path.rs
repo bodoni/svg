@@ -277,9 +277,26 @@ impl<'s> DataParser<'s> {
 
 #[cfg(test)]
 mod tests {
-    use super::DataParser;
+    use super::{Data, DataParser};
     use super::Command::*;
     use super::Positioning::*;
+
+    #[test]
+    fn data_parser() {
+        let data = Data::parse("M1,2 l3,4").ok().unwrap();
+
+        assert_eq!(data.commands.len(), 2);
+
+        match data.commands[0] {
+            MoveTo(Absolute, ref params) => assert_eq!(*params, vec![1.0, 2.0]),
+            _ => assert!(false),
+        }
+
+        match data.commands[1] {
+            LineTo(Relative, ref params) => assert_eq!(*params, vec![3.0, 4.0]),
+            _ => assert!(false),
+        }
+    }
 
     #[test]
     fn data_parser_read_command() {
