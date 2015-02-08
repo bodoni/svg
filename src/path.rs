@@ -245,10 +245,19 @@ mod tests {
                     _ => assert!(false),
                 }
             );
+            ($line:expr, $command:ident) => (
+                match run!($line) {
+                    $command => {},
+                    _ => assert!(false),
+                }
+            );
         );
 
         test!("M4,2", MoveTo, Absolute, vec![4.0, 2.0]);
         test!("m4,2", MoveTo, Relative, vec![4.0, 2.0]);
+
+        test!("Z", ClosePath);
+        test!("z", ClosePath);
 
         test!("L7, 8  9", LineTo, Absolute, vec![7.0, 8.0, 9.0]);
         test!("l 7,8 9", LineTo, Relative, vec![7.0, 8.0, 9.0]);
