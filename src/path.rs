@@ -3,79 +3,79 @@ use std::str::CharIndices;
 
 use {Error, Result};
 
-/// [Path][1] represents the outline of a shape.
+/// The outline of a shape.
 ///
-/// [1]: http://www.w3.org/TR/SVG/paths.html
+/// http://www.w3.org/TR/SVG/paths.html
 pub struct Path;
 
-/// [Data][1] represents the data attribute of a path.
+/// The data attribute of a path.
 ///
-/// [1]: http://www.w3.org/TR/SVG/paths.html#PathData
+/// http://www.w3.org/TR/SVG/paths.html#PathData
 pub struct Data {
     /// A series of path commands.
     pub commands: Vec<Command>,
 }
 
-/// Command represents a command used to draw a path.
+/// A command used to draw a path.
 #[derive(Debug)]
 pub enum Command {
-    /// The [command][1] establishes a new current point.
+    /// [Establish][1] a new current point.
     ///
     /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataMovetoCommands
     MoveTo(Positioning, Vec<f64>),
 
-    /// The [command][1] ends the current subpath.
+    /// [End][1] the current subpath.
     ///
     /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataClosePathCommand
     ClosePath,
 
-    /// The [command][1] draws straight lines.
+    /// [Draw][1] straight lines.
     ///
     /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataLinetoCommands
     LineTo(Positioning, Vec<f64>),
 
-    /// The [command][1] draws horizontal lines.
+    /// [Draw][1] horizontal lines.
     ///
     /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataLinetoCommands
     HorizontalLineTo(Positioning, Vec<f64>),
 
-    /// The [command][1] draws vertical lines.
+    /// [Draw][1] vertical lines.
     ///
     /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataLinetoCommands
     VerticalLineTo(Positioning, Vec<f64>),
 
-    /// The [command][1] draws a cubic Bézier curve.
+    /// [Draw][1] a cubic Bézier curve.
     ///
     /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataCubicBezierCommands
     CurveTo(Positioning, Vec<f64>),
 
-    /// The [command][1] draws a cubic Bézier curve assuming the first control
-    /// point to be the reflection of the second control point on the previous
-    /// command relative to the current point.
+    /// [Draw][1] a cubic Bézier curve assuming the first control point to be
+    /// the reflection of the second control point on the previous command
+    /// relative to the current point.
     ///
     /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataCubicBezierCommands
     SmoothCurveTo(Positioning, Vec<f64>),
 
-    /// The [command][1] draws a quadratic Bézier curve.
+    /// [Draw][1] a quadratic Bézier curve.
     ///
     /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataQuadraticBezierCommands
     QuadraticBezierCurveTo(Positioning, Vec<f64>),
 
-    /// The [command][1] draws a quadratic Bézier curve assuming the control
-    /// point to be the reflection of the control point on the previous command
-    /// relative to the current point.
+    /// [Draw][1] a quadratic Bézier curve assuming the control point to be the
+    /// reflection of the control point on the previous command relative to the
+    /// current point.
     ///
     /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataQuadraticBezierCommands
     SmoothQuadraticBezierCurveTo(Positioning, Vec<f64>),
 
-    /// The [command][1] draws an elliptical arc.
+    /// [Draw][1] an elliptical arc.
     ///
     /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataEllipticalArcCommands
     EllipticalArc(Positioning, Vec<f64>),
 }
 
-/// Positioning defines whether the coordinates of a command are absolute or
-/// relative to the current position.
+/// An attribute of a command indicating whether the coordinates of the command
+/// are absolute or relative to the current position.
 #[derive(Debug)]
 pub enum Positioning {
     Absolute,
