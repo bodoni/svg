@@ -1,6 +1,6 @@
 [package]
 name = "svg"
-version = "0.0.1"
+version = "0.0.2"
 authors = ["Ivan Ukhov <ivan.ukhov@gmail.com>"]
 license = "MIT"
 repository = "https://github.com/bodoni/svg"
