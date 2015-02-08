@@ -1,5 +1,13 @@
-pub struct Path;
+#![feature(collections)]
+#![cfg_attr(test, feature(core))]
 
-#[cfg(test)]
-mod tests {
+pub mod path;
+
+#[derive(Debug)]
+pub struct Error {
+    pub line: usize,
+    pub column: usize,
+    pub message: String,
 }
+
+pub type Result<T> = std::result::Result<T, Error>;
