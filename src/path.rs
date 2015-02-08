@@ -83,6 +83,7 @@ pub enum Positioning {
 }
 
 impl Data {
+    /// Parse the data attribute of a path.
     #[inline]
     pub fn parse(line: &str) -> Result<Data> {
         DataParser::new(line).process()
