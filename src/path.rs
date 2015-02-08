@@ -12,8 +12,7 @@ pub struct Path;
 ///
 /// http://www.w3.org/TR/SVG/paths.html#PathData
 pub struct Data {
-    /// A series of path commands.
-    pub commands: Vec<Command>,
+    commands: Vec<Command>,
 }
 
 /// A command used to draw a path.
@@ -87,6 +86,11 @@ impl Data {
     #[inline]
     pub fn parse(line: &str) -> Result<Data> {
         DataParser::new(line).process()
+    }
+
+    #[inline]
+    pub fn iter(&self) -> ::std::slice::Iter<Command> {
+        self.commands.iter()
     }
 }
 

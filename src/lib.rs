@@ -1,3 +1,5 @@
+//! An SVG parser.
+
 #![feature(collections)]
 #![cfg_attr(test, feature(core))]
 

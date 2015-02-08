@@ -1,13 +1,3 @@
-# SVG [![Build Status][travis-img]][travis-url]
-
-Currently the library is limited to the parsing of the [data attribute][1] of
-paths.
-
-## [Documentation][docs]
-
-## Usage
-
-```rust
 #![feature(core)]
 
 extern crate svg;
@@ -34,16 +24,3 @@ fn main() {
         }
     }
 }
-```
-
-## Contributing
-
-1. Fork the project.
-2. Implement your idea.
-3. Create a pull request.
-
-[1]: http://www.w3.org/TR/SVG/paths.html#PathData
-
-[travis-img]: https://travis-ci.org/bodoni/svg.svg?branch=master
-[travis-url]: https://travis-ci.org/bodoni/svg
-[docs]: https://bodoni.github.io/svg
