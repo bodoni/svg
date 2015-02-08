@@ -44,12 +44,12 @@ pub enum Command {
     /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataLinetoCommands
     VerticalLineTo(Positioning, Vec<f64>),
 
-    /// The [command][1] draw a cubic Bézier curve.
+    /// The [command][1] draws a cubic Bézier curve.
     ///
     /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataCubicBezierCommands
     CurveTo(Positioning, Vec<f64>),
 
-    /// The [command][1] draw a cubic Bézier curve assuming the first control
+    /// The [command][1] draws a cubic Bézier curve assuming the first control
     /// point to be the reflection of the second control point on the previous
     /// command relative to the current point.
     ///
