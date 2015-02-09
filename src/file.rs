@@ -55,10 +55,10 @@ mod tests {
             );
         );
 
-        for _ in range(0, 4) {
+        for _ in (0..4) {
             test!(parser, Unknown);
         }
-        for _ in range(0, 4) {
+        for _ in (0..4) {
             test!(parser, Path);
         }
         test!(parser, Unknown);
