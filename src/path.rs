@@ -91,15 +91,6 @@ struct Parser<'s> {
     reader: Reader<'s>,
 }
 
-macro_rules! ok(
-    ($result:expr) => (
-        match $result {
-            Ok(result) => result,
-            Err(error) => return Err(error),
-        }
-    )
-);
-
 macro_rules! raise(
     ($parser:expr, $($arg:tt)*) => ({
         let (line, column) = $parser.reader.position();
@@ -125,7 +116,7 @@ impl<'s> Parser<'s> {
         loop {
             self.reader.consume_whitespace();
 
-            match ok!(self.read_command()) {
+            match try!(self.read_command()) {
                 Some(command) => commands.push(command),
                 _ => break,
             }
@@ -150,7 +141,7 @@ impl<'s> Parser<'s> {
 
         self.reader.consume_whitespace();
 
-        let params = ok!(self.read_parameters());
+        let params = try!(self.read_parameters());
 
         Ok(Some(match name {
             'M' => MoveTo(Absolute, params),
@@ -190,7 +181,7 @@ impl<'s> Parser<'s> {
         let mut params = Vec::new();
 
         loop {
-            match ok!(self.read_number()) {
+            match try!(self.read_number()) {
                 Some(number) => params.push(number),
                 _ => break,
             }
