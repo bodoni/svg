@@ -46,25 +46,22 @@ mod tests {
         let file = File::open(&find_fixture("benton")).unwrap();
         let mut parser = file.parse();
 
-        for _ in range(0, 4) {
-            match parser.next().unwrap() {
-                Event::Tag(Tag::Unknown(..)) => {},
-                _ => assert!(false),
-            }
-        }
+        macro_rules! test(
+            ($parser:expr, $tag:ident) => (
+                match $parser.next().unwrap() {
+                    Event::Tag(Tag::$tag(..)) => {},
+                    _ => assert!(false),
+                }
+            );
+        );
 
         for _ in range(0, 4) {
-            match parser.next().unwrap() {
-                Event::Tag(Tag::Path(..)) => {},
-                _ => assert!(false),
-            }
+            test!(parser, Unknown);
         }
-
-        match parser.next().unwrap() {
-            Event::Tag(Tag::Unknown(..)) => {},
-            _ => assert!(false),
+        for _ in range(0, 4) {
+            test!(parser, Path);
         }
-
+        test!(parser, Unknown);
         assert!(parser.next().is_none());
     }
 }
