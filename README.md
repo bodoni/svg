@@ -44,6 +44,6 @@ fn main() {
 
 [1]: http://www.w3.org/TR/SVG/paths.html#PathData
 
-[travis-img]: https://travis-ci.org/bodoni/svg.svg?branch=master
-[travis-url]: https://travis-ci.org/bodoni/svg
-[docs]: https://bodoni.github.io/svg
+[travis-img]: https://travis-ci.org/stainless-steel/svg.svg?branch=master
+[travis-url]: https://travis-ci.org/stainless-steel/svg
+[docs]: https://stainless-steel.github.io/svg

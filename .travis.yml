@@ -1,11 +1,11 @@
 language: rust
 
 after_success:
-  - curl https://bodoni.github.io/travis/after_success.sh | bash
+  - curl https://stainless-steel.github.io/travis/after_success.sh | bash
 
 env:
   global:
-    secure: FRlW5sS0u4ITh14C6d9fxjfE9PV2XKTuwlryfHaQwTsfS00VDQ6Ile7BSCxtnYFA9uFSzZR/sX2OEiT6vXoBr6+uYmZx3yk2gGz+f5pHGNZc98xkQXR31QEmTOGLb4WWDUudGOHFnorfzxWC/e2gZMFglfHcjJe6RwexsqFQL34=
+    secure: C6iW1+kSPrqW2ZktjrcspHOSAw/mvKO81kk73tDPdOaXqFgSNwnTRM2zFOk2pmtUwu6qTT1RAGPYd2ENNfTP9dfk29mikza7k1mWBkzclJQCVhPhDlrtChlWrCEH7yENAJrBZQtwk3NEN4t+7xcWoU9z+LlfPdSZrfqmrtOPaAY=
 
 notifications:
   email:
