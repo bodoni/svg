@@ -3,6 +3,7 @@
 #![feature(collections)]
 #![cfg_attr(test, feature(core))]
 
+mod reader;
 pub mod path;
 
 #[derive(Debug)]

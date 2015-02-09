@@ -1,7 +1,5 @@
-use std::iter::Peekable;
-use std::str::Chars;
-
 use {Error, Result};
+use reader::Reader;
 
 /// The data attribute of a path.
 ///
@@ -80,7 +78,7 @@ impl Data {
     /// Parse the data attribute of a path.
     #[inline]
     pub fn parse(text: &str) -> Result<Data> {
-        DataParser::new(text).process()
+        Parser::new(text).process()
     }
 
     #[inline]
@@ -89,14 +87,8 @@ impl Data {
     }
 }
 
-struct DataParser<'s> {
-    text: &'s str,
-
-    line: usize,
-    column: usize,
-    offset: usize,
-
-    cursor: Peekable<Chars<'s>>,
+struct Parser<'s> {
+    reader: Reader<'s>,
 }
 
 macro_rules! ok(
@@ -109,25 +101,21 @@ macro_rules! ok(
 );
 
 macro_rules! raise(
-    ($parser:expr, $($arg:tt)*) => (
+    ($parser:expr, $($arg:tt)*) => ({
+        let (line, column) = $parser.reader.position();
         return Err(Error {
-            line: $parser.line,
-            column: $parser.column,
+            line: line,
+            column: column,
             message: format!($($arg)*),
         })
-    );
+    });
 );
 
-impl<'s> DataParser<'s> {
-    fn new(text: &'s str) -> DataParser<'s> {
-        DataParser {
-            text: text,
-
-            line: 1,
-            column: 0,
-            offset: 0,
-
-            cursor: text.chars().peekable(),
+impl<'s> Parser<'s> {
+    #[inline]
+    fn new(text: &'s str) -> Parser<'s> {
+        Parser {
+            reader: Reader::new(text),
         }
     }
 
@@ -135,7 +123,7 @@ impl<'s> DataParser<'s> {
         let mut commands = Vec::new();
 
         loop {
-            self.skip_whitespace();
+            self.reader.consume_whitespace();
 
             match ok!(self.read_command()) {
                 Some(command) => commands.push(command),
@@ -152,7 +140,7 @@ impl<'s> DataParser<'s> {
         use self::Command::*;
         use self::Positioning::*;
 
-        let name = match self.next() {
+        let name = match self.reader.next() {
             Some(name) => match name {
                 'A'...'Z' | 'a'...'z' => name,
                 _ => raise!(self, "expected a path command"),
@@ -160,7 +148,7 @@ impl<'s> DataParser<'s> {
             _ => return Ok(None),
         };
 
-        self.skip_whitespace();
+        self.reader.consume_whitespace();
 
         let params = ok!(self.read_parameters());
 
@@ -207,92 +195,46 @@ impl<'s> DataParser<'s> {
                 _ => break,
             }
 
-            self.skip_whitespace();
-            self.skip(",");
+            self.reader.consume_whitespace();
+            self.reader.consume_chars(",");
         }
 
         Ok(params)
     }
 
-    fn read_number(&mut self) -> Result<Option<f64>> {
-        self.skip_whitespace();
+    pub fn read_number(&mut self) -> Result<Option<f64>> {
+        self.reader.consume_whitespace();
 
-        let start = self.offset;
+        let number = {
+            let number = self.reader.capture(|reader| {
+                reader.consume_chars("-");
+                reader.consume_digits();
+                reader.consume_chars(".");
+                reader.consume_digits();
+            });
 
-        self.skip("-");
-        self.skip_digits();
-        self.skip(".");
-        self.skip_digits();
+            if number.is_empty() {
+                return Ok(None)
+            }
 
-        let end = self.offset;
+            number.parse()
+        };
 
-        if start == end {
-            return Ok(None)
-        }
-
-        let number = &self.text[start..end];
-
-        match number.parse() {
+        match number {
             Ok(number) => Ok(Some(number)),
-            Err(_) => raise!(self, "failed to parse a number '{}'", number),
+            Err(_) => raise!(self, "failed to parse a number"),
         }
-    }
-
-    #[inline]
-    fn skip_whitespace(&mut self) {
-        self.skip(" \t\n")
-    }
-
-    #[inline]
-    fn skip_digits(&mut self) {
-        self.skip("0123456789")
-    }
-
-    fn skip(&mut self, chars: &str) {
-        loop {
-            match self.peek() {
-                Some(c) => {
-                    if chars.contains_char(c) {
-                        self.next();
-                    } else {
-                        break;
-                    }
-                },
-                _ => break,
-            }
-        }
-    }
-
-    #[inline]
-    fn next(&mut self) -> Option<char> {
-        match self.cursor.next() {
-            Some(c) => {
-                if c == '\n' {
-                    self.line += 1;
-                    self.column = 0;
-                }
-                self.column += 1;
-                self.offset += 1;
-                Some(c)
-            }
-            _ => None,
-        }
-    }
-
-    #[inline]
-    fn peek(&mut self) -> Option<char> {
-        self.cursor.peek().and_then(|&c| Some(c))
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{Data, DataParser};
+    use super::{Data, Parser};
     use super::Command::*;
     use super::Positioning::*;
 
     #[test]
-    fn data_parser() {
+    fn parser() {
         let data = Data::parse("M1,2 l3,4").ok().unwrap();
 
         assert_eq!(data.commands.len(), 2);
@@ -309,10 +251,10 @@ mod tests {
     }
 
     #[test]
-    fn data_parser_read_command() {
+    fn parser_read_command() {
         macro_rules! run(
             ($text:expr) => ({
-                let mut parser = DataParser::new($text);
+                let mut parser = Parser::new($text);
                 parser.read_command().ok().unwrap().unwrap()
             });
         );
@@ -364,29 +306,20 @@ mod tests {
     }
 
     #[test]
-    fn data_parser_read_parameters() {
-        let mut parser = DataParser::new("1,2 3,4 5 6.7");
+    fn parser_read_parameters() {
+        let mut parser = Parser::new("1,2 3,4 5 6.7");
         let params = parser.read_parameters().ok().unwrap();
         assert_eq!(params, vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.7]);
     }
 
     #[test]
-    fn data_parser_read_number() {
+    fn parser_read_number() {
         let texts = vec!["-1", "3", "3.14"];
         let numbers = vec![-1.0, 3.0, 3.14];
 
         for (text, &number) in texts.iter().zip(numbers.iter()) {
-            let mut parser = DataParser::new(text);
+            let mut parser = Parser::new(text);
             assert_eq!(parser.read_number().ok().unwrap().unwrap(), number);
         }
-    }
-
-    #[test]
-    fn data_parser_skip_whitespace() {
-        let mut parser = DataParser::new(" \t  \n\n  \tm ");
-        parser.skip_whitespace();
-        assert_eq!(parser.line, 3);
-        assert_eq!(parser.column, 4);
-        assert_eq!(parser.offset, 9);
     }
 }
