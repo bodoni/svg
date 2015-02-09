@@ -79,8 +79,8 @@ pub enum Positioning {
 impl Data {
     /// Parse the data attribute of a path.
     #[inline]
-    pub fn parse(line: &str) -> Result<Data> {
-        DataParser::new(line).process()
+    pub fn parse(text: &str) -> Result<Data> {
+        DataParser::new(text).process()
     }
 
     #[inline]
@@ -90,8 +90,12 @@ impl Data {
 }
 
 struct DataParser<'s> {
-    line: &'s str,
-    position: usize,
+    text: &'s str,
+
+    line: usize,
+    column: usize,
+    offset: usize,
+
     cursor: Peekable<Chars<'s>>,
 }
 
@@ -107,19 +111,23 @@ macro_rules! ok(
 macro_rules! raise(
     ($parser:expr, $($arg:tt)*) => (
         return Err(Error {
-            line: 1,
-            column: $parser.position,
+            line: $parser.line,
+            column: $parser.column,
             message: format!($($arg)*),
         })
     );
 );
 
 impl<'s> DataParser<'s> {
-    fn new(line: &'s str) -> DataParser<'s> {
+    fn new(text: &'s str) -> DataParser<'s> {
         DataParser {
-            line: line,
-            position: 0,
-            cursor: line.chars().peekable(),
+            text: text,
+
+            line: 1,
+            column: 0,
+            offset: 0,
+
+            cursor: text.chars().peekable(),
         }
     }
 
@@ -209,20 +217,20 @@ impl<'s> DataParser<'s> {
     fn read_number(&mut self) -> Result<Option<f64>> {
         self.skip_whitespace();
 
-        let start = self.position;
+        let start = self.offset;
 
         self.skip("-");
         self.skip_digits();
         self.skip(".");
         self.skip_digits();
 
-        let end = self.position;
+        let end = self.offset;
 
         if start == end {
             return Ok(None)
         }
 
-        let number = &self.line[start..end];
+        let number = &self.text[start..end];
 
         match number.parse() {
             Ok(number) => Ok(Some(number)),
@@ -232,7 +240,7 @@ impl<'s> DataParser<'s> {
 
     #[inline]
     fn skip_whitespace(&mut self) {
-        self.skip(" \t")
+        self.skip(" \t\n")
     }
 
     #[inline]
@@ -259,9 +267,14 @@ impl<'s> DataParser<'s> {
     fn next(&mut self) -> Option<char> {
         match self.cursor.next() {
             Some(c) => {
-                self.position += 1;
+                if c == '\n' {
+                    self.line += 1;
+                    self.column = 0;
+                }
+                self.column += 1;
+                self.offset += 1;
                 Some(c)
-            },
+            }
             _ => None,
         }
     }
@@ -298,21 +311,21 @@ mod tests {
     #[test]
     fn data_parser_read_command() {
         macro_rules! run(
-            ($line:expr) => ({
-                let mut parser = DataParser::new($line);
+            ($text:expr) => ({
+                let mut parser = DataParser::new($text);
                 parser.read_command().ok().unwrap().unwrap()
             });
         );
 
         macro_rules! test(
-            ($line:expr, $command:ident, $positioning:ident, $params:expr) => (
-                match run!($line) {
+            ($text:expr, $command:ident, $positioning:ident, $params:expr) => (
+                match run!($text) {
                     $command($positioning, params) => assert_eq!(params, $params),
                     _ => assert!(false),
                 }
             );
-            ($line:expr, $command:ident) => (
-                match run!($line) {
+            ($text:expr, $command:ident) => (
+                match run!($text) {
                     $command => {},
                     _ => assert!(false),
                 }
@@ -320,19 +333,19 @@ mod tests {
         );
 
         test!("M4,2", MoveTo, Absolute, vec![4.0, 2.0]);
-        test!("m4,2", MoveTo, Relative, vec![4.0, 2.0]);
+        test!("m4,\n2", MoveTo, Relative, vec![4.0, 2.0]);
 
         test!("Z", ClosePath);
         test!("z", ClosePath);
 
         test!("L7, 8  9", LineTo, Absolute, vec![7.0, 8.0, 9.0]);
-        test!("l 7,8 9", LineTo, Relative, vec![7.0, 8.0, 9.0]);
+        test!("l 7,8 \n9", LineTo, Relative, vec![7.0, 8.0, 9.0]);
 
         test!("H\t6,9", HorizontalLineTo, Absolute, vec![6.0, 9.0]);
         test!("h6,  \t9", HorizontalLineTo, Relative, vec![6.0, 9.0]);
 
         test!("V2.1,-3", VerticalLineTo, Absolute, vec![2.1, -3.0]);
-        test!("v2.1 -3", VerticalLineTo, Relative, vec![2.1, -3.0]);
+        test!("v\n2.1 -3", VerticalLineTo, Relative, vec![2.1, -3.0]);
 
         test!("C0,1 0,2", CurveTo, Absolute, vec![0.0, 1.0, 0.0, 2.0]);
         test!("c0 ,1 0,  2", CurveTo, Relative, vec![0.0, 1.0, 0.0, 2.0]);
@@ -341,7 +354,7 @@ mod tests {
         test!("s \t 42,0", SmoothCurveTo, Relative, vec![42.0, 0.0]);
 
         test!("Q90.5 0", QuadraticBezierCurveTo, Absolute, vec![90.5, 0.0]);
-        test!("q90.5, 0", QuadraticBezierCurveTo, Relative, vec![90.5, 0.0]);
+        test!("q90.5\n, 0", QuadraticBezierCurveTo, Relative, vec![90.5, 0.0]);
 
         test!("T-1", SmoothQuadraticBezierCurveTo, Absolute, vec![-1.0]);
         test!("t -1", SmoothQuadraticBezierCurveTo, Relative, vec![-1.0]);
@@ -359,19 +372,21 @@ mod tests {
 
     #[test]
     fn data_parser_read_number() {
-        let lines = vec!["-1", "3", "3.14"];
+        let texts = vec!["-1", "3", "3.14"];
         let numbers = vec![-1.0, 3.0, 3.14];
 
-        for (line, &number) in lines.iter().zip(numbers.iter()) {
-            let mut parser = DataParser::new(line);
+        for (text, &number) in texts.iter().zip(numbers.iter()) {
+            let mut parser = DataParser::new(text);
             assert_eq!(parser.read_number().ok().unwrap().unwrap(), number);
         }
     }
 
     #[test]
     fn data_parser_skip_whitespace() {
-        let mut parser = DataParser::new(" \t    m ");
+        let mut parser = DataParser::new(" \t  \n\n  \tm ");
         parser.skip_whitespace();
-        assert_eq!(parser.position, 6);
+        assert_eq!(parser.line, 3);
+        assert_eq!(parser.column, 4);
+        assert_eq!(parser.offset, 9);
     }
 }
