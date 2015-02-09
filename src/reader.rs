@@ -77,11 +77,10 @@ impl<'s> Iterator for Reader<'s> {
                 if c == '\n' {
                     self.line += 1;
                     self.column = 1;
-                    self.offset += 1;
                 } else {
                     self.column += 1;
-                    self.offset += 1;
                 }
+                self.offset += 1;
                 Some(c)
             }
             _ => None,
