@@ -34,12 +34,7 @@ impl<'s> Parser<'s> {
     fn process(&mut self) -> Result<Tag> {
         use std::ascii::OwnedAsciiExt;
 
-        self.reader.consume_whitespace();
-
-        let name = String::from_str(self.reader.capture(|reader| {
-            reader.consume_blackspace();
-        }));
-
+        let name = try!(self.read_name());
         let attributes = try!(self.read_attributes());
 
         Ok(match &(name.clone().into_ascii_lowercase())[] {
@@ -48,9 +43,60 @@ impl<'s> Parser<'s> {
         })
     }
 
+    #[inline]
+    fn read_name(&mut self) -> Result<String> {
+        Ok(String::from_str(self.reader.capture(|reader| {
+            reader.consume_blackspace();
+        })))
+    }
+
     fn read_attributes(&mut self) -> Result<Attributes> {
         let attributes = HashMap::new();
 
         Ok(attributes)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Parser;
+
+    #[test]
+    fn parser_read_name_success() {
+        macro_rules! test(
+            ($text:expr, $name:expr) => ({
+                let mut parser = Parser::new($text);
+                match parser.read_name() {
+                    Ok(name) => assert_eq!(&name[], $name),
+                    _ => assert!(false),
+                }
+            })
+        );
+
+        test!("foo  ", "foo");
+
+        // TODO:
+        test!("bar/", "bar/");
+        test!("!-- bar", "!--");
+        test!("!DOCTYPE", "!DOCTYPE");
+        test!("<baz", "<baz");
+    }
+
+    #[test]
+    fn parser_read_name_failure() {
+        macro_rules! test(
+            ($text:expr) => ({
+                let mut parser = Parser::new($text);
+                match parser.read_name() {
+                    Ok(name) => assert!(name.is_empty()),
+                    _ => assert!(false),
+                }
+            })
+        );
+
+        // http://www.w3.org/TR/REC-xml/#sec-starttags
+        test!(" foo");
+        test!("\tbar");
+        test!("\nbaz");
     }
 }

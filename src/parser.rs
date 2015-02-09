@@ -61,8 +61,9 @@ mod tests {
         );
 
         test!("<foo  >", "foo");
-        test!("< \n bar  >", "bar");
-        test!(" <!-- bar>", "!--");
+
+        // TODO:
+        test!("  <bar/>", "bar/");
         test!("foo <!DOCTYPE>", "!DOCTYPE");
         test!("<<baz>", "<baz");
         test!("> <qux>", "qux");
