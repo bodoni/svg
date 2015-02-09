@@ -9,7 +9,7 @@ pub enum Tag {
     Path(Attributes),
 }
 
-/// The attibutes of a tag.
+/// The attributes of a tag.
 pub type Attributes = HashMap<String, String>;
 
 struct Parser<'s> {
@@ -17,6 +17,7 @@ struct Parser<'s> {
 }
 
 impl Tag {
+    /// Parse a tag.
     pub fn parse(text: &str) -> Result<Tag> {
         Parser::new(text).process()
     }

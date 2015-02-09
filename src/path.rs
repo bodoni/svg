@@ -86,6 +86,7 @@ impl Data {
         Parser::new(text).process()
     }
 
+    /// Return an iterator over the commands of the path.
     #[inline]
     pub fn iter(&self) -> ::std::slice::Iter<Command> {
         self.commands.iter()

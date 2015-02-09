@@ -1,5 +1,6 @@
 use {Error, Parser, Result};
 
+/// A file.
 pub struct File {
     text: String,
 }
@@ -28,7 +29,7 @@ impl File {
         })
     }
 
-    /// Return a interator over the content of the file.
+    /// Return an iterator over the content of the file.
     pub fn parse<'s>(&'s self) -> Parser<'s> {
         Parser::new(&self.text)
     }
