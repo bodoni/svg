@@ -1,5 +1,5 @@
 use std::iter::Peekable;
-use std::str::CharIndices;
+use std::str::Chars;
 
 use {Error, Result};
 
@@ -92,7 +92,7 @@ impl Data {
 struct DataParser<'s> {
     line: &'s str,
     position: usize,
-    cursor: Peekable<CharIndices<'s>>,
+    cursor: Peekable<Chars<'s>>,
 }
 
 macro_rules! ok(
@@ -119,7 +119,7 @@ impl<'s> DataParser<'s> {
         DataParser {
             line: line,
             position: 0,
-            cursor: line.char_indices().peekable(),
+            cursor: line.chars().peekable(),
         }
     }
 
@@ -258,7 +258,7 @@ impl<'s> DataParser<'s> {
     #[inline]
     fn next(&mut self) -> Option<char> {
         match self.cursor.next() {
-            Some((_, c)) => {
+            Some(c) => {
                 self.position += 1;
                 Some(c)
             },
@@ -268,10 +268,7 @@ impl<'s> DataParser<'s> {
 
     #[inline]
     fn peek(&mut self) -> Option<char> {
-        match self.cursor.peek() {
-            Some(&(_, c)) => Some(c),
-            _ => None,
-        }
+        self.cursor.peek().and_then(|&c| Some(c))
     }
 }
 
