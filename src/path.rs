@@ -1,3 +1,5 @@
+//! The path tag.
+
 use {Error, Result};
 use reader::Reader;
 

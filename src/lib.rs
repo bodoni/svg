@@ -16,12 +16,14 @@ mod tag;
 
 pub mod path;
 
+/// An error.
 pub struct Error {
     pub line: usize,
     pub column: usize,
     pub message: String,
 }
 
+/// A result.
 pub type Result<T> = std::result::Result<T, Error>;
 
 impl fmt::Debug for Error {

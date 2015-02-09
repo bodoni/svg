@@ -5,7 +5,7 @@ pub struct File {
     text: String,
 }
 
-macro_rules! io(
+macro_rules! ok(
     ($result:expr) => (
         match $result {
             Ok(result) => result,
@@ -25,7 +25,7 @@ impl File {
         use std::old_io::File as IoFile;
 
         Ok(File {
-            text: io!(io!(IoFile::open(path)).read_to_string()),
+            text: ok!(ok!(IoFile::open(path)).read_to_string()),
         })
     }
 
