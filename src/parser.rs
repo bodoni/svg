@@ -42,3 +42,29 @@ impl<'s> Iterator for Parser<'s> {
         })
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::Parser;
+    use {Event, Tag};
+
+    #[test]
+    fn next() {
+        macro_rules! test(
+            ($text:expr, $name:expr) => ({
+                let mut parser = Parser::new($text);
+                match parser.next().unwrap() {
+                    Event::Tag(Tag::Unknown(name, _)) => assert_eq!(&name[], $name),
+                    _ => assert!(false),
+                }
+            })
+        );
+
+        test!("<foo  >", "foo");
+        test!("< \n bar  >", "bar");
+        test!(" <!-- bar>", "!--");
+        test!("foo <!DOCTYPE>", "!DOCTYPE");
+        test!("<<baz>", "<baz");
+        test!("> <qux>", "qux");
+    }
+}
