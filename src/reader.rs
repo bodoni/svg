@@ -32,11 +32,11 @@ impl<'s> Reader<'s> {
         &self.text[start..end]
     }
 
-    pub fn consume_chars(&mut self, chars: &str) {
+    pub fn consume_while<F>(&mut self, check: F) where F: Fn(char) -> bool {
         loop {
             match self.peek() {
                 Some(c) => {
-                    if chars.contains_char(c) {
+                    if check(c) {
                         self.next();
                     } else {
                         break;
@@ -48,13 +48,28 @@ impl<'s> Reader<'s> {
     }
 
     #[inline]
+    pub fn consume_any(&mut self, chars: &str) {
+        self.consume_while(|c| chars.contains_char(c))
+    }
+
+    #[inline]
+    pub fn consume_until_any(&mut self, chars: &str) {
+        self.consume_while(|c| !chars.contains_char(c))
+    }
+
+    #[inline]
     pub fn consume_digits(&mut self) {
-        self.consume_chars("0123456789")
+        self.consume_while(|c| c >= '0' && c <= '9')
     }
 
     #[inline]
     pub fn consume_whitespace(&mut self) {
-        self.consume_chars(" \t\n")
+        self.consume_any(" \t\n")
+    }
+
+    #[inline]
+    pub fn consume_blackspace(&mut self) {
+        self.consume_until_any(" \t\n")
     }
 
     #[inline]
@@ -96,9 +111,9 @@ mod tests {
     fn capture() {
         let mut reader = Reader::new("abcdefg");
 
-        reader.consume_chars("ab");
+        reader.consume_any("ab");
         let text = reader.capture(|reader| {
-            reader.consume_chars("cde");
+            reader.consume_any("cde");
         });
 
         assert_eq!(text, "cde");

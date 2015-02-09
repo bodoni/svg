@@ -1,6 +1,11 @@
 use {Error, Result};
 use reader::Reader;
 
+/// The outline of a shape.
+///
+/// http://www.w3.org/TR/SVG/paths.html
+pub struct Path;
+
 /// The data attribute of a path.
 ///
 /// http://www.w3.org/TR/SVG/paths.html#PathData
@@ -187,7 +192,7 @@ impl<'s> Parser<'s> {
             }
 
             self.reader.consume_whitespace();
-            self.reader.consume_chars(",");
+            self.reader.consume_any(",");
         }
 
         Ok(params)
@@ -197,9 +202,9 @@ impl<'s> Parser<'s> {
         self.reader.consume_whitespace();
 
         let number = String::from_str(self.reader.capture(|reader| {
-            reader.consume_chars("-");
+            reader.consume_any("-");
             reader.consume_digits();
-            reader.consume_chars(".");
+            reader.consume_any(".");
             reader.consume_digits();
         }));
 
@@ -221,7 +226,7 @@ mod tests {
     use super::Positioning::*;
 
     #[test]
-    fn parser() {
+    fn data_parse() {
         let data = Data::parse("M1,2 l3,4").ok().unwrap();
 
         assert_eq!(data.commands.len(), 2);
