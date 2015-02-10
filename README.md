@@ -6,7 +6,7 @@ Currently the library is limited to [paths][1].
 
 ## Example
 
-The example given below can be run using the following command:
+The example given below can be ran using the following command:
 
 ```
 cargo run --example path
