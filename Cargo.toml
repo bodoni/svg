@@ -1,6 +1,6 @@
 [package]
 name = "svg"
-version = "0.0.3"
+version = "0.0.4"
 authors = ["Ivan Ukhov <ivan.ukhov@gmail.com>"]
 license = "MIT"
 repository = "https://github.com/stainless-steel/svg"
