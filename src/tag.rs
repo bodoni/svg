@@ -1,3 +1,5 @@
+//! A tag.
+
 use std::collections::HashMap;
 
 use {Error, Result};
