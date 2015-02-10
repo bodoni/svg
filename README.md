@@ -4,7 +4,13 @@ Currently the library is limited to [paths][1].
 
 ## [Documentation][docs]
 
-## Usage
+## Example
+
+Run:
+
+```
+cargo run --example path
+```
 
 ```rust
 #![feature(core, path)]
