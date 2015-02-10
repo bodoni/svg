@@ -19,7 +19,9 @@ fn react(event: Event) {
             let data = Data::parse(data).unwrap();
             draw(data);
         },
-        _ => println!("Not sure what to react."),
+        _ => {
+            println!("Not sure what to react.");
+        },
     }
 }
 
