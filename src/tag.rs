@@ -46,7 +46,7 @@ impl<'s> Parser<'s> {
     fn process(&mut self) -> Result<Tag> {
         use std::ascii::OwnedAsciiExt;
 
-        self.reader.read_char('/');
+        self.reader.consume_char('/');
 
         let name = try!(self.read_name());
         let attributes = try!(self.read_attributes());
