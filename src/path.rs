@@ -3,11 +3,6 @@
 use {Error, Result};
 use reader::Reader;
 
-/// The outline of a shape.
-///
-/// http://www.w3.org/TR/SVG/paths.html
-pub struct Path;
-
 /// The data attribute of a path.
 ///
 /// http://www.w3.org/TR/SVG/paths.html#PathData
