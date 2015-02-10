@@ -42,22 +42,20 @@ impl<'s> Iterator for Parser<'s> {
     fn next(&mut self) -> Option<Event> {
         self.reader.consume_until_char('<');
 
-        match self.reader.read_char('<') {
-            None => return None,
-            _ => {},
+        if !self.reader.consume_char('<') {
+            return None;
         }
 
         let content = self.reader.capture(|reader| {
             reader.consume_until_char('>');
         }).and_then(|content| Some(String::from_str(content)));
 
-        match self.reader.read_char('>') {
-            None => raise!(self, "missing a closing angle bracket"),
-            _ => {},
-        }
-
         if content.is_none() {
             return raise!(self, "found an empty tag");
+        }
+
+        if !self.reader.consume_char('>') {
+            raise!(self, "missing a closing angle bracket");
         }
 
         let content = &(content.unwrap());

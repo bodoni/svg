@@ -59,7 +59,11 @@ impl<'s> Parser<'s> {
 
     #[inline]
     fn read_name(&mut self) -> Result<String> {
-        match self.reader.read_name().and_then(|name| Some(String::from_str(name))) {
+        let name = self.reader.capture(|reader| {
+            reader.consume_name();
+        }).and_then(|name| Some(String::from_str(name)));
+
+        match name {
             Some(name) => Ok(name),
             None => raise!(self, "expected a name"),
         }

@@ -38,112 +38,66 @@ impl<'s> Reader<'s> {
     }
 
     #[inline]
-    pub fn consume_any(&mut self, chars: &str) {
+    pub fn consume_any(&mut self, chars: &str) -> bool {
         self.consume_while(|c| chars.contains_char(c))
     }
 
-    #[inline]
-    pub fn consume_char(&mut self, target: char) {
+    pub fn consume_char(&mut self, target: char) -> bool {
         match self.peek() {
             Some(c) if c == target => {
                 self.next();
+                true
             },
-            _ => {},
+            _ => false,
         }
     }
 
     #[inline]
-    pub fn consume_digits(&mut self) {
+    pub fn consume_digits(&mut self) -> bool {
         self.consume_while(|c| c >= '0' && c <= '9')
     }
 
-    #[inline]
-    pub fn consume_until_char(&mut self, target: char) {
-        self.consume_while(|c| c != target)
-    }
-
-    pub fn consume_while<F>(&mut self, check: F) where F: Fn(char) -> bool {
-        loop {
-            match self.peek() {
-                Some(c) => {
-                    if check(c) {
-                        self.next();
-                    } else {
-                        break;
-                    }
-                },
-                _ => break,
-            }
-        }
-    }
-
-    #[inline]
-    pub fn consume_whitespace(&mut self) {
-        self.consume_any(" \t\n")
-    }
-
-    #[inline]
-    pub fn peek(&mut self) -> Option<char> {
-        self.cursor.peek().and_then(|&c| Some(c))
-    }
-
-    #[inline]
-    pub fn position(&self) -> (usize, usize) {
-        (self.line, self.column)
-    }
-
-    pub fn read_char(&mut self, target: char) -> Option<char> {
+    pub fn consume_if<F>(&mut self, check: F) -> bool where F: Fn(char) -> bool {
         match self.peek() {
-            Some(c) if c == target => {
-                self.next();
-                Some(c)
+            Some(c) => {
+                if check(c) {
+                    self.next();
+                    true
+                } else {
+                    false
+                }
             },
-            _ => None
+            _ => false,
         }
     }
 
     /// http://www.w3.org/TR/REC-xml/#NT-Name
-    pub fn read_name(&mut self) -> Option<&str> {
-        self.capture(|reader| {
-            match reader.read_name_start_char() {
-                Some(_) => {
-                    loop {
-                        match reader.read_name_char() {
-                            Some(_) => {},
-                            _ => break,
-                        }
-                    }
-                },
-                _ => {},
-            }
-        })
+    pub fn consume_name(&mut self) -> bool {
+        self.consume_name_start_char() && {
+            while self.consume_name_char() {}
+            true
+        }
     }
 
     /// http://www.w3.org/TR/REC-xml/#NT-NameChar
-    pub fn read_name_char(&mut self) -> Option<char> {
-        self.read_name_start_char().or_else(|| {
-            match self.peek() {
-                Some(c) => match c {
-                    '-' |
-                    '.' |
-                    '0'...'9' |
-                    '\u{B7}' |
-                    '\u{0300}'...'\u{036F}' |
-                    '\u{203F}'...'\u{2040}' => {
-                        self.next();
-                        Some(c)
-                    },
-                    _ => None,
-                },
-                _ => None,
+    pub fn consume_name_char(&mut self) -> bool {
+        self.consume_name_start_char() || self.consume_if(|c| {
+            match c {
+                '-' |
+                '.' |
+                '0'...'9' |
+                '\u{B7}' |
+                '\u{0300}'...'\u{036F}' |
+                '\u{203F}'...'\u{2040}' => true,
+                _ => false,
             }
         })
     }
 
     /// http://www.w3.org/TR/REC-xml/#NT-NameStartChar
-    pub fn read_name_start_char(&mut self) -> Option<char> {
-        match self.peek() {
-            Some(c) => match c {
+    pub fn consume_name_start_char(&mut self) -> bool {
+        self.consume_if(|c| {
+            match c {
                 ':' |
                 'A'...'Z' |
                 '_' |
@@ -159,14 +113,39 @@ impl<'s> Reader<'s> {
                 '\u{3001}'...'\u{D7FF}' |
                 '\u{F900}'...'\u{FDCF}' |
                 '\u{FDF0}'...'\u{FFFD}' |
-                '\u{10000}'...'\u{EFFFF}' => {
-                    self.next();
-                    Some(c)
-                },
-                _ => None,
-            },
-            _ => None
+                '\u{10000}'...'\u{EFFFF}' => true,
+                _ => false,
+            }
+        })
+    }
+
+    #[inline]
+    pub fn consume_until_char(&mut self, target: char) -> bool {
+        self.consume_while(|c| c != target)
+    }
+
+    pub fn consume_while<F>(&mut self, check: F) -> bool where F: Fn(char) -> bool {
+        let mut consumed = false;
+        while self.consume_if(|c| check(c)) {
+            consumed = true;
         }
+        consumed
+    }
+
+    /// http://www.w3.org/TR/REC-xml/#NT-S
+    #[inline]
+    pub fn consume_whitespace(&mut self) -> bool {
+        self.consume_any("\x20\x09\x0D\x0A")
+    }
+
+    #[inline]
+    pub fn peek(&mut self) -> Option<char> {
+        self.cursor.peek().and_then(|&c| Some(c))
+    }
+
+    #[inline]
+    pub fn position(&self) -> (usize, usize) {
+        (self.line, self.column)
     }
 }
 
@@ -218,11 +197,14 @@ mod tests {
     }
 
     #[test]
-    fn read_name() {
+    fn consume_name() {
         macro_rules! test(
             ($text:expr, $name:expr) => ({
                 let mut reader = Reader::new($text);
-                assert_eq!(reader.read_name().unwrap(), $name);
+                let name = reader.capture(|reader| {
+                    reader.consume_name();
+                });
+                assert_eq!(name.unwrap(), $name);
             });
         );
 
@@ -235,7 +217,7 @@ mod tests {
         macro_rules! test(
             ($text:expr) => ({
                 let mut reader = Reader::new($text);
-                assert!(reader.read_name().is_none());
+                assert!(!reader.consume_name());
             });
         );
 
