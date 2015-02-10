@@ -1,12 +1,13 @@
 use std::collections::HashMap;
 
+use {Error, Result};
 use reader::Reader;
-use Result;
 
 /// A tag.
 pub enum Tag {
-    Unknown(String, Attributes),
+    Empty,
     Path(Attributes),
+    Unknown(String, Attributes),
 }
 
 /// The attributes of a tag.
@@ -23,6 +24,17 @@ impl Tag {
     }
 }
 
+macro_rules! raise(
+    ($parser:expr, $($arg:tt)*) => ({
+        let (line, column) = $parser.reader.position();
+        return Err(Error {
+            line: line,
+            column: column,
+            message: format!($($arg)*),
+        })
+    });
+);
+
 impl<'s> Parser<'s> {
     #[inline]
     fn new(text: &'s str) -> Parser<'s> {
@@ -33,6 +45,8 @@ impl<'s> Parser<'s> {
 
     fn process(&mut self) -> Result<Tag> {
         use std::ascii::OwnedAsciiExt;
+
+        self.reader.read_char('/');
 
         let name = try!(self.read_name());
         let attributes = try!(self.read_attributes());
@@ -45,58 +59,30 @@ impl<'s> Parser<'s> {
 
     #[inline]
     fn read_name(&mut self) -> Result<String> {
-        Ok(String::from_str(self.reader.capture(|reader| {
-            reader.consume_blackspace();
-        })))
+        match self.reader.read_name().and_then(|name| Some(String::from_str(name))) {
+            Some(name) => Ok(name),
+            None => raise!(self, "expected a name"),
+        }
     }
 
     fn read_attributes(&mut self) -> Result<Attributes> {
-        let attributes = HashMap::new();
+        let mut attributes = HashMap::new();
+
+        loop {
+            match try!(self.read_attribute()) {
+                Some((name, value)) => {
+                    attributes.insert(name, value);
+                },
+                _ => break,
+            }
+        }
 
         Ok(attributes)
     }
-}
 
-#[cfg(test)]
-mod tests {
-    use super::Parser;
+    fn read_attribute(&mut self) -> Result<Option<(String, String)>> {
+        self.reader.consume_whitespace();
 
-    #[test]
-    fn parser_read_name_success() {
-        macro_rules! test(
-            ($text:expr, $name:expr) => ({
-                let mut parser = Parser::new($text);
-                match parser.read_name() {
-                    Ok(name) => assert_eq!(&name[], $name),
-                    _ => assert!(false),
-                }
-            })
-        );
-
-        test!("foo  ", "foo");
-
-        // TODO:
-        test!("bar/", "bar/");
-        test!("!-- bar", "!--");
-        test!("!DOCTYPE", "!DOCTYPE");
-        test!("<baz", "<baz");
-    }
-
-    #[test]
-    fn parser_read_name_failure() {
-        macro_rules! test(
-            ($text:expr) => ({
-                let mut parser = Parser::new($text);
-                match parser.read_name() {
-                    Ok(name) => assert!(name.is_empty()),
-                    _ => assert!(false),
-                }
-            })
-        );
-
-        // http://www.w3.org/TR/REC-xml/#sec-starttags
-        test!(" foo");
-        test!("\tbar");
-        test!("\nbaz");
+        Ok(None)
     }
 }

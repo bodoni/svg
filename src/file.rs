@@ -47,21 +47,25 @@ mod tests {
         let mut parser = file.parse();
 
         macro_rules! test(
-            ($parser:expr, $tag:ident) => (
+            ($parser:expr, $matcher:pat) => (
                 match $parser.next().unwrap() {
-                    Event::Tag(Tag::$tag(..)) => {},
+                    $matcher => {},
                     _ => assert!(false),
                 }
             );
         );
 
-        for _ in (0..4) {
-            test!(parser, Unknown);
-        }
-        for _ in (0..4) {
-            test!(parser, Path);
-        }
-        test!(parser, Unknown);
+        test!(parser, Event::Instruction);
+        test!(parser, Event::Comment);
+        test!(parser, Event::Declaration);
+
+        test!(parser, Event::Tag(Tag::Unknown(..)));
+        test!(parser, Event::Tag(Tag::Path(..)));
+        test!(parser, Event::Tag(Tag::Path(..)));
+        test!(parser, Event::Tag(Tag::Path(..)));
+        test!(parser, Event::Tag(Tag::Path(..)));
+        test!(parser, Event::Tag(Tag::Unknown(..)));
+
         assert!(parser.next().is_none());
     }
 }

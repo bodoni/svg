@@ -25,11 +25,16 @@ impl<'s> Reader<'s> {
         }
     }
 
-    pub fn capture<F>(&mut self, block: F) -> &str where F: Fn(&mut Reader<'s>) {
+    pub fn capture<F>(&mut self, block: F) -> Option<&str> where F: Fn(&mut Reader<'s>) {
         let start = self.offset;
         block(self);
         let end = self.offset;
-        &self.text[start..end]
+
+        if end > start {
+            Some(&self.text[start..end])
+        } else {
+            None
+        }
     }
 
     pub fn consume_while<F>(&mut self, check: F) where F: Fn(char) -> bool {
@@ -53,8 +58,8 @@ impl<'s> Reader<'s> {
     }
 
     #[inline]
-    pub fn consume_until_any(&mut self, chars: &str) {
-        self.consume_while(|c| !chars.contains_char(c))
+    pub fn consume_until_char(&mut self, target: char) {
+        self.consume_while(|c| c != target)
     }
 
     #[inline]
@@ -68,11 +73,6 @@ impl<'s> Reader<'s> {
     }
 
     #[inline]
-    pub fn consume_blackspace(&mut self) {
-        self.consume_until_any(" \t\n")
-    }
-
-    #[inline]
     pub fn peek(&mut self) -> Option<char> {
         self.cursor.peek().and_then(|&c| Some(c))
     }
@@ -80,6 +80,83 @@ impl<'s> Reader<'s> {
     #[inline]
     pub fn position(&self) -> (usize, usize) {
         (self.line, self.column)
+    }
+
+    pub fn read_char(&mut self, target: char) -> Option<char> {
+        match self.peek() {
+            Some(c) if c == target => {
+                self.next();
+                Some(c)
+            },
+            _ => None
+        }
+    }
+
+    /// http://www.w3.org/TR/REC-xml/#NT-NameStartChar
+    pub fn read_name_start_char(&mut self) -> Option<char> {
+        match self.peek() {
+            Some(c) => match c {
+                ':' |
+                'A'...'Z' |
+                '_' |
+                'a'...'z' |
+                '\u{C0}'...'\u{D6}' |
+                '\u{D8}'...'\u{F6}' |
+                '\u{F8}'...'\u{2FF}' |
+                '\u{370}'...'\u{37D}' |
+                '\u{37F}'...'\u{1FFF}' |
+                '\u{200C}'...'\u{200D}' |
+                '\u{2070}'...'\u{218F}' |
+                '\u{2C00}'...'\u{2FEF}' |
+                '\u{3001}'...'\u{D7FF}' |
+                '\u{F900}'...'\u{FDCF}' |
+                '\u{FDF0}'...'\u{FFFD}' |
+                '\u{10000}'...'\u{EFFFF}' => {
+                    self.next();
+                    Some(c)
+                },
+                _ => None,
+            },
+            _ => None
+        }
+    }
+
+    /// http://www.w3.org/TR/REC-xml/#NT-NameChar
+    pub fn read_name_char(&mut self) -> Option<char> {
+        self.read_name_start_char().or_else(|| {
+            match self.peek() {
+                Some(c) => match c {
+                    '-' |
+                    '.' |
+                    '0'...'9' |
+                    '\u{B7}' |
+                    '\u{0300}'...'\u{036F}' |
+                    '\u{203F}'...'\u{2040}' => {
+                        self.next();
+                        Some(c)
+                    },
+                    _ => None,
+                },
+                _ => None,
+            }
+        })
+    }
+
+    /// http://www.w3.org/TR/REC-xml/#NT-Name
+    pub fn read_name(&mut self) -> Option<&str> {
+        self.capture(|reader| {
+            match reader.read_name_start_char() {
+                Some(_) => {
+                    loop {
+                        match reader.read_name_char() {
+                            Some(_) => {},
+                            _ => break,
+                        }
+                    }
+                },
+                _ => {},
+            }
+        })
     }
 }
 
@@ -116,7 +193,7 @@ mod tests {
             reader.consume_any("cde");
         });
 
-        assert_eq!(text, "cde");
+        assert_eq!(text.unwrap(), "cde");
     }
 
     #[test]
@@ -128,5 +205,33 @@ mod tests {
         assert_eq!(reader.line, 3);
         assert_eq!(reader.column, 4);
         assert_eq!(reader.offset, 9);
+    }
+
+    #[test]
+    fn read_name() {
+        macro_rules! test(
+            ($text:expr, $name:expr) => ({
+                let mut reader = Reader::new($text);
+                assert_eq!(reader.read_name().unwrap(), $name);
+            });
+        );
+
+        test!("foo", "foo");
+        test!("foo bar", "foo");
+        test!("foo42 bar", "foo42");
+        test!("foo-bar baz", "foo-bar");
+        test!("foo/", "foo");
+
+        macro_rules! test(
+            ($text:expr) => ({
+                let mut reader = Reader::new($text);
+                assert!(reader.read_name().is_none());
+            });
+        );
+
+        test!(" foo");
+        test!("!foo");
+        test!("<foo");
+        test!("?foo");
     }
 }

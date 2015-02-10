@@ -204,20 +204,19 @@ impl<'s> Parser<'s> {
     pub fn read_number(&mut self) -> Result<Option<f64>> {
         self.reader.consume_whitespace();
 
-        let number = String::from_str(self.reader.capture(|reader| {
+        let number = self.reader.capture(|reader| {
             reader.consume_any("-");
             reader.consume_digits();
             reader.consume_any(".");
             reader.consume_digits();
-        }));
+        }).and_then(|number| Some(String::from_str(number)));
 
-        if number.is_empty() {
-            return Ok(None)
-        }
-
-        match (&number).parse() {
-            Ok(number) => Ok(Some(number)),
-            Err(_) => raise!(self, "failed to parse a number '{}'", number),
+        match number {
+            Some(number) => match (&number).parse() {
+                Ok(number) => Ok(Some(number)),
+                Err(_) => raise!(self, "failed to parse a number '{}'", number),
+            },
+            _ => Ok(None),
         }
     }
 }

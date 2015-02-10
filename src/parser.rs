@@ -10,6 +10,9 @@ pub struct Parser<'s> {
 /// An event of a parser.
 pub enum Event {
     Error(Error),
+    Comment,
+    Declaration,
+    Instruction,
     Tag(Tag),
 }
 
@@ -22,23 +25,54 @@ impl<'s> Parser<'s> {
     }
 }
 
+macro_rules! raise(
+    ($parser:expr, $($arg:tt)*) => ({
+        let (line, column) = $parser.reader.position();
+        return Some(Event::Error(Error {
+            line: line,
+            column: column,
+            message: format!($($arg)*),
+        }))
+    });
+);
+
 impl<'s> Iterator for Parser<'s> {
     type Item = Event;
 
     fn next(&mut self) -> Option<Event> {
-        self.reader.consume_until_any("<");
+        self.reader.consume_until_char('<');
 
-        let content = String::from_str(self.reader.capture(|reader| {
-            reader.consume_until_any(">");
-        }));
-
-        if content.is_empty() {
-            return None
+        match self.reader.read_char('<') {
+            None => return None,
+            _ => {},
         }
 
-        Some(match Tag::parse(&content[1..]) {
-            Ok(tag) => Event::Tag(tag),
-            Err(error) => Event::Error(error),
+        let content = self.reader.capture(|reader| {
+            reader.consume_until_char('>');
+        }).and_then(|content| Some(String::from_str(content)));
+
+        match self.reader.read_char('>') {
+            None => raise!(self, "missing a closing angle bracket"),
+            _ => {},
+        }
+
+        if content.is_none() {
+            return raise!(self, "found an empty tag");
+        }
+
+        let content = &(content.unwrap());
+
+        Some(if content.starts_with("!--") {
+            Event::Comment
+        } else if content.starts_with("!") {
+            Event::Declaration
+        } else if content.starts_with("?") {
+            Event::Instruction
+        } else {
+            match Tag::parse(content) {
+                Ok(tag) => Event::Tag(tag),
+                Err(error) => Event::Error(error),
+            }
         })
     }
 }
@@ -60,12 +94,12 @@ mod tests {
             })
         );
 
-        test!("<foo  >", "foo");
+        test!("<foo>", "foo");
+        test!("<foo/>", "foo");
+        test!("  <foo/>", "foo");
 
         // TODO:
-        test!("  <bar/>", "bar/");
-        test!("foo <!DOCTYPE>", "!DOCTYPE");
-        test!("<<baz>", "<baz");
-        test!("> <qux>", "qux");
+        test!("foo <bar>", "bar");
+        test!("foo> <bar>", "bar");
     }
 }
