@@ -124,6 +124,6 @@ mod tests {
         test!("foo='bar'", "foo", "bar");
         test!("foo =\"bar\"", "foo", "bar");
         test!("foo= \"bar\"", "foo", "bar");
-        test!("foo\t=\n'bar'", "foo", "bar");
+        test!("foo\t=\n'bar'  ", "foo", "bar");
     }
 }
