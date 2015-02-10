@@ -21,7 +21,9 @@ pub enum Type {
 }
 
 /// The attributes of a tag.
-pub type Attributes = HashMap<String, String>;
+pub struct Attributes {
+    mapping: HashMap<String, String>,
+}
 
 struct Parser<'s> {
     reader: Reader<'s>,
@@ -79,15 +81,13 @@ impl<'s> Parser<'s> {
     }
 
     fn read_attributes(&mut self) -> Result<Attributes> {
-        let mut attributes = HashMap::new();
+        let mut attributes = Attributes::new();
 
         loop {
             self.reader.consume_whitespace();
 
             match try!(self.read_attribute()) {
-                Some((name, value)) => {
-                    attributes.insert(name, value);
-                },
+                Some((name, value)) => attributes.set(name, value),
                 _ => break,
             }
         }
@@ -107,8 +107,8 @@ impl<'s> Parser<'s> {
         }
 
         Ok(match &(name.clone().into_ascii_lowercase())[] {
-            "path" => Tag::Path(Type::End, HashMap::new()),
-            _ => Tag::Unknown(name, Type::End, HashMap::new()),
+            "path" => Tag::Path(Type::End, Attributes::new()),
+            _ => Tag::Unknown(name, Type::End, Attributes::new()),
         })
     }
 
@@ -147,6 +147,25 @@ impl<'s> Parser<'s> {
             "path" => Tag::Path(typo, attributes),
             _ => Tag::Unknown(name, typo, attributes),
         })
+    }
+}
+
+impl Attributes {
+    #[inline]
+    fn new() -> Attributes {
+        Attributes {
+            mapping: HashMap::new(),
+        }
+    }
+
+    #[inline]
+    pub fn get<'s>(&'s self, name: &str) -> Option<&'s String> {
+        self.mapping.get(&(name.to_string()))
+    }
+
+    #[inline]
+    fn set(&mut self, name: String, value: String) {
+        self.mapping.insert(name, value);
     }
 }
 

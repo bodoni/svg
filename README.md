@@ -25,7 +25,7 @@ fn main() {
     for event in file.parse() {
         match event {
             Event::Tag(Tag::Path(_, attributes)) => {
-                let data = attributes.get(&("d".to_string())).unwrap();
+                let data = attributes.get("d").unwrap();
                 let data = Data::parse(data).unwrap();
                 draw(data);
             },
