@@ -112,7 +112,6 @@ impl<'s> Parser<'s> {
         })
     }
 
-    #[inline]
     fn read_name(&mut self) -> Result<String> {
         let name = self.reader.capture(|reader| {
             reader.consume_name();
