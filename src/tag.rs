@@ -59,6 +59,40 @@ impl<'s> Parser<'s> {
         }
     }
 
+    fn read_attribute(&mut self) -> Result<Option<(String, String)>> {
+        let attribute = self.reader.capture(|reader| {
+            reader.consume_attribute();
+        }).and_then(|attribute| Some(String::from_str(attribute)));
+
+        match attribute {
+            Some(attribute) => {
+                let k = (&attribute).find('=').unwrap();
+                let name = (&attribute[0..k]).trim_right();
+                let value = (&attribute[(k+1)..]).trim_left();
+                let value = &value[1..(value.len()-1)];
+                Ok(Some((String::from_str(name), String::from_str(value))))
+            },
+            _ => Ok(None),
+        }
+    }
+
+    fn read_attributes(&mut self) -> Result<Attributes> {
+        let mut attributes = HashMap::new();
+
+        loop {
+            self.reader.consume_whitespace();
+
+            match try!(self.read_attribute()) {
+                Some((name, value)) => {
+                    attributes.insert(name, value);
+                },
+                _ => break,
+            }
+        }
+
+        Ok(attributes)
+    }
+
     fn read_end_tag(&mut self) -> Result<Tag> {
         use std::ascii::OwnedAsciiExt;
 
@@ -74,6 +108,18 @@ impl<'s> Parser<'s> {
             "path" => Tag::Path(Type::End, HashMap::new()),
             _ => Tag::Unknown(name, Type::End, HashMap::new()),
         })
+    }
+
+    #[inline]
+    fn read_name(&mut self) -> Result<String> {
+        let name = self.reader.capture(|reader| {
+            reader.consume_name();
+        }).and_then(|name| Some(String::from_str(name)));
+
+        match name {
+            Some(name) => Ok(name),
+            None => raise!(self, "expected a name"),
+        }
     }
 
     fn read_start_or_empty_element_tag(&mut self) -> Result<Tag> {
@@ -100,52 +146,6 @@ impl<'s> Parser<'s> {
             "path" => Tag::Path(typo, attributes),
             _ => Tag::Unknown(name, typo, attributes),
         })
-    }
-
-    #[inline]
-    fn read_name(&mut self) -> Result<String> {
-        let name = self.reader.capture(|reader| {
-            reader.consume_name();
-        }).and_then(|name| Some(String::from_str(name)));
-
-        match name {
-            Some(name) => Ok(name),
-            None => raise!(self, "expected a name"),
-        }
-    }
-
-    fn read_attributes(&mut self) -> Result<Attributes> {
-        let mut attributes = HashMap::new();
-
-        loop {
-            self.reader.consume_whitespace();
-
-            match try!(self.read_attribute()) {
-                Some((name, value)) => {
-                    attributes.insert(name, value);
-                },
-                _ => break,
-            }
-        }
-
-        Ok(attributes)
-    }
-
-    fn read_attribute(&mut self) -> Result<Option<(String, String)>> {
-        let attribute = self.reader.capture(|reader| {
-            reader.consume_attribute();
-        }).and_then(|attribute| Some(String::from_str(attribute)));
-
-        match attribute {
-            Some(attribute) => {
-                let k = (&attribute).find('=').unwrap();
-                let name = (&attribute[0..k]).trim_right();
-                let value = (&attribute[(k+1)..]).trim_left();
-                let value = &value[1..(value.len()-1)];
-                Ok(Some((String::from_str(name), String::from_str(value))))
-            },
-            _ => Ok(None),
-        }
     }
 }
 
