@@ -1,4 +1,4 @@
-//! A tag.
+//! Functionality related to tags.
 
 use std::collections::HashMap;
 

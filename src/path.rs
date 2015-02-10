@@ -1,4 +1,4 @@
-//! The path tag.
+//! Functionality related to the path tag.
 
 use {Error, Result};
 use reader::Reader;
