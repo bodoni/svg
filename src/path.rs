@@ -229,7 +229,7 @@ mod tests {
 
     #[test]
     fn data_parse() {
-        let data = Data::parse("M1,2 l3,4").ok().unwrap();
+        let data = Data::parse("M1,2 l3,4").unwrap();
 
         assert_eq!(data.commands.len(), 2);
 

@@ -37,9 +37,10 @@ impl File {
 
 #[cfg(test)]
 mod tests {
+    use Event;
     use super::File;
+    use tag::Tag;
     use tests::find_fixture;
-    use {Event, Tag};
 
     #[test]
     fn parse() {

@@ -7,14 +7,13 @@ use std::fmt;
 
 pub use file::File;
 pub use parser::{Event, Parser};
-pub use tag::{Attributes, Tag};
 
 mod file;
 mod parser;
 mod reader;
-mod tag;
 
 pub mod path;
+pub mod tag;
 
 /// An error.
 pub struct Error {

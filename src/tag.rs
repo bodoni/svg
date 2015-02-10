@@ -5,9 +5,17 @@ use reader::Reader;
 
 /// A tag.
 pub enum Tag {
-    Empty,
-    Path(Attributes),
-    Unknown(String, Attributes),
+    Path(Type, Attributes),
+    Unknown(String, Type, Attributes),
+}
+
+/// The type of a tag.
+///
+/// http://www.w3.org/TR/REC-xml/#sec-starttags
+pub enum Type {
+    Start,
+    End,
+    EmptyElement,
 }
 
 /// The attributes of a tag.
@@ -44,19 +52,53 @@ impl<'s> Parser<'s> {
     }
 
     fn process(&mut self) -> Result<Tag> {
-        use std::ascii::OwnedAsciiExt;
+        if self.reader.consume_char('/') {
+            self.read_end_tag()
+        } else {
+            self.read_start_or_empty_element_tag()
+        }
+    }
 
-        self.reader.consume_char('/');
+    fn read_end_tag(&mut self) -> Result<Tag> {
+        use std::ascii::OwnedAsciiExt;
 
         let name = try!(self.read_name());
 
         self.reader.consume_whitespace();
 
-        let attributes = try!(self.read_attributes());
+        if !self.reader.is_done() {
+            raise!(self, "found an end tag with excessive data");
+        }
 
         Ok(match &(name.clone().into_ascii_lowercase())[] {
-            "path" => Tag::Path(attributes),
-            _ => Tag::Unknown(name, attributes),
+            "path" => Tag::Path(Type::End, HashMap::new()),
+            _ => Tag::Unknown(name, Type::End, HashMap::new()),
+        })
+    }
+
+    fn read_start_or_empty_element_tag(&mut self) -> Result<Tag> {
+        use std::ascii::OwnedAsciiExt;
+
+        let name = try!(self.read_name());
+        let attributes = try!(self.read_attributes());
+
+        self.reader.consume_whitespace();
+
+        let tail = self.reader.capture(|reader| {
+            reader.consume_all();
+        }).and_then(|tail| Some(String::from_str(tail)));
+
+        let typo = match tail {
+            Some(tail) => match &tail[] {
+                "/" => Type::EmptyElement,
+                _ => raise!(self, "found an unexpected ending of a tag"),
+            },
+            _ => Type::Start,
+        };
+
+        Ok(match &(name.clone().into_ascii_lowercase())[] {
+            "path" => Tag::Path(typo, attributes),
+            _ => Tag::Unknown(name, typo, attributes),
         })
     }
 
@@ -76,13 +118,14 @@ impl<'s> Parser<'s> {
         let mut attributes = HashMap::new();
 
         loop {
+            self.reader.consume_whitespace();
+
             match try!(self.read_attribute()) {
                 Some((name, value)) => {
                     attributes.insert(name, value);
                 },
                 _ => break,
             }
-            self.reader.consume_whitespace();
         }
 
         Ok(attributes)
@@ -108,7 +151,27 @@ impl<'s> Parser<'s> {
 
 #[cfg(test)]
 mod tests {
-    use super::Parser;
+    use super::{Parser, Tag, Type};
+
+    #[test]
+    fn parser_process() {
+        macro_rules! test(
+            ($text:expr, $typo:ident) => ({
+                let mut parser = Parser::new($text);
+                match parser.process().unwrap() {
+                    Tag::Unknown(_, Type::$typo, _) => {},
+                    _ => assert!(false),
+                }
+            });
+        );
+
+        test!("foo", Start);
+        test!("foo ", Start);
+        test!("/foo", End);
+        test!("/foo ", End);
+        test!("foo/", EmptyElement);
+        test!("foo /", EmptyElement);
+    }
 
     #[test]
     fn parser_read_attribute() {

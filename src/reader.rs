@@ -38,6 +38,11 @@ impl<'s> Reader<'s> {
     }
 
     #[inline]
+    pub fn consume_all(&mut self) -> bool {
+        self.consume_while(|_| true)
+    }
+
+    #[inline]
     pub fn consume_any(&mut self, chars: &str) -> bool {
         self.consume_while(|c| chars.contains_char(c))
     }
@@ -165,6 +170,11 @@ impl<'s> Reader<'s> {
     #[inline]
     pub fn consume_whitespace(&mut self) -> bool {
         self.consume_any("\x20\x09\x0D\x0A")
+    }
+
+    #[inline]
+    pub fn is_done(&self) -> bool {
+        self.offset == self.text.len()
     }
 
     #[inline]

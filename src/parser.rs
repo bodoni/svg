@@ -77,8 +77,8 @@ impl<'s> Iterator for Parser<'s> {
 
 #[cfg(test)]
 mod tests {
-    use super::Parser;
-    use {Event, Tag};
+    use super::{Event, Parser};
+    use tag::Tag;
 
     #[test]
     fn next() {
@@ -86,7 +86,7 @@ mod tests {
             ($text:expr, $name:expr) => ({
                 let mut parser = Parser::new($text);
                 match parser.next().unwrap() {
-                    Event::Tag(Tag::Unknown(name, _)) => assert_eq!(&name[], $name),
+                    Event::Tag(Tag::Unknown(name, _, _)) => assert_eq!(&name[], $name),
                     _ => assert!(false),
                 }
             })
