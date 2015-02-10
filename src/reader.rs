@@ -186,17 +186,6 @@ mod tests {
     }
 
     #[test]
-    fn consume_whitespace() {
-        let mut reader = Reader::new(" \t  \n\n  \tm ");
-
-        reader.consume_whitespace();
-
-        assert_eq!(reader.line, 3);
-        assert_eq!(reader.column, 4);
-        assert_eq!(reader.offset, 9);
-    }
-
-    #[test]
     fn consume_name() {
         macro_rules! test(
             ($text:expr, $name:expr) => ({
@@ -225,5 +214,16 @@ mod tests {
         test!("!foo");
         test!("<foo");
         test!("?foo");
+    }
+
+    #[test]
+    fn consume_whitespace() {
+        let mut reader = Reader::new(" \t  \n\n  \tm ");
+
+        reader.consume_whitespace();
+
+        assert_eq!(reader.line, 3);
+        assert_eq!(reader.column, 4);
+        assert_eq!(reader.offset, 9);
     }
 }
