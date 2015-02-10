@@ -205,9 +205,9 @@ impl<'s> Parser<'s> {
         self.reader.consume_whitespace();
 
         let number = self.reader.capture(|reader| {
-            reader.consume_any("-");
+            reader.consume_char('-');
             reader.consume_digits();
-            reader.consume_any(".");
+            reader.consume_char('.');
             reader.consume_digits();
         }).and_then(|number| Some(String::from_str(number)));
 

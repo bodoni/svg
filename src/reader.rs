@@ -37,6 +37,31 @@ impl<'s> Reader<'s> {
         }
     }
 
+    #[inline]
+    pub fn consume_any(&mut self, chars: &str) {
+        self.consume_while(|c| chars.contains_char(c))
+    }
+
+    #[inline]
+    pub fn consume_char(&mut self, target: char) {
+        match self.peek() {
+            Some(c) if c == target => {
+                self.next();
+            },
+            _ => {},
+        }
+    }
+
+    #[inline]
+    pub fn consume_digits(&mut self) {
+        self.consume_while(|c| c >= '0' && c <= '9')
+    }
+
+    #[inline]
+    pub fn consume_until_char(&mut self, target: char) {
+        self.consume_while(|c| c != target)
+    }
+
     pub fn consume_while<F>(&mut self, check: F) where F: Fn(char) -> bool {
         loop {
             match self.peek() {
@@ -50,21 +75,6 @@ impl<'s> Reader<'s> {
                 _ => break,
             }
         }
-    }
-
-    #[inline]
-    pub fn consume_any(&mut self, chars: &str) {
-        self.consume_while(|c| chars.contains_char(c))
-    }
-
-    #[inline]
-    pub fn consume_until_char(&mut self, target: char) {
-        self.consume_while(|c| c != target)
-    }
-
-    #[inline]
-    pub fn consume_digits(&mut self) {
-        self.consume_while(|c| c >= '0' && c <= '9')
     }
 
     #[inline]
@@ -90,6 +100,44 @@ impl<'s> Reader<'s> {
             },
             _ => None
         }
+    }
+
+    /// http://www.w3.org/TR/REC-xml/#NT-Name
+    pub fn read_name(&mut self) -> Option<&str> {
+        self.capture(|reader| {
+            match reader.read_name_start_char() {
+                Some(_) => {
+                    loop {
+                        match reader.read_name_char() {
+                            Some(_) => {},
+                            _ => break,
+                        }
+                    }
+                },
+                _ => {},
+            }
+        })
+    }
+
+    /// http://www.w3.org/TR/REC-xml/#NT-NameChar
+    pub fn read_name_char(&mut self) -> Option<char> {
+        self.read_name_start_char().or_else(|| {
+            match self.peek() {
+                Some(c) => match c {
+                    '-' |
+                    '.' |
+                    '0'...'9' |
+                    '\u{B7}' |
+                    '\u{0300}'...'\u{036F}' |
+                    '\u{203F}'...'\u{2040}' => {
+                        self.next();
+                        Some(c)
+                    },
+                    _ => None,
+                },
+                _ => None,
+            }
+        })
     }
 
     /// http://www.w3.org/TR/REC-xml/#NT-NameStartChar
@@ -119,44 +167,6 @@ impl<'s> Reader<'s> {
             },
             _ => None
         }
-    }
-
-    /// http://www.w3.org/TR/REC-xml/#NT-NameChar
-    pub fn read_name_char(&mut self) -> Option<char> {
-        self.read_name_start_char().or_else(|| {
-            match self.peek() {
-                Some(c) => match c {
-                    '-' |
-                    '.' |
-                    '0'...'9' |
-                    '\u{B7}' |
-                    '\u{0300}'...'\u{036F}' |
-                    '\u{203F}'...'\u{2040}' => {
-                        self.next();
-                        Some(c)
-                    },
-                    _ => None,
-                },
-                _ => None,
-            }
-        })
-    }
-
-    /// http://www.w3.org/TR/REC-xml/#NT-Name
-    pub fn read_name(&mut self) -> Option<&str> {
-        self.capture(|reader| {
-            match reader.read_name_start_char() {
-                Some(_) => {
-                    loop {
-                        match reader.read_name_char() {
-                            Some(_) => {},
-                            _ => break,
-                        }
-                    }
-                },
-                _ => {},
-            }
-        })
     }
 }
 
