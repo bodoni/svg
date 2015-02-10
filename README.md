@@ -35,7 +35,7 @@ fn react(event: Event) {
             draw(data);
         },
         _ => {
-            println!("Not sure what to react.");
+            println!("Not sure how to react.");
         },
     }
 }
