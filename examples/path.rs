@@ -1,19 +1,42 @@
-#![feature(core)]
+#![feature(core, path)]
 
 extern crate svg;
 
-use svg::path::{Command, Data, Positioning};
+use svg::{Event, Tag};
+use svg::path::{Command, Data};
 
 fn main() {
-    let data = Data::parse("M0,0 l0,1 1,0 0,-1 z").ok().unwrap();
+    let file = svg::open(&Path::new("tests/fixtures/benton.svg")).unwrap();
+    for event in file.parse() {
+        react(event);
+    }
+}
 
+fn react(event: Event) {
+    match event {
+        Event::Tag(Tag::Path(_, attributes)) => {
+            let data = attributes.get(&("d".to_string())).unwrap();
+            let data = Data::parse(data).unwrap();
+            draw(data);
+        },
+        _ => println!("Not sure what to react."),
+    }
+}
+
+fn draw(data: Data) {
     for command in data.iter() {
         match command {
-            &Command::MoveTo(Positioning::Absolute, ref parameters) => {
+            &Command::MoveTo(_, ref parameters) => {
                 println!("Move to {:?}.", parameters);
             },
-            &Command::LineTo(Positioning::Relative, ref parameters) => {
-                println!("Draw line segments between {:?}.", parameters);
+            &Command::LineTo(_, ref parameters) => {
+                println!("Line to {:?}.", parameters);
+            },
+            &Command::CurveTo(_, ref parameters) => {
+                println!("Curve to {:?}.", parameters);
+            },
+            &Command::SmoothCurveTo(_, ref parameters) => {
+                println!("Smooth curve to {:?}.", parameters);
             },
             &Command::ClosePath => {
                 println!("Close the path.");

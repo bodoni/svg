@@ -1,29 +1,51 @@
 # SVG [![Build Status][travis-img]][travis-url]
 
-Currently the library is limited to the parsing of the [data attribute][1] of
-paths.
+Currently the library is limited to [paths][1].
 
 ## [Documentation][docs]
 
 ## Usage
 
 ```rust
-#![feature(core)]
+#![feature(core, path)]
 
 extern crate svg;
 
-use svg::path::{Command, Data, Positioning};
+use svg::{Event, Tag};
+use svg::path::{Command, Data};
 
 fn main() {
-    let data = Data::parse("M0,0 l0,1 1,0 0,-1 z").ok().unwrap();
+    let file = svg::open(&Path::new("tests/fixtures/benton.svg")).unwrap();
+    for event in file.parse() {
+        react(event);
+    }
+}
 
+fn react(event: Event) {
+    match event {
+        Event::Tag(Tag::Path(_, attributes)) => {
+            let data = attributes.get(&("d".to_string())).unwrap();
+            let data = Data::parse(data).unwrap();
+            draw(data);
+        },
+        _ => println!("Not sure what to react."),
+    }
+}
+
+fn draw(data: Data) {
     for command in data.iter() {
         match command {
-            &Command::MoveTo(Positioning::Absolute, ref parameters) => {
+            &Command::MoveTo(_, ref parameters) => {
                 println!("Move to {:?}.", parameters);
             },
-            &Command::LineTo(Positioning::Relative, ref parameters) => {
-                println!("Draw line segments between {:?}.", parameters);
+            &Command::LineTo(_, ref parameters) => {
+                println!("Line to {:?}.", parameters);
+            },
+            &Command::CurveTo(_, ref parameters) => {
+                println!("Curve to {:?}.", parameters);
+            },
+            &Command::SmoothCurveTo(_, ref parameters) => {
+                println!("Smooth curve to {:?}.", parameters);
             },
             &Command::ClosePath => {
                 println!("Close the path.");
@@ -42,7 +64,7 @@ fn main() {
 2. Implement your idea.
 3. Create a pull request.
 
-[1]: http://www.w3.org/TR/SVG/paths.html#PathData
+[1]: http://www.w3.org/TR/SVG/paths.html
 
 [travis-img]: https://travis-ci.org/stainless-steel/svg.svg?branch=master
 [travis-url]: https://travis-ci.org/stainless-steel/svg

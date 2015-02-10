@@ -7,6 +7,7 @@ use std::fmt;
 
 pub use file::File;
 pub use parser::{Event, Parser};
+pub use tag::Tag;
 
 mod file;
 mod parser;
