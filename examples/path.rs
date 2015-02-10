@@ -8,14 +8,14 @@ fn main() {
     let data = Data::parse("M0,0 l0,1 1,0 0,-1 z").ok().unwrap();
 
     for command in data.iter() {
-        match &command {
-            Command::MoveTo(Positioning::Absolute, ref parameters) => {
+        match command {
+            &Command::MoveTo(Positioning::Absolute, ref parameters) => {
                 println!("Move to {:?}.", parameters);
             },
-            Command::LineTo(Positioning::Relative, ref parameters) => {
+            &Command::LineTo(Positioning::Relative, ref parameters) => {
                 println!("Draw line segments between {:?}.", parameters);
             },
-            Command::ClosePath => {
+            &Command::ClosePath => {
                 println!("Close the path.");
             },
             _ => {
