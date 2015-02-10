@@ -49,6 +49,9 @@ impl<'s> Parser<'s> {
         self.reader.consume_char('/');
 
         let name = try!(self.read_name());
+
+        self.reader.consume_whitespace();
+
         let attributes = try!(self.read_attributes());
 
         Ok(match &(name.clone().into_ascii_lowercase())[] {
@@ -79,14 +82,48 @@ impl<'s> Parser<'s> {
                 },
                 _ => break,
             }
+            self.reader.consume_whitespace();
         }
 
         Ok(attributes)
     }
 
     fn read_attribute(&mut self) -> Result<Option<(String, String)>> {
-        self.reader.consume_whitespace();
+        let attribute = self.reader.capture(|reader| {
+            reader.consume_attribute();
+        }).and_then(|attribute| Some(String::from_str(attribute)));
 
-        Ok(None)
+        match attribute {
+            Some(attribute) => {
+                let k = (&attribute).find('=').unwrap();
+                let name = (&attribute[0..k]).trim_right();
+                let value = (&attribute[(k+1)..]).trim_left();
+                let value = &value[1..(value.len()-1)];
+                Ok(Some((String::from_str(name), String::from_str(value))))
+            },
+            _ => Ok(None),
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Parser;
+
+    #[test]
+    fn parser_read_attribute() {
+        macro_rules! test(
+            ($text:expr, $name:expr, $value:expr) => ({
+                let mut parser = Parser::new($text);
+                let (name, value) = parser.read_attribute().unwrap().unwrap();
+                assert_eq!(&name[], $name);
+                assert_eq!(&value[], $value);
+            });
+        );
+
+        test!("foo='bar'", "foo", "bar");
+        test!("foo =\"bar\"", "foo", "bar");
+        test!("foo= \"bar\"", "foo", "bar");
+        test!("foo\t=\n'bar'", "foo", "bar");
     }
 }

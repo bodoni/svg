@@ -42,6 +42,22 @@ impl<'s> Reader<'s> {
         self.consume_while(|c| chars.contains_char(c))
     }
 
+    /// http://www.w3.org/TR/REC-xml/#NT-Attribute
+    pub fn consume_attribute(&mut self) -> bool {
+        self.consume_name() && self.consume_equality() && self.consume_attribute_value()
+    }
+
+    /// http://www.w3.org/TR/REC-xml/#NT-AttValue
+    pub fn consume_attribute_value(&mut self) -> bool {
+        if self.consume_char('\'') {
+            self.consume_until_any("<&'") && self.consume_char('\'')
+        } else if self.consume_char('"') {
+            self.consume_until_any("<&\"") && self.consume_char('"')
+        } else {
+            false
+        }
+    }
+
     pub fn consume_char(&mut self, target: char) -> bool {
         match self.peek() {
             Some(c) if c == target => {
@@ -55,6 +71,14 @@ impl<'s> Reader<'s> {
     #[inline]
     pub fn consume_digits(&mut self) -> bool {
         self.consume_while(|c| c >= '0' && c <= '9')
+    }
+
+    /// http://www.w3.org/TR/REC-xml/#NT-Eq
+    pub fn consume_equality(&mut self) -> bool {
+        self.consume_whitespace();
+        let consumed = self.consume_char('=');
+        self.consume_whitespace();
+        consumed
     }
 
     pub fn consume_if<F>(&mut self, check: F) -> bool where F: Fn(char) -> bool {
@@ -117,6 +141,11 @@ impl<'s> Reader<'s> {
                 _ => false,
             }
         })
+    }
+
+    #[inline]
+    pub fn consume_until_any(&mut self, chars: &str) -> bool {
+        self.consume_while(|c| !chars.contains_char(c))
     }
 
     #[inline]
@@ -183,6 +212,33 @@ mod tests {
         });
 
         assert_eq!(text.unwrap(), "cde");
+    }
+
+    #[test]
+    fn consume_attribute() {
+        macro_rules! test(
+            ($text:expr) => ({
+                let mut reader = Reader::new($text);
+                assert!(reader.consume_attribute());
+            });
+        );
+
+        test!("foo='bar'");
+        test!("foo = \t 'bar'");
+        test!("foo= \"bar\"");
+
+        macro_rules! test(
+            ($text:expr) => ({
+                let mut reader = Reader::new($text);
+                assert!(!reader.consume_attribute());
+            });
+        );
+
+        test!("foo");
+        test!("foo bar");
+        test!("foo=bar");
+        test!("foo='bar");
+        test!("foo=\"bar");
     }
 
     #[test]
