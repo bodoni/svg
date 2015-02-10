@@ -23,20 +23,16 @@ use svg::path::{Command, Data};
 fn main() {
     let file = svg::open(&Path::new("tests/fixtures/benton.svg")).unwrap();
     for event in file.parse() {
-        react(event);
-    }
-}
-
-fn react(event: Event) {
-    match event {
-        Event::Tag(Tag::Path(_, attributes)) => {
-            let data = attributes.get(&("d".to_string())).unwrap();
-            let data = Data::parse(data).unwrap();
-            draw(data);
-        },
-        _ => {
-            println!("Not sure how to react.");
-        },
+        match event {
+            Event::Tag(Tag::Path(_, attributes)) => {
+                let data = attributes.get(&("d".to_string())).unwrap();
+                let data = Data::parse(data).unwrap();
+                draw(data);
+            },
+            _ => {
+                println!("Not sure how to react.");
+            },
+        }
     }
 }
 
