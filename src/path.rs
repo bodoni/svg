@@ -149,48 +149,48 @@ impl<'s> Parser<'s> {
 
         self.reader.consume_whitespace();
 
-        let params = try!(self.read_parameters());
+        let parameters = try!(self.read_parameters());
 
         Ok(Some(match name {
-            'M' => MoveTo(Absolute, params),
-            'm' => MoveTo(Relative, params),
+            'M' => MoveTo(Absolute, parameters),
+            'm' => MoveTo(Relative, parameters),
 
             'Z' | 'z' => ClosePath,
 
-            'L' => LineTo(Absolute, params),
-            'l' => LineTo(Relative, params),
+            'L' => LineTo(Absolute, parameters),
+            'l' => LineTo(Relative, parameters),
 
-            'H' => HorizontalLineTo(Absolute, params),
-            'h' => HorizontalLineTo(Relative, params),
+            'H' => HorizontalLineTo(Absolute, parameters),
+            'h' => HorizontalLineTo(Relative, parameters),
 
-            'V' => VerticalLineTo(Absolute, params),
-            'v' => VerticalLineTo(Relative, params),
+            'V' => VerticalLineTo(Absolute, parameters),
+            'v' => VerticalLineTo(Relative, parameters),
 
-            'C' => CurveTo(Absolute, params),
-            'c' => CurveTo(Relative, params),
+            'C' => CurveTo(Absolute, parameters),
+            'c' => CurveTo(Relative, parameters),
 
-            'S' => SmoothCurveTo(Absolute, params),
-            's' => SmoothCurveTo(Relative, params),
+            'S' => SmoothCurveTo(Absolute, parameters),
+            's' => SmoothCurveTo(Relative, parameters),
 
-            'Q' => QuadraticBezierCurveTo(Absolute, params),
-            'q' => QuadraticBezierCurveTo(Relative, params),
+            'Q' => QuadraticBezierCurveTo(Absolute, parameters),
+            'q' => QuadraticBezierCurveTo(Relative, parameters),
 
-            'T' => SmoothQuadraticBezierCurveTo(Absolute, params),
-            't' => SmoothQuadraticBezierCurveTo(Relative, params),
+            'T' => SmoothQuadraticBezierCurveTo(Absolute, parameters),
+            't' => SmoothQuadraticBezierCurveTo(Relative, parameters),
 
-            'A' => EllipticalArc(Absolute, params),
-            'a' => EllipticalArc(Relative, params),
+            'A' => EllipticalArc(Absolute, parameters),
+            'a' => EllipticalArc(Relative, parameters),
 
             _ => raise!(self, "found an unknown path command '{}'", name),
         }))
     }
 
     fn read_parameters(&mut self) -> Result<Vec<f64>> {
-        let mut params = Vec::new();
+        let mut parameters = Vec::new();
 
         loop {
             match try!(self.read_number()) {
-                Some(number) => params.push(number),
+                Some(number) => parameters.push(number),
                 _ => break,
             }
 
@@ -198,7 +198,7 @@ impl<'s> Parser<'s> {
             self.reader.consume_any(",");
         }
 
-        Ok(params)
+        Ok(parameters)
     }
 
     pub fn read_number(&mut self) -> Result<Option<f64>> {
@@ -234,12 +234,12 @@ mod tests {
         assert_eq!(data.commands.len(), 2);
 
         match data.commands[0] {
-            MoveTo(Absolute, ref params) => assert_eq!(*params, vec![1.0, 2.0]),
+            MoveTo(Absolute, ref parameters) => assert_eq!(*parameters, vec![1.0, 2.0]),
             _ => assert!(false),
         }
 
         match data.commands[1] {
-            LineTo(Relative, ref params) => assert_eq!(*params, vec![3.0, 4.0]),
+            LineTo(Relative, ref parameters) => assert_eq!(*parameters, vec![3.0, 4.0]),
             _ => assert!(false),
         }
     }
@@ -249,14 +249,14 @@ mod tests {
         macro_rules! run(
             ($text:expr) => ({
                 let mut parser = Parser::new($text);
-                parser.read_command().ok().unwrap().unwrap()
+                parser.read_command().unwrap().unwrap()
             });
         );
 
         macro_rules! test(
-            ($text:expr, $command:ident, $positioning:ident, $params:expr) => (
+            ($text:expr, $command:ident, $positioning:ident, $parameters:expr) => (
                 match run!($text) {
-                    $command($positioning, params) => assert_eq!(params, $params),
+                    $command($positioning, parameters) => assert_eq!(parameters, $parameters),
                     _ => assert!(false),
                 }
             );
@@ -302,8 +302,8 @@ mod tests {
     #[test]
     fn parser_read_parameters() {
         let mut parser = Parser::new("1,2 3,4 5 6.7");
-        let params = parser.read_parameters().ok().unwrap();
-        assert_eq!(params, vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.7]);
+        let parameters = parser.read_parameters().unwrap();
+        assert_eq!(parameters, vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.7]);
     }
 
     #[test]
@@ -313,7 +313,7 @@ mod tests {
 
         for (text, &number) in texts.iter().zip(numbers.iter()) {
             let mut parser = Parser::new(text);
-            assert_eq!(parser.read_number().ok().unwrap().unwrap(), number);
+            assert_eq!(parser.read_number().unwrap().unwrap(), number);
         }
     }
 }
