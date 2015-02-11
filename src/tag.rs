@@ -1,5 +1,6 @@
 //! Functionality related to tags.
 
+use std::ascii::OwnedAsciiExt;
 use std::collections::HashMap;
 
 use {Error, Result};
@@ -96,7 +97,6 @@ impl<'s> Parser<'s> {
     }
 
     fn read_end_tag(&mut self) -> Result<Tag> {
-        use std::ascii::OwnedAsciiExt;
 
         let name = try!(self.read_name());
 
@@ -124,8 +124,6 @@ impl<'s> Parser<'s> {
     }
 
     fn read_start_or_empty_element_tag(&mut self) -> Result<Tag> {
-        use std::ascii::OwnedAsciiExt;
-
         let name = try!(self.read_name());
         let attributes = try!(self.read_attributes());
 
@@ -160,12 +158,13 @@ impl Attributes {
 
     #[inline]
     pub fn get<'s>(&'s self, name: &str) -> Option<&'s String> {
-        self.mapping.get(&(name.to_string()))
+        let name = name.to_string().into_ascii_lowercase();
+        self.mapping.get(&name)
     }
 
     #[inline]
     fn set(&mut self, name: String, value: String) {
-        self.mapping.insert(name, value);
+        self.mapping.insert(name.into_ascii_lowercase(), value);
     }
 }
 
