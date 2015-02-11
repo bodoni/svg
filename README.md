@@ -38,20 +38,20 @@ fn main() {
 
 fn draw(data: Data) {
     for command in data.iter() {
-        match command {
-            &Command::MoveTo(_, ref parameters) => {
+        match *command {
+            Command::MoveTo(_, ref parameters) => {
                 println!("Move to {:?}.", parameters);
             },
-            &Command::LineTo(_, ref parameters) => {
+            Command::LineTo(_, ref parameters) => {
                 println!("Line to {:?}.", parameters);
             },
-            &Command::CurveTo(_, ref parameters) => {
+            Command::CurveTo(_, ref parameters) => {
                 println!("Curve to {:?}.", parameters);
             },
-            &Command::SmoothCurveTo(_, ref parameters) => {
+            Command::SmoothCurveTo(_, ref parameters) => {
                 println!("Smooth curve to {:?}.", parameters);
             },
-            &Command::ClosePath => {
+            Command::ClosePath => {
                 println!("Close the path.");
             },
             _ => {
