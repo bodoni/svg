@@ -1,9 +1,9 @@
 //! An SVG parser.
 
-#![feature(collections, io, std_misc)]
-#![cfg_attr(test, feature(core, path))]
+#![feature(collections, fs, io, path, std_misc)]
 
 use std::fmt;
+use std::path::Path;
 
 pub use file::File;
 pub use parser::{Event, Parser};
@@ -46,10 +46,12 @@ pub fn open(path: &Path) -> Result<File> {
 
 #[cfg(test)]
 mod tests {
-    pub fn find_fixture(name: &str) -> Path {
-        use std::old_io::fs::PathExtensions;
+    use std::path::PathBuf;
 
-        let mut path = Path::new("tests").join_many(&["fixtures", name]);
+    pub fn find_fixture(name: &str) -> PathBuf {
+        use std::fs::PathExt;
+
+        let mut path = PathBuf::new("tests").join("fixtures").join(name);
         path.set_extension("svg");
         assert!(path.exists());
 

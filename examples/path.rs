@@ -1,6 +1,8 @@
-#![feature(core, path)]
+#![feature(path)]
 
 extern crate svg;
+
+use std::path::Path;
 
 use svg::{Event, Tag};
 use svg::path::{Command, Data};

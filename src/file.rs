@@ -1,3 +1,5 @@
+use std::path::Path;
+
 use {Error, Parser, Result};
 
 /// A file.
@@ -22,11 +24,14 @@ impl File {
     /// Open a file.
     #[inline]
     pub fn open(path: &Path) -> Result<File> {
-        use std::old_io::File as IoFile;
+        use std::fs;
+        use std::io::Read;
 
-        Ok(File {
-            text: ok!(ok!(IoFile::open(path)).read_to_string()),
-        })
+        let mut text = String::new();
+        let mut file = ok!(fs::File::open(path));
+        ok!(file.read_to_string(&mut text));
+
+        Ok(File { text: text })
     }
 
     /// Return an iterator over the content of the file.

@@ -106,7 +106,7 @@ impl<'s> Parser<'s> {
             raise!(self, "found an end tag with excessive data");
         }
 
-        Ok(match &(name.clone().into_ascii_lowercase())[] {
+        Ok(match &*name.clone().into_ascii_lowercase() {
             "path" => Tag::Path(Type::End, Attributes::new()),
             _ => Tag::Unknown(name, Type::End, Attributes::new()),
         })
@@ -134,14 +134,14 @@ impl<'s> Parser<'s> {
         }).and_then(|tail| Some(String::from_str(tail)));
 
         let typo = match tail {
-            Some(tail) => match &tail[] {
+            Some(tail) => match &*tail {
                 "/" => Type::EmptyElement,
                 _ => raise!(self, "found an unexpected ending of a tag"),
             },
             _ => Type::Start,
         };
 
-        Ok(match &(name.clone().into_ascii_lowercase())[] {
+        Ok(match &*name.clone().into_ascii_lowercase() {
             "path" => Tag::Path(typo, attributes),
             _ => Tag::Unknown(name, typo, attributes),
         })
@@ -198,8 +198,8 @@ mod tests {
             ($text:expr, $name:expr, $value:expr) => ({
                 let mut parser = Parser::new($text);
                 let (name, value) = parser.read_attribute().unwrap().unwrap();
-                assert_eq!(&name[], $name);
-                assert_eq!(&value[], $value);
+                assert_eq!(&*name, $name);
+                assert_eq!(&*value, $value);
             });
         );
 

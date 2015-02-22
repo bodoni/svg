@@ -86,7 +86,7 @@ mod tests {
             ($text:expr, $name:expr) => ({
                 let mut parser = Parser::new($text);
                 match parser.next().unwrap() {
-                    Event::Tag(Tag::Unknown(name, _, _)) => assert_eq!(&name[], $name),
+                    Event::Tag(Tag::Unknown(name, _, _)) => assert_eq!(&*name, $name),
                     _ => assert!(false),
                 }
             })
