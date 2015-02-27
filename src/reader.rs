@@ -44,7 +44,7 @@ impl<'s> Reader<'s> {
 
     #[inline]
     pub fn consume_any(&mut self, chars: &str) -> bool {
-        self.consume_while(|c| chars.contains_char(c))
+        self.consume_while(|c| chars.contains(c))
     }
 
     /// http://www.w3.org/TR/REC-xml/#NT-Attribute
@@ -150,7 +150,7 @@ impl<'s> Reader<'s> {
 
     #[inline]
     pub fn consume_until_any(&mut self, chars: &str) -> bool {
-        self.consume_while(|c| !chars.contains_char(c))
+        self.consume_while(|c| !chars.contains(c))
     }
 
     #[inline]
