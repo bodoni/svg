@@ -13,9 +13,9 @@ cargo run --example path
 ```
 
 ```rust
-#![feature(core, path)]
-
 extern crate svg;
+
+use std::path::Path;
 
 use svg::{Event, Tag};
 use svg::path::{Command, Data};
