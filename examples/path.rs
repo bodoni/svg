@@ -1,5 +1,3 @@
-#![feature(path)]
-
 extern crate svg;
 
 use std::path::Path;
