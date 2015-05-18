@@ -1,4 +1,5 @@
 language: rust
+sudo: required
 
 after_success:
   - curl https://stainless-steel.github.io/travis/after_success.sh | bash
