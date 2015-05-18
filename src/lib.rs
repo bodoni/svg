@@ -1,7 +1,5 @@
 //! An SVG parser.
 
-#![feature(collections, std_misc)]
-
 use std::fmt;
 use std::path::Path;
 

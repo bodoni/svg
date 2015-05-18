@@ -1,6 +1,6 @@
 //! Functionality related to tags.
 
-use std::ascii::OwnedAsciiExt;
+use std::ascii::AsciiExt;
 use std::collections::HashMap;
 
 use {Error, Result};
@@ -67,7 +67,7 @@ impl<'s> Parser<'s> {
     fn read_attribute(&mut self) -> Result<Option<(String, String)>> {
         let attribute = self.reader.capture(|reader| {
             reader.consume_attribute();
-        }).and_then(|attribute| Some(String::from_str(attribute)));
+        }).and_then(|attribute| Some(String::from(attribute)));
 
         match attribute {
             Some(attribute) => {
@@ -75,7 +75,7 @@ impl<'s> Parser<'s> {
                 let name = (&attribute[0..k]).trim_right();
                 let value = (&attribute[(k+1)..]).trim_left();
                 let value = &value[1..(value.len()-1)];
-                Ok(Some((String::from_str(name), String::from_str(value))))
+                Ok(Some((String::from(name), String::from(value))))
             },
             _ => Ok(None),
         }
@@ -106,7 +106,7 @@ impl<'s> Parser<'s> {
             raise!(self, "found an end tag with excessive data");
         }
 
-        Ok(match &*name.clone().into_ascii_lowercase() {
+        Ok(match &*name.clone().to_ascii_lowercase() {
             "path" => Tag::Path(Type::End, Attributes::new()),
             _ => Tag::Unknown(name, Type::End, Attributes::new()),
         })
@@ -115,7 +115,7 @@ impl<'s> Parser<'s> {
     fn read_name(&mut self) -> Result<String> {
         let name = self.reader.capture(|reader| {
             reader.consume_name();
-        }).and_then(|name| Some(String::from_str(name)));
+        }).and_then(|name| Some(String::from(name)));
 
         match name {
             Some(name) => Ok(name),
@@ -131,7 +131,7 @@ impl<'s> Parser<'s> {
 
         let tail = self.reader.capture(|reader| {
             reader.consume_all();
-        }).and_then(|tail| Some(String::from_str(tail)));
+        }).and_then(|tail| Some(String::from(tail)));
 
         let typo = match tail {
             Some(tail) => match &*tail {
@@ -141,7 +141,7 @@ impl<'s> Parser<'s> {
             _ => Type::Start,
         };
 
-        Ok(match &*name.clone().into_ascii_lowercase() {
+        Ok(match &*name.clone().to_ascii_lowercase() {
             "path" => Tag::Path(typo, attributes),
             _ => Tag::Unknown(name, typo, attributes),
         })
@@ -158,13 +158,13 @@ impl Attributes {
 
     #[inline]
     pub fn get<'s>(&'s self, name: &str) -> Option<&'s String> {
-        let name = name.to_string().into_ascii_lowercase();
+        let name = name.to_string().to_ascii_lowercase();
         self.mapping.get(&name)
     }
 
     #[inline]
     fn set(&mut self, name: String, value: String) {
-        self.mapping.insert(name.into_ascii_lowercase(), value);
+        self.mapping.insert(name.to_ascii_lowercase(), value);
     }
 }
 

@@ -204,7 +204,7 @@ impl<'s> Parser<'s> {
             reader.consume_digits();
             reader.consume_char('.');
             reader.consume_digits();
-        }).and_then(|number| Some(String::from_str(number)));
+        }).and_then(|number| Some(String::from(number)));
 
         match number {
             Some(number) => match (&number).parse() {

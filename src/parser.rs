@@ -48,7 +48,7 @@ impl<'s> Iterator for Parser<'s> {
 
         let content = self.reader.capture(|reader| {
             reader.consume_until_char('>');
-        }).and_then(|content| Some(String::from_str(content)));
+        }).and_then(|content| Some(String::from(content)));
 
         if content.is_none() {
             return raise!(self, "found an empty tag");
