@@ -9,5 +9,4 @@ env:
     secure: C6iW1+kSPrqW2ZktjrcspHOSAw/mvKO81kk73tDPdOaXqFgSNwnTRM2zFOk2pmtUwu6qTT1RAGPYd2ENNfTP9dfk29mikza7k1mWBkzclJQCVhPhDlrtChlWrCEH7yENAJrBZQtwk3NEN4t+7xcWoU9z+LlfPdSZrfqmrtOPaAY=
 
 notifications:
-  email:
-    on_success: never
+  email: false
