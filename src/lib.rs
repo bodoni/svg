@@ -38,7 +38,7 @@ impl fmt::Debug for Error {
 
 /// Open a file.
 #[inline]
-pub fn open(path: &Path) -> Result<File> {
+pub fn open<T: AsRef<Path>>(path: T) -> Result<File> {
     File::open(path)
 }
 

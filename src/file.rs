@@ -23,7 +23,7 @@ macro_rules! ok(
 impl File {
     /// Open a file.
     #[inline]
-    pub fn open(path: &Path) -> Result<File> {
+    pub fn open<T: AsRef<Path>>(path: T) -> Result<File> {
         use std::fs;
         use std::io::Read;
 
@@ -49,7 +49,7 @@ mod tests {
 
     #[test]
     fn parse() {
-        let file = File::open(&find_fixture("benton")).unwrap();
+        let file = File::open(find_fixture("benton")).unwrap();
         let mut parser = file.parse();
 
         macro_rules! test(
