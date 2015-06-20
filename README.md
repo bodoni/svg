@@ -1,6 +1,6 @@
-# SVG [![Build Status][travis-img]][travis-url]
+# SVG [![Version][version-img]][version-url] [![Status][status-img]][status-url]
 
-Currently the library is limited to [paths][1].
+The package provides an SVG parser, which is currently limited to [paths][1].
 
 ## [Documentation][docs]
 
@@ -15,13 +15,11 @@ cargo run --example path
 ```rust
 extern crate svg;
 
-use std::path::Path;
-
 use svg::{Event, Tag};
 use svg::path::{Command, Data};
 
 fn main() {
-    let file = svg::open(&Path::new("tests/fixtures/benton.svg")).unwrap();
+    let file = svg::open("tests/fixtures/benton.svg").unwrap();
     for event in file.parse() {
         match event {
             Event::Tag(Tag::Path(_, attributes)) => {
@@ -66,10 +64,12 @@ fn draw(data: Data) {
 
 1. Fork the project.
 2. Implement your idea.
-3. Create a pull request.
+3. Open a pull request.
 
 [1]: http://www.w3.org/TR/SVG/paths.html
 
-[travis-img]: https://travis-ci.org/stainless-steel/svg.svg?branch=master
-[travis-url]: https://travis-ci.org/stainless-steel/svg
+[version-img]: https://img.shields.io/crates/v/svg.svg
+[version-url]: https://crates.io/crates/svg
+[status-img]: https://travis-ci.org/stainless-steel/svg.svg?branch=master
+[status-url]: https://travis-ci.org/stainless-steel/svg
 [docs]: https://stainless-steel.github.io/svg

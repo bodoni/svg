@@ -1,12 +1,10 @@
 extern crate svg;
 
-use std::path::Path;
-
 use svg::{Event, Tag};
 use svg::path::{Command, Data};
 
 fn main() {
-    let file = svg::open(&Path::new("tests/fixtures/benton.svg")).unwrap();
+    let file = svg::open("tests/fixtures/benton.svg").unwrap();
     for event in file.parse() {
         match event {
             Event::Tag(Tag::Path(_, attributes)) => {
