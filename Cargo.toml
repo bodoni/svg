@@ -1,9 +1,9 @@
 [package]
 name = "svg"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Ivan Ukhov <ivan.ukhov@gmail.com>"]
 license = "MIT"
-repository = "https://github.com/stainless-steel/svg"
-homepage = "https://github.com/stainless-steel/svg"
-documentation = "https://stainless-steel.github.io/svg"
+repository = "https://github.com/bodoni/svg"
+homepage = "https://github.com/bodoni/svg"
+documentation = "https://bodoni.github.io/svg"
 description = "The package provides an SVG parser."

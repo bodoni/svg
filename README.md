@@ -2,7 +2,7 @@
 
 The package provides an SVG parser, which is currently limited to [paths][1].
 
-## [Documentation][docs]
+## [Documentation][doc]
 
 ## Example
 
@@ -70,6 +70,6 @@ fn draw(data: Data) {
 
 [version-img]: https://img.shields.io/crates/v/svg.svg
 [version-url]: https://crates.io/crates/svg
-[status-img]: https://travis-ci.org/stainless-steel/svg.svg?branch=master
-[status-url]: https://travis-ci.org/stainless-steel/svg
-[docs]: https://stainless-steel.github.io/svg
+[status-img]: https://travis-ci.org/bodoni/svg.svg?branch=master
+[status-url]: https://travis-ci.org/bodoni/svg
+[doc]: https://bodoni.github.io/svg
