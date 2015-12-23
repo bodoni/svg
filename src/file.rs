@@ -22,7 +22,6 @@ macro_rules! ok(
 
 impl File {
     /// Open a file.
-    #[inline]
     pub fn open<T: AsRef<Path>>(path: T) -> Result<File> {
         use std::fs;
         use std::io::Read;
@@ -35,6 +34,7 @@ impl File {
     }
 
     /// Return an iterator over the content of the file.
+    #[inline]
     pub fn parse<'s>(&'s self) -> Parser<'s> {
         Parser::new(&self.text)
     }
