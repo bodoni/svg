@@ -1,12 +1,19 @@
 language: rust
 sudo: false
 
+rust:
+  - stable
+  - beta
+  - nightly
+
 after_success:
-  - curl https://bodoni.github.io/travis/after_success.sh | bash
+  - if [ "$TRAVIS_RUST_VERSION" == "nightly" ]; then
+      curl https://bodoni.github.io/travis/update_documentation.sh | bash;
+    fi
 
 env:
   global:
-    secure: C6iW1+kSPrqW2ZktjrcspHOSAw/mvKO81kk73tDPdOaXqFgSNwnTRM2zFOk2pmtUwu6qTT1RAGPYd2ENNfTP9dfk29mikza7k1mWBkzclJQCVhPhDlrtChlWrCEH7yENAJrBZQtwk3NEN4t+7xcWoU9z+LlfPdSZrfqmrtOPaAY=
+    - secure: D6AFvmP6XiVZ9X4zoQatxvzgsVN9iaN5WR9rBvxqarEXuieJQJrgZGc2XTbpwqBOUEut//4Ynj/KxJKmNYQyRwbLqJppmnT+JNqbHXRMyCcO5PU9iyh8AdNNOeHpj/NkuQ4PNZL7lJIZkpi9DFMAxmBBhJ8TTosiWRZi0btYo8o=
 
 notifications:
   email: false
