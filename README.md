@@ -60,16 +60,16 @@ fn draw(data: Data) {
 }
 ```
 
-## Contributing
+## Contribution
 
-1. Fork the project.
-2. Implement your idea.
-3. Open a pull request.
+Your contribution is highly appreciated. Do not hesitate to open an issue or a
+pull request. Note that any contribution submitted for inclusion in the project
+will be licensed according to the terms given in [LICENSE.md](LICENSE.md).
 
 [1]: http://www.w3.org/TR/SVG/paths.html
 
-[version-img]: https://img.shields.io/crates/v/svg.svg
-[version-url]: https://crates.io/crates/svg
+[doc]: https://bodoni.github.io/svg
 [status-img]: https://travis-ci.org/bodoni/svg.svg?branch=master
 [status-url]: https://travis-ci.org/bodoni/svg
-[doc]: https://bodoni.github.io/svg
+[version-img]: https://img.shields.io/crates/v/svg.svg
+[version-url]: https://crates.io/crates/svg
