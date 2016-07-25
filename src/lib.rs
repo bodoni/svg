@@ -2,15 +2,24 @@
 
 use std::path::Path;
 
-mod reader;
+#[macro_use]
+mod macros;
 
+mod reader;
+mod writer;
+
+pub mod composer;
 pub mod element;
+pub mod node;
 pub mod parser;
 pub mod tag;
 
+pub use composer::Composer;
+pub use node::Node;
 pub use parser::Parser;
-pub use reader::Content;
+pub use reader::Input;
 pub use tag::Tag;
+pub use writer::Output;
 
 /// A number.
 pub type Number = f32;
@@ -20,10 +29,10 @@ pub fn parse<'l, T: AsRef<Path>>(path: T) -> std::io::Result<Parser<'l>> {
     use std::fs;
     use std::io::Read;
 
-    let mut content = String::new();
+    let mut input = String::new();
     let mut file = try!(fs::File::open(path));
-    try!(file.read_to_string(&mut content));
-    Ok(Parser::new(content))
+    try!(file.read_to_string(&mut input));
+    Ok(Parser::new(input))
 }
 
 #[cfg(test)]

@@ -2,7 +2,7 @@
 
 use std::{error, fmt};
 
-use reader::{Content, Reader};
+use reader::{Input, Reader};
 use tag::Tag;
 
 /// A parser.
@@ -42,8 +42,8 @@ pub type Result<T> = ::std::result::Result<T, Error>;
 impl<'l> Parser<'l> {
     /// Create a parser.
     #[inline]
-    pub fn new<T: Content<'l>>(content: T) -> Self {
-        Parser { reader: Reader::new(content) }
+    pub fn new<T: Input<'l>>(input: T) -> Self {
+        Parser { reader: Reader::new(input) }
     }
 }
 
@@ -62,24 +62,24 @@ impl<'l> Iterator for Parser<'l> {
         if !self.reader.consume_char('<') {
             return None;
         }
-        let content = self.reader.capture(|reader| {
+        let input = self.reader.capture(|reader| {
             reader.consume_until_char('>');
-        }).and_then(|content| Some(String::from(content)));
-        if content.is_none() {
+        }).and_then(|input| Some(String::from(input)));
+        if input.is_none() {
             return raise!(self, "found an empty tag");
         }
         if !self.reader.consume_char('>') {
             raise!(self, "missing a closing angle bracket");
         }
-        let content = content.unwrap();
-        Some(if content.starts_with("!--") {
+        let input = input.unwrap();
+        Some(if input.starts_with("!--") {
             Event::Comment
-        } else if content.starts_with("!") {
+        } else if input.starts_with("!") {
             Event::Declaration
-        } else if content.starts_with("?") {
+        } else if input.starts_with("?") {
             Event::Instruction
         } else {
-            match Tag::parse(content) {
+            match Tag::parse(input) {
                 Ok(tag) => Event::Tag(tag),
                 Err(error) => Event::Error(error),
             }
@@ -114,8 +114,8 @@ mod tests {
     #[test]
     fn next() {
         macro_rules! test(
-            ($content:expr, $name:expr) => ({
-                let mut parser = Parser::new($content);
+            ($input:expr, $name:expr) => ({
+                let mut parser = Parser::new($input);
                 match parser.next().unwrap() {
                     Event::Tag(Tag::Unknown(name, _, _)) => assert_eq!(&*name, $name),
                     _ => assert!(false),
