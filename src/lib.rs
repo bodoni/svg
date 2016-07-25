@@ -12,6 +12,9 @@ pub use parser::Parser;
 pub use reader::Content;
 pub use tag::Tag;
 
+/// A number.
+pub type Number = f32;
+
 /// Open a file.
 pub fn open<'l, T: AsRef<Path>>(path: T) -> std::io::Result<Parser<'l>> {
     use std::fs;
