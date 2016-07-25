@@ -1,19 +1,10 @@
-//! The [path][1] element.
-//!
-//! [1]: https://www.w3.org/TR/SVG/paths.html#PathElement
-
-use Number;
+use {Content, Number};
 use parser::{Error, Result};
-use reader::{Input, Reader};
+use reader::Reader;
 
-node! {
-    #[doc = "A path element."]
-    pub Path("path")
-}
-
-/// A data attribute.
+/// A [data][1] attribute.
 ///
-/// http://www.w3.org/TR/SVG/paths.html#PathData
+/// [1]: http://www.w3.org/TR/SVG/paths.html#PathData
 #[derive(Clone, Debug)]
 pub struct Data {
     commands: Vec<Command>,
@@ -77,20 +68,24 @@ pub enum Command {
     EllipticalArc(Position, Vec<Number>),
 }
 
-/// An interpretation of coordinates.
+/// A type of positioning.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum Position {
     /// Absolute.
     Absolute,
-    /// Ralative.
+    /// Relative.
     Relative,
+}
+
+struct Parser<'l> {
+    reader: Reader<'l>,
 }
 
 impl Data {
     /// Parse a data attribute.
     #[inline]
-    pub fn parse<'l, T: Input<'l>>(input: T) -> Result<Self> {
-        Parser::new(input).process()
+    pub fn parse<'l, T: Content<'l>>(content: T) -> Result<Self> {
+        Parser::new(content).process()
     }
 
     /// Return an iterator over the commands.
@@ -98,10 +93,6 @@ impl Data {
     pub fn iter(&self) -> ::std::slice::Iter<Command> {
         self.commands.iter()
     }
-}
-
-struct Parser<'l> {
-    reader: Reader<'l>,
 }
 
 macro_rules! raise(
@@ -113,8 +104,8 @@ macro_rules! raise(
 
 impl<'l> Parser<'l> {
     #[inline]
-    fn new<T: Input<'l>>(input: T) -> Self {
-        Parser { reader: Reader::new(input) }
+    fn new<T: Content<'l>>(content: T) -> Self {
+        Parser { reader: Reader::new(content) }
     }
 
     fn process(&mut self) -> Result<Data> {
@@ -232,21 +223,21 @@ mod tests {
     #[test]
     fn parser_read_command() {
         macro_rules! run(
-            ($input:expr) => ({
-                let mut parser = Parser::new($input);
+            ($content:expr) => ({
+                let mut parser = Parser::new($content);
                 parser.read_command().unwrap().unwrap()
             });
         );
 
         macro_rules! test(
-            ($input:expr, $command:ident, $position:ident, $parameters:expr) => (
-                match run!($input) {
+            ($content:expr, $command:ident, $position:ident, $parameters:expr) => (
+                match run!($content) {
                     $command($position, parameters) => assert_eq!(parameters, $parameters),
                     _ => assert!(false),
                 }
             );
-            ($input:expr, $command:ident) => (
-                match run!($input) {
+            ($content:expr, $command:ident) => (
+                match run!($content) {
                     $command => {},
                     _ => assert!(false),
                 }
@@ -295,8 +286,8 @@ mod tests {
     fn parser_read_number() {
         let texts = vec!["-1", "3", "3.14"];
         let numbers = vec![-1.0, 3.0, 3.14];
-        for (&input, &number) in texts.iter().zip(numbers.iter()) {
-            let mut parser = Parser::new(input);
+        for (&content, &number) in texts.iter().zip(numbers.iter()) {
+            let mut parser = Parser::new(content);
             assert_eq!(parser.read_number().unwrap().unwrap(), number);
         }
     }

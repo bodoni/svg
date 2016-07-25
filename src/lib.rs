@@ -1,38 +1,39 @@
 //! An SVG composer and parser.
 
+use std::borrow::Cow;
 use std::path::Path;
 
 #[macro_use]
 mod macros;
 
+mod node;
 mod reader;
-mod writer;
 
-pub mod composer;
 pub mod element;
-pub mod node;
 pub mod parser;
 pub mod tag;
 
-pub use composer::Composer;
 pub use node::Node;
 pub use parser::Parser;
-pub use reader::Input;
 pub use tag::Tag;
-pub use writer::Output;
+
+/// A content.
+pub trait Content<'l>: Into<Cow<'l, str>> { }
 
 /// A number.
 pub type Number = f32;
+
+impl<'l, T> Content<'l> for T where T: Into<Cow<'l, str>> { }
 
 /// Parse a file.
 pub fn parse<'l, T: AsRef<Path>>(path: T) -> std::io::Result<Parser<'l>> {
     use std::fs;
     use std::io::Read;
 
-    let mut input = String::new();
+    let mut content = String::new();
     let mut file = try!(fs::File::open(path));
-    try!(file.read_to_string(&mut input));
-    Ok(Parser::new(input))
+    try!(file.read_to_string(&mut content));
+    Ok(Parser::new(content))
 }
 
 #[cfg(test)]

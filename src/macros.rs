@@ -1,63 +1,36 @@
 macro_rules! deref {
-    ($kind:ident<T>::$field:ident => T) => (
-        impl<T> ::std::ops::Deref for $kind<T> {
+    ($struct_name:ident<T>::$field_name:ident => T) => (
+        impl<T> ::std::ops::Deref for $struct_name<T> {
             type Target = T;
 
             #[inline]
             fn deref(&self) -> &Self::Target {
-                &self.$field
+                &self.$field_name
             }
         }
 
-        impl<T> ::std::ops::DerefMut for $kind<T> {
+        impl<T> ::std::ops::DerefMut for $struct_name<T> {
             #[inline]
             fn deref_mut(&mut self) -> &mut Self::Target {
-                &mut self.$field
+                &mut self.$field_name
             }
         }
     );
-    ($kind:ident::$field:ident => $target:ty) => (
-        impl ::std::ops::Deref for $kind {
+    ($struct_name:ident::$field_name:ident => $target:ty) => (
+        impl ::std::ops::Deref for $struct_name {
             type Target = $target;
 
             #[inline]
             fn deref(&self) -> &Self::Target {
-                &self.$field
+                &self.$field_name
             }
         }
 
-        impl ::std::ops::DerefMut for $kind {
+        impl ::std::ops::DerefMut for $struct_name {
             #[inline]
             fn deref_mut(&mut self) -> &mut Self::Target {
-                &mut self.$field
+                &mut self.$field_name
             }
         }
-    );
-}
-
-macro_rules! node {
-    ($(#[$attribute:meta])* pub $kind:ident($name:expr)) => (
-        $(#[$attribute])*
-        #[derive(Clone, Debug)]
-        pub struct $kind {
-            node: ::node::Node,
-        }
-
-        impl $kind {
-            /// Create an instance.
-            #[inline]
-            pub fn new() -> Self {
-                $kind { node: ::node::Node::new($name) }
-            }
-        }
-
-        impl From<$kind> for ::node::Node {
-            #[inline]
-            fn from($kind { node, .. }: $kind) -> ::node::Node {
-                node
-            }
-        }
-
-        deref! { $kind::node => ::node::Node }
     );
 }

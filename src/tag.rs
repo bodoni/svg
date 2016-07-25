@@ -2,12 +2,12 @@
 
 use std::ascii::AsciiExt;
 
+use Content;
 use node::Attributes;
 use parser::{Error, Result};
-use reader::{Input, Reader};
+use reader::Reader;
 
 /// A tag.
-#[derive(Clone, Debug)]
 pub enum Tag {
     /// A path tag.
     Path(Type, Attributes),
@@ -35,8 +35,8 @@ struct Parser<'l> {
 impl Tag {
     /// Parse a tag.
     #[inline]
-    pub fn parse<'l, T: Input<'l>>(input: T) -> Result<Self> {
-        Parser::new(input).process()
+    pub fn parse<'l, T: Content<'l>>(content: T) -> Result<Self> {
+        Parser::new(content).process()
     }
 }
 
@@ -49,8 +49,8 @@ macro_rules! raise(
 
 impl<'l> Parser<'l> {
     #[inline]
-    fn new<T: Input<'l>>(input: T) -> Self {
-        Parser { reader: Reader::new(input) }
+    fn new<T: Content<'l>>(content: T) -> Self {
+        Parser { reader: Reader::new(content) }
     }
 
     fn process(&mut self) -> Result<Tag> {
@@ -78,7 +78,7 @@ impl<'l> Parser<'l> {
     }
 
     fn read_attributes(&mut self) -> Result<Attributes> {
-        let mut attributes = Attributes::new();
+        let mut attributes = Attributes::default();
         loop {
             self.reader.consume_whitespace();
             match try!(self.read_attribute()) {
@@ -96,8 +96,8 @@ impl<'l> Parser<'l> {
             raise!(self, "found an end tag with excessive data");
         }
         Ok(match &*name.clone().to_ascii_lowercase() {
-            "path" => Tag::Path(Type::End, Attributes::new()),
-            _ => Tag::Unknown(name, Type::End, Attributes::new()),
+            "path" => Tag::Path(Type::End, Default::default()),
+            _ => Tag::Unknown(name, Type::End, Default::default()),
         })
     }
 
@@ -139,8 +139,8 @@ mod tests {
     #[test]
     fn parser_process() {
         macro_rules! test(
-            ($input:expr, $kind:ident) => ({
-                let mut parser = Parser::new($input);
+            ($content:expr, $kind:ident) => ({
+                let mut parser = Parser::new($content);
                 match parser.process().unwrap() {
                     Tag::Unknown(_, Type::$kind, _) => {},
                     _ => assert!(false),
@@ -159,8 +159,8 @@ mod tests {
     #[test]
     fn parser_read_attribute() {
         macro_rules! test(
-            ($input:expr, $name:expr, $value:expr) => ({
-                let mut parser = Parser::new($input);
+            ($content:expr, $name:expr, $value:expr) => ({
+                let mut parser = Parser::new($content);
                 let (name, value) = parser.read_attribute().unwrap().unwrap();
                 assert_eq!(&*name, $name);
                 assert_eq!(&*value, $value);

@@ -2,7 +2,8 @@
 
 use std::{error, fmt};
 
-use reader::{Input, Reader};
+use Content;
+use reader::Reader;
 use tag::Tag;
 
 /// A parser.
@@ -11,7 +12,6 @@ pub struct Parser<'l> {
 }
 
 /// An event.
-#[derive(Clone, Debug)]
 pub enum Event {
     /// An error.
     Error(Error),
@@ -26,7 +26,7 @@ pub enum Event {
 }
 
 /// An error.
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct Error {
     /// The line number.
     pub line: usize,
@@ -42,48 +42,8 @@ pub type Result<T> = ::std::result::Result<T, Error>;
 impl<'l> Parser<'l> {
     /// Create a parser.
     #[inline]
-    pub fn new<T: Input<'l>>(input: T) -> Self {
-        Parser { reader: Reader::new(input) }
-    }
-}
-
-macro_rules! raise(
-    ($parser:expr, $($arg:tt)*) => ({
-        let (line, column) = $parser.reader.position();
-        return Some(Event::Error(Error { line: line, column: column, message: format!($($arg)*) }))
-    });
-);
-
-impl<'l> Iterator for Parser<'l> {
-    type Item = Event;
-
-    fn next(&mut self) -> Option<Event> {
-        self.reader.consume_until_char('<');
-        if !self.reader.consume_char('<') {
-            return None;
-        }
-        let input = self.reader.capture(|reader| {
-            reader.consume_until_char('>');
-        }).and_then(|input| Some(String::from(input)));
-        if input.is_none() {
-            return raise!(self, "found an empty tag");
-        }
-        if !self.reader.consume_char('>') {
-            raise!(self, "missing a closing angle bracket");
-        }
-        let input = input.unwrap();
-        Some(if input.starts_with("!--") {
-            Event::Comment
-        } else if input.starts_with("!") {
-            Event::Declaration
-        } else if input.starts_with("?") {
-            Event::Instruction
-        } else {
-            match Tag::parse(input) {
-                Ok(tag) => Event::Tag(tag),
-                Err(error) => Event::Error(error),
-            }
-        })
+    pub fn new<T: Content<'l>>(content: T) -> Self {
+        Parser { reader: Reader::new(content) }
     }
 }
 
@@ -106,16 +66,56 @@ impl error::Error for Error {
     }
 }
 
+macro_rules! raise(
+    ($parser:expr, $($arg:tt)*) => ({
+        let (line, column) = $parser.reader.position();
+        return Some(Event::Error(Error { line: line, column: column, message: format!($($arg)*) }))
+    });
+);
+
+impl<'l> Iterator for Parser<'l> {
+    type Item = Event;
+
+    fn next(&mut self) -> Option<Event> {
+        self.reader.consume_until_char('<');
+        if !self.reader.consume_char('<') {
+            return None;
+        }
+        let content = self.reader.capture(|reader| {
+            reader.consume_until_char('>');
+        }).and_then(|content| Some(String::from(content)));
+        if content.is_none() {
+            return raise!(self, "found an empty tag");
+        }
+        if !self.reader.consume_char('>') {
+            raise!(self, "missing a closing angle bracket");
+        }
+        let content = content.unwrap();
+        Some(if content.starts_with("!--") {
+            Event::Comment
+        } else if content.starts_with("!") {
+            Event::Declaration
+        } else if content.starts_with("?") {
+            Event::Instruction
+        } else {
+            match Tag::parse(content) {
+                Ok(tag) => Event::Tag(tag),
+                Err(error) => Event::Error(error),
+            }
+        })
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use super::{Event, Parser};
+    use parser::{Event, Parser};
     use tag::Tag;
 
     #[test]
     fn next() {
         macro_rules! test(
-            ($input:expr, $name:expr) => ({
-                let mut parser = Parser::new($input);
+            ($content:expr, $name:expr) => ({
+                let mut parser = Parser::new($content);
                 match parser.next().unwrap() {
                     Event::Tag(Tag::Unknown(name, _, _)) => assert_eq!(&*name, $name),
                     _ => assert!(false),

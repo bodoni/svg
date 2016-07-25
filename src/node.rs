@@ -2,59 +2,58 @@
 
 use std::ascii::AsciiExt;
 use std::collections::HashMap;
-
-use composer::{Composer, Result};
+use std::fmt;
 
 /// Attributes.
-#[derive(Clone, Debug)]
-pub struct Attributes {
-    mapping: HashMap<String, String>,
-}
+#[derive(Default)]
+pub struct Attributes(HashMap<String, String>);
+
+/// Children.
+#[derive(Default)]
+pub struct Children(Vec<Box<Node>>);
 
 /// A node.
-#[derive(Clone, Debug)]
-pub struct Node {
-    name: String,
-    attributes: Attributes,
-    children: Vec<Node>,
-}
+pub trait Node: fmt::Display { }
 
 impl Attributes {
-    /// Create attributes.
-    #[inline]
-    pub fn new() -> Self {
-        Attributes { mapping: HashMap::new() }
-    }
-
     /// Get an attribute.
     #[inline]
     pub fn get<T: Into<String>>(&self, name: T) -> Option<&str> {
         let name = name.into().to_ascii_lowercase();
-        self.mapping.get(&name).map(|name| name.as_str())
+        self.0.get(&name).map(|name| name.as_str())
     }
 
     /// Set an attribute.
     #[inline]
     pub fn set<T: Into<String>>(&mut self, name: T, value: T) {
-        self.mapping.insert(name.into().to_ascii_lowercase(), value.into());
+        self.0.insert(name.into().to_ascii_lowercase(), value.into());
     }
 }
 
-impl Node {
-    /// Create a node.
-    pub fn new<T: Into<String>>(name: T) -> Self {
-        Node { name: name.into(), attributes: Attributes::new(), children: vec![] }
-    }
-
-    /// Append a node.
-    pub fn append<T: Into<Node>>(&mut self, node: T) {
-        self.children.push(node.into());
-    }
-
-    /// Write the node.
-    pub fn compose<T>(&mut self, _: &mut Composer<T>) -> Result<()> {
+impl fmt::Display for Attributes {
+    fn fmt(&self, _: &mut fmt::Formatter) -> fmt::Result {
         Ok(())
     }
 }
 
-deref! { Node::attributes => Attributes }
+impl Children {
+    /// Append a child.
+    #[inline]
+    pub fn append<T: 'static + Node>(&mut self, node: T) {
+        self.0.push(Box::new(node))
+    }
+}
+
+impl fmt::Display for Children {
+    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+        let count = self.0.len();
+        for i in 0..count {
+            if i > 0 {
+                try!(write!(formatter, "\n{}", self.0[i]));
+            } else {
+                try!(write!(formatter, "{}", self.0[i]));
+            }
+        }
+        Ok(())
+    }
+}
