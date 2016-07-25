@@ -140,8 +140,8 @@ impl<'l> Parser<'l> {
 
 impl Attributes {
     #[inline]
-    pub fn get<'l>(&'l self, name: &str) -> Option<&'l str> {
-        let name = name.to_string().to_ascii_lowercase();
+    pub fn get<T: Into<String>>(&self, name: T) -> Option<&str> {
+        let name = name.into().to_ascii_lowercase();
         self.mapping.get(&name).map(|name| name.as_str())
     }
 
