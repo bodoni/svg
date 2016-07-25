@@ -1,16 +1,10 @@
 # SVG [![Version][version-img]][version-url] [![Status][status-img]][status-url]
 
-The package provides an SVG parser, which is currently limited to [paths][1].
+The package provides an SVG composer and parser.
 
 ## [Documentation][doc]
 
 ## Example
-
-The example given below can be ran using the following command:
-
-```
-cargo run --example path
-```
 
 ```rust
 extern crate svg;
@@ -65,8 +59,6 @@ fn draw(data: Data) {
 Your contribution is highly appreciated. Do not hesitate to open an issue or a
 pull request. Note that any contribution submitted for inclusion in the project
 will be licensed according to the terms given in [LICENSE.md](LICENSE.md).
-
-[1]: http://www.w3.org/TR/SVG/paths.html
 
 [doc]: https://bodoni.github.io/svg
 [status-img]: https://travis-ci.org/bodoni/svg.svg?branch=master

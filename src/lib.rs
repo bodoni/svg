@@ -1,4 +1,4 @@
-//! An SVG parser.
+//! An SVG composer and parser.
 
 use std::fmt;
 use std::path::Path;
