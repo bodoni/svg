@@ -2,13 +2,15 @@
 
 use std::path::Path;
 
-pub use parser::Parser;
-pub use tag::Tag;
-
 mod reader;
 
+pub mod element;
 pub mod parser;
 pub mod tag;
+
+pub use parser::Parser;
+pub use reader::Content;
+pub use tag::Tag;
 
 /// Open a file.
 pub fn open<'l, T: AsRef<Path>>(path: T) -> std::io::Result<Parser<'l>> {

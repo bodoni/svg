@@ -2,6 +2,10 @@ use std::borrow::Cow;
 use std::iter::Peekable;
 use std::str::Chars;
 
+/// A content.
+pub trait Content<'l>: Into<Cow<'l, str>> {
+}
+
 pub struct Reader<'l> {
     line: usize,
     column: usize,
@@ -10,9 +14,12 @@ pub struct Reader<'l> {
     cursor: Peekable<Chars<'static>>,
 }
 
+impl<'l, T> Content<'l> for T where T: Into<Cow<'l, str>> {
+}
+
 impl<'l> Reader<'l> {
     #[inline]
-    pub fn new<T: Into<Cow<'l, str>>>(content: T) -> Reader<'l> {
+    pub fn new<T: Content<'l>>(content: T) -> Self {
         let content = content.into();
         let cursor = unsafe { ::std::mem::transmute(content.chars().peekable()) };
         Reader { line: 1, column: 1, offset: 0, content: content, cursor: cursor }
@@ -207,7 +214,6 @@ mod tests {
     #[test]
     fn capture() {
         let mut reader = Reader::new("abcdefg");
-
         reader.consume_any("ab");
         let content = reader.capture(|reader| {
             reader.consume_any("cde");
@@ -277,7 +283,6 @@ mod tests {
     #[test]
     fn consume_whitespace() {
         let mut reader = Reader::new(" \t  \n\n  \tm ");
-
         reader.consume_whitespace();
 
         assert_eq!(reader.line, 3);

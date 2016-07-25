@@ -10,8 +10,8 @@ The package provides an SVG composer and parser.
 extern crate svg;
 
 use svg::Tag;
+use svg::element::path::{Command, Data};
 use svg::parser::Event;
-use svg::tag::path::{Command, Data};
 
 fn main() {
     let path = "benton.svg";

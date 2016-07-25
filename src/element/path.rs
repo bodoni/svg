@@ -1,17 +1,18 @@
-//! The path tag.
+//! The path element.
 
 use parser::{Error, Result};
-use reader::Reader;
+use reader::{Content, Reader};
 
 /// A data attribute.
 ///
 /// http://www.w3.org/TR/SVG/paths.html#PathData
+#[derive(Clone, Debug)]
 pub struct Data {
     commands: Vec<Command>,
 }
 
 /// A command.
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub enum Command {
     /// [Establish][1] a new current point.
     ///
@@ -80,8 +81,8 @@ pub enum Position {
 impl Data {
     /// Parse a data attribute.
     #[inline]
-    pub fn parse(text: &str) -> Result<Data> {
-        Parser::new(text).process()
+    pub fn parse<'l, T: Content<'l>>(content: T) -> Result<Self> {
+        Parser::new(content).process()
     }
 
     /// Return an iterator over the commands.
@@ -98,37 +99,26 @@ struct Parser<'l> {
 macro_rules! raise(
     ($parser:expr, $($arg:tt)*) => ({
         let (line, column) = $parser.reader.position();
-        return Err(Error {
-            line: line,
-            column: column,
-            message: format!($($arg)*),
-        })
+        return Err(Error { line: line, column: column, message: format!($($arg)*) })
     });
 );
 
 impl<'l> Parser<'l> {
     #[inline]
-    fn new(text: &'l str) -> Parser<'l> {
-        Parser {
-            reader: Reader::new(text),
-        }
+    fn new<T: Content<'l>>(content: T) -> Self {
+        Parser { reader: Reader::new(content) }
     }
 
     fn process(&mut self) -> Result<Data> {
         let mut commands = Vec::new();
-
         loop {
             self.reader.consume_whitespace();
-
             match try!(self.read_command()) {
                 Some(command) => commands.push(command),
                 _ => break,
             }
         }
-
-        Ok(Data {
-            commands: commands,
-        })
+        Ok(Data { commands: commands })
     }
 
     fn read_command(&mut self) -> Result<Option<Command>> {
@@ -142,11 +132,8 @@ impl<'l> Parser<'l> {
             },
             _ => return Ok(None),
         };
-
         self.reader.consume_whitespace();
-
         let parameters = try!(self.read_parameters());
-
         Ok(Some(match name {
             'M' => MoveTo(Absolute, parameters),
             'm' => MoveTo(Relative, parameters),
@@ -183,30 +170,25 @@ impl<'l> Parser<'l> {
 
     fn read_parameters(&mut self) -> Result<Vec<f64>> {
         let mut parameters = Vec::new();
-
         loop {
             match try!(self.read_number()) {
                 Some(number) => parameters.push(number),
                 _ => break,
             }
-
             self.reader.consume_whitespace();
             self.reader.consume_any(",");
         }
-
         Ok(parameters)
     }
 
     pub fn read_number(&mut self) -> Result<Option<f64>> {
         self.reader.consume_whitespace();
-
         let number = self.reader.capture(|reader| {
             reader.consume_char('-');
             reader.consume_digits();
             reader.consume_char('.');
             reader.consume_digits();
         }).and_then(|number| Some(String::from(number)));
-
         match number {
             Some(number) => match (&number).parse() {
                 Ok(number) => Ok(Some(number)),
@@ -233,7 +215,6 @@ mod tests {
             MoveTo(Absolute, ref parameters) => assert_eq!(*parameters, vec![1.0, 2.0]),
             _ => assert!(false),
         }
-
         match data.commands[1] {
             LineTo(Relative, ref parameters) => assert_eq!(*parameters, vec![3.0, 4.0]),
             _ => assert!(false),
@@ -243,21 +224,21 @@ mod tests {
     #[test]
     fn parser_read_command() {
         macro_rules! run(
-            ($text:expr) => ({
-                let mut parser = Parser::new($text);
+            ($content:expr) => ({
+                let mut parser = Parser::new($content);
                 parser.read_command().unwrap().unwrap()
             });
         );
 
         macro_rules! test(
-            ($text:expr, $command:ident, $position:ident, $parameters:expr) => (
-                match run!($text) {
+            ($content:expr, $command:ident, $position:ident, $parameters:expr) => (
+                match run!($content) {
                     $command($position, parameters) => assert_eq!(parameters, $parameters),
                     _ => assert!(false),
                 }
             );
-            ($text:expr, $command:ident) => (
-                match run!($text) {
+            ($content:expr, $command:ident) => (
+                match run!($content) {
                     $command => {},
                     _ => assert!(false),
                 }
@@ -306,9 +287,8 @@ mod tests {
     fn parser_read_number() {
         let texts = vec!["-1", "3", "3.14"];
         let numbers = vec![-1.0, 3.0, 3.14];
-
-        for (text, &number) in texts.iter().zip(numbers.iter()) {
-            let mut parser = Parser::new(text);
+        for (&content, &number) in texts.iter().zip(numbers.iter()) {
+            let mut parser = Parser::new(content);
             assert_eq!(parser.read_number().unwrap().unwrap(), number);
         }
     }
