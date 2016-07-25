@@ -15,8 +15,8 @@ pub use tag::Tag;
 /// A number.
 pub type Number = f32;
 
-/// Open a file.
-pub fn open<'l, T: AsRef<Path>>(path: T) -> std::io::Result<Parser<'l>> {
+/// Parse a file.
+pub fn parse<'l, T: AsRef<Path>>(path: T) -> std::io::Result<Parser<'l>> {
     use std::fs;
     use std::io::Read;
 
@@ -38,11 +38,11 @@ mod tests {
     }
 
     #[test]
-    fn open() {
+    fn parse() {
         use parser::Event;
         use tag::Tag;
 
-        let mut parser = ::open(fixture("benton")).unwrap();
+        let mut parser = ::parse(fixture("benton")).unwrap();
 
         macro_rules! test(
             ($parser:expr, $matcher:pat) => (

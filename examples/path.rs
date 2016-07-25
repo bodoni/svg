@@ -6,7 +6,7 @@ use svg::parser::Event;
 
 fn main() {
     let path = "tests/fixtures/benton.svg";
-    for event in svg::open(path).unwrap() {
+    for event in svg::parse(path).unwrap() {
         if let Event::Tag(Tag::Path(_, attributes)) = event {
             let data = attributes.get("d").unwrap();
             let data = Data::parse(data).unwrap();
