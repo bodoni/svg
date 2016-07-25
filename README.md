@@ -14,8 +14,8 @@ use svg::parser::Event;
 use svg::tag::path::{Command, Data};
 
 fn main() {
-    let file = svg::open("tests/fixtures/benton.svg").unwrap();
-    for event in file.parse() {
+    let path = "benton.svg";
+    for event in svg::open(path).unwrap() {
         match event {
             Event::Tag(Tag::Path(_, attributes)) => {
                 let data = attributes.get("d").unwrap();

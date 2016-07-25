@@ -1,24 +1,21 @@
+use std::borrow::Cow;
 use std::iter::Peekable;
 use std::str::Chars;
 
 pub struct Reader<'l> {
-    text: &'l str,
     line: usize,
     column: usize,
     offset: usize,
-    cursor: Peekable<Chars<'l>>,
+    content: Cow<'l, str>,
+    cursor: Peekable<Chars<'static>>,
 }
 
 impl<'l> Reader<'l> {
     #[inline]
-    pub fn new(text: &'l str) -> Reader<'l> {
-        Reader {
-            text: text,
-            line: 1,
-            column: 1,
-            offset: 0,
-            cursor: text.chars().peekable(),
-        }
+    pub fn new<T: Into<Cow<'l, str>>>(content: T) -> Reader<'l> {
+        let content = content.into();
+        let cursor = unsafe { ::std::mem::transmute(content.chars().peekable()) };
+        Reader { line: 1, column: 1, offset: 0, content: content, cursor: cursor }
     }
 
     pub fn capture<F>(&mut self, block: F) -> Option<&str> where F: Fn(&mut Reader<'l>) {
@@ -26,7 +23,7 @@ impl<'l> Reader<'l> {
         block(self);
         let end = self.offset;
         if end > start {
-            Some(&self.text[start..end])
+            Some(&self.content[start..end])
         } else {
             None
         }
@@ -169,7 +166,7 @@ impl<'l> Reader<'l> {
 
     #[inline]
     pub fn is_done(&self) -> bool {
-        self.offset == self.text.len()
+        self.offset == self.content.len()
     }
 
     #[inline]
@@ -212,18 +209,18 @@ mod tests {
         let mut reader = Reader::new("abcdefg");
 
         reader.consume_any("ab");
-        let text = reader.capture(|reader| {
+        let content = reader.capture(|reader| {
             reader.consume_any("cde");
         });
 
-        assert_eq!(text.unwrap(), "cde");
+        assert_eq!(content.unwrap(), "cde");
     }
 
     #[test]
     fn consume_attribute() {
         macro_rules! test(
-            ($text:expr) => ({
-                let mut reader = Reader::new($text);
+            ($content:expr) => ({
+                let mut reader = Reader::new($content);
                 assert!(reader.consume_attribute());
             });
         );
@@ -233,8 +230,8 @@ mod tests {
         test!("foo= \"bar\"");
 
         macro_rules! test(
-            ($text:expr) => ({
-                let mut reader = Reader::new($text);
+            ($content:expr) => ({
+                let mut reader = Reader::new($content);
                 assert!(!reader.consume_attribute());
             });
         );
@@ -249,8 +246,8 @@ mod tests {
     #[test]
     fn consume_name() {
         macro_rules! test(
-            ($text:expr, $name:expr) => ({
-                let mut reader = Reader::new($text);
+            ($content:expr, $name:expr) => ({
+                let mut reader = Reader::new($content);
                 let name = reader.capture(|reader| {
                     reader.consume_name();
                 });
@@ -265,8 +262,8 @@ mod tests {
         test!("foo/", "foo");
 
         macro_rules! test(
-            ($text:expr) => ({
-                let mut reader = Reader::new($text);
+            ($content:expr) => ({
+                let mut reader = Reader::new($content);
                 assert!(!reader.consume_name());
             });
         );

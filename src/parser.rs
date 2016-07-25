@@ -1,5 +1,6 @@
 //! The parser.
 
+use std::borrow::Cow;
 use std::fmt;
 
 use reader::Reader;
@@ -12,10 +13,15 @@ pub struct Parser<'l> {
 
 /// A parsing event.
 pub enum Event {
+    /// An error.
     Error(Error),
+    /// A comment.
     Comment,
+    /// A declaration.
     Declaration,
+    /// An instruction.
     Instruction,
+    /// A tag.
     Tag(Tag),
 }
 
@@ -25,7 +31,7 @@ pub struct Error {
     pub line: usize,
     /// The column number.
     pub column: usize,
-    /// The description.
+    /// The message.
     pub message: String,
 }
 
@@ -35,8 +41,8 @@ pub type Result<T> = ::std::result::Result<T, Error>;
 impl<'l> Parser<'l> {
     /// Create a parser.
     #[inline]
-    pub fn new(text: &'l str) -> Parser<'l> {
-        Parser { reader: Reader::new(text) }
+    pub fn new<T: Into<Cow<'l, str>>>(content: T) -> Parser<'l> {
+        Parser { reader: Reader::new(content) }
     }
 }
 
@@ -106,8 +112,8 @@ mod tests {
     #[test]
     fn next() {
         macro_rules! test(
-            ($text:expr, $name:expr) => ({
-                let mut parser = Parser::new($text);
+            ($content:expr, $name:expr) => ({
+                let mut parser = Parser::new($content);
                 match parser.next().unwrap() {
                     Event::Tag(Tag::Unknown(name, _, _)) => assert_eq!(&*name, $name),
                     _ => assert!(false),
@@ -118,8 +124,6 @@ mod tests {
         test!("<foo>", "foo");
         test!("<foo/>", "foo");
         test!("  <foo/>", "foo");
-
-        // TODO:
         test!("foo <bar>", "bar");
         test!("foo> <bar>", "bar");
     }
