@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use {Error, Parser, Result};
+use parser::{Error, Parser, Result};
 
 /// A file.
 pub struct File {
@@ -35,14 +35,14 @@ impl File {
 
     /// Return an iterator over the content of the file.
     #[inline]
-    pub fn parse<'s>(&'s self) -> Parser<'s> {
+    pub fn parse<'l>(&'l self) -> Parser<'l> {
         Parser::new(&self.text)
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use Event;
+    use parser::Event;
     use super::File;
     use tag::Tag;
     use tests::find_fixture;

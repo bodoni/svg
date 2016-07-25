@@ -1,22 +1,22 @@
-//! Functionality related to the path tag.
+//! The path tag.
 
-use {Error, Result};
+use parser::{Error, Result};
 use reader::Reader;
 
-/// The data attribute of a path.
+/// A data attribute.
 ///
 /// http://www.w3.org/TR/SVG/paths.html#PathData
 pub struct Data {
     commands: Vec<Command>,
 }
 
-/// A command used to draw a path.
+/// A command.
 #[derive(Debug)]
 pub enum Command {
     /// [Establish][1] a new current point.
     ///
     /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataMovetoCommands
-    MoveTo(Positioning, Vec<f64>),
+    MoveTo(Position, Vec<f64>),
 
     /// [End][1] the current subpath.
     ///
@@ -26,72 +26,73 @@ pub enum Command {
     /// [Draw][1] straight lines.
     ///
     /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataLinetoCommands
-    LineTo(Positioning, Vec<f64>),
+    LineTo(Position, Vec<f64>),
 
     /// [Draw][1] horizontal lines.
     ///
     /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataLinetoCommands
-    HorizontalLineTo(Positioning, Vec<f64>),
+    HorizontalLineTo(Position, Vec<f64>),
 
     /// [Draw][1] vertical lines.
     ///
     /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataLinetoCommands
-    VerticalLineTo(Positioning, Vec<f64>),
+    VerticalLineTo(Position, Vec<f64>),
 
     /// [Draw][1] a cubic Bézier curve.
     ///
     /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataCubicBezierCommands
-    CurveTo(Positioning, Vec<f64>),
+    CurveTo(Position, Vec<f64>),
 
     /// [Draw][1] a cubic Bézier curve assuming the first control point to be
     /// the reflection of the second control point on the previous command
     /// relative to the current point.
     ///
     /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataCubicBezierCommands
-    SmoothCurveTo(Positioning, Vec<f64>),
+    SmoothCurveTo(Position, Vec<f64>),
 
     /// [Draw][1] a quadratic Bézier curve.
     ///
     /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataQuadraticBezierCommands
-    QuadraticBezierCurveTo(Positioning, Vec<f64>),
+    QuadraticBezierCurveTo(Position, Vec<f64>),
 
     /// [Draw][1] a quadratic Bézier curve assuming the control point to be the
     /// reflection of the control point on the previous command relative to the
     /// current point.
     ///
     /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataQuadraticBezierCommands
-    SmoothQuadraticBezierCurveTo(Positioning, Vec<f64>),
+    SmoothQuadraticBezierCurveTo(Position, Vec<f64>),
 
     /// [Draw][1] an elliptical arc.
     ///
     /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataEllipticalArcCommands
-    EllipticalArc(Positioning, Vec<f64>),
+    EllipticalArc(Position, Vec<f64>),
 }
 
-/// An attribute of a command indicating whether the coordinates of the command
-/// are absolute or relative to the current position.
-#[derive(Debug)]
-pub enum Positioning {
+/// An interpretation of coordinates.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum Position {
+    /// Absolute.
     Absolute,
+    /// Ralative.
     Relative,
 }
 
 impl Data {
-    /// Parse the data attribute of a path.
+    /// Parse a data attribute.
     #[inline]
     pub fn parse(text: &str) -> Result<Data> {
         Parser::new(text).process()
     }
 
-    /// Return an iterator over the commands of the path.
+    /// Return an iterator over the commands.
     #[inline]
     pub fn iter(&self) -> ::std::slice::Iter<Command> {
         self.commands.iter()
     }
 }
 
-struct Parser<'s> {
-    reader: Reader<'s>,
+struct Parser<'l> {
+    reader: Reader<'l>,
 }
 
 macro_rules! raise(
@@ -105,9 +106,9 @@ macro_rules! raise(
     });
 );
 
-impl<'s> Parser<'s> {
+impl<'l> Parser<'l> {
     #[inline]
-    fn new(text: &'s str) -> Parser<'s> {
+    fn new(text: &'l str) -> Parser<'l> {
         Parser {
             reader: Reader::new(text),
         }
@@ -132,7 +133,7 @@ impl<'s> Parser<'s> {
 
     fn read_command(&mut self) -> Result<Option<Command>> {
         use self::Command::*;
-        use self::Positioning::*;
+        use self::Position::*;
 
         let name = match self.reader.next() {
             Some(name) => match name {
@@ -220,7 +221,7 @@ impl<'s> Parser<'s> {
 mod tests {
     use super::{Data, Parser};
     use super::Command::*;
-    use super::Positioning::*;
+    use super::Position::*;
 
     #[test]
     fn data_parse() {
@@ -249,9 +250,9 @@ mod tests {
         );
 
         macro_rules! test(
-            ($text:expr, $command:ident, $positioning:ident, $parameters:expr) => (
+            ($text:expr, $command:ident, $position:ident, $parameters:expr) => (
                 match run!($text) {
-                    $command($positioning, parameters) => assert_eq!(parameters, $parameters),
+                    $command($position, parameters) => assert_eq!(parameters, $parameters),
                     _ => assert!(false),
                 }
             );

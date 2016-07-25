@@ -1,13 +1,16 @@
-use Error;
+//! The parser.
+
+use std::fmt;
+
 use reader::Reader;
 use tag::Tag;
 
 /// A parser.
-pub struct Parser<'s> {
-    reader: Reader<'s>,
+pub struct Parser<'l> {
+    reader: Reader<'l>,
 }
 
-/// An event of a parser.
+/// A parsing event.
 pub enum Event {
     Error(Error),
     Comment,
@@ -16,27 +19,35 @@ pub enum Event {
     Tag(Tag),
 }
 
-impl<'s> Parser<'s> {
-    /// Create a new parser.
-    pub fn new(text: &'s str) -> Parser<'s> {
-        Parser {
-            reader: Reader::new(text),
-        }
+/// A parsing error.
+pub struct Error {
+    /// The line number.
+    pub line: usize,
+    /// The column number.
+    pub column: usize,
+    /// The description.
+    pub message: String,
+}
+
+/// A parsing result.
+pub type Result<T> = ::std::result::Result<T, Error>;
+
+impl<'l> Parser<'l> {
+    /// Create a parser.
+    #[inline]
+    pub fn new(text: &'l str) -> Parser<'l> {
+        Parser { reader: Reader::new(text) }
     }
 }
 
 macro_rules! raise(
     ($parser:expr, $($arg:tt)*) => ({
         let (line, column) = $parser.reader.position();
-        return Some(Event::Error(Error {
-            line: line,
-            column: column,
-            message: format!($($arg)*),
-        }))
+        return Some(Event::Error(Error { line: line, column: column, message: format!($($arg)*) }))
     });
 );
 
-impl<'s> Iterator for Parser<'s> {
+impl<'l> Iterator for Parser<'l> {
     type Item = Event;
 
     fn next(&mut self) -> Option<Event> {
@@ -72,6 +83,18 @@ impl<'s> Iterator for Parser<'s> {
                 Err(error) => Event::Error(error),
             }
         })
+    }
+}
+
+impl fmt::Debug for Error {
+    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+        if self.line > 0 && self.column > 0 {
+            write!(formatter, "{} (line {}, column {})", self.message, self.line, self.column)
+        } else if self.line > 0 {
+            write!(formatter, "{} (line {})", self.message, self.line)
+        } else {
+            fmt::Debug::fmt(&self.message, formatter)
+        }
     }
 }
 

@@ -1,10 +1,12 @@
-//! Functionality related to tags.
+//! The tags.
 
 use std::ascii::AsciiExt;
 use std::collections::HashMap;
 
-use {Error, Result};
+use parser::{Error, Result};
 use reader::Reader;
+
+pub mod path;
 
 /// A tag.
 pub enum Tag {
@@ -26,8 +28,8 @@ pub struct Attributes {
     mapping: HashMap<String, String>,
 }
 
-struct Parser<'s> {
-    reader: Reader<'s>,
+struct Parser<'l> {
+    reader: Reader<'l>,
 }
 
 impl Tag {
@@ -48,9 +50,9 @@ macro_rules! raise(
     });
 );
 
-impl<'s> Parser<'s> {
+impl<'l> Parser<'l> {
     #[inline]
-    fn new(text: &'s str) -> Parser<'s> {
+    fn new(text: &'l str) -> Parser<'l> {
         Parser {
             reader: Reader::new(text),
         }
@@ -157,7 +159,7 @@ impl Attributes {
     }
 
     #[inline]
-    pub fn get<'s>(&'s self, name: &str) -> Option<&'s String> {
+    pub fn get<'l>(&'l self, name: &str) -> Option<&'l String> {
         let name = name.to_string().to_ascii_lowercase();
         self.mapping.get(&name)
     }

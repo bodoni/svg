@@ -1,44 +1,20 @@
 //! An SVG composer and parser.
 
-use std::fmt;
 use std::path::Path;
 
 pub use file::File;
-pub use parser::{Event, Parser};
+pub use parser::Parser;
 pub use tag::Tag;
 
 mod file;
-mod parser;
 mod reader;
 
-pub mod path;
+pub mod parser;
 pub mod tag;
-
-/// An error.
-pub struct Error {
-    pub line: usize,
-    pub column: usize,
-    pub message: String,
-}
-
-/// A result.
-pub type Result<T> = std::result::Result<T, Error>;
-
-impl fmt::Debug for Error {
-    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        if self.line > 0 && self.column > 0 {
-            write!(formatter, "{} (line {}, column {})", self.message, self.line, self.column)
-        } else if self.line > 0 {
-            write!(formatter, "{} (line {})", self.message, self.line)
-        } else {
-            fmt::Debug::fmt(&self.message, formatter)
-        }
-    }
-}
 
 /// Open a file.
 #[inline]
-pub fn open<T: AsRef<Path>>(path: T) -> Result<File> {
+pub fn open<T: AsRef<Path>>(path: T) -> parser::Result<File> {
     File::open(path)
 }
 

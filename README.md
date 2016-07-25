@@ -9,8 +9,9 @@ The package provides an SVG composer and parser.
 ```rust
 extern crate svg;
 
-use svg::{Event, Tag};
-use svg::path::{Command, Data};
+use svg::Tag;
+use svg::parser::Event;
+use svg::tag::path::{Command, Data};
 
 fn main() {
     let file = svg::open("tests/fixtures/benton.svg").unwrap();

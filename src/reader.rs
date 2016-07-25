@@ -1,35 +1,30 @@
 use std::iter::Peekable;
 use std::str::Chars;
 
-pub struct Reader<'s> {
-    text: &'s str,
-
+pub struct Reader<'l> {
+    text: &'l str,
     line: usize,
     column: usize,
     offset: usize,
-
-    cursor: Peekable<Chars<'s>>,
+    cursor: Peekable<Chars<'l>>,
 }
 
-impl<'s> Reader<'s> {
+impl<'l> Reader<'l> {
     #[inline]
-    pub fn new(text: &'s str) -> Reader<'s> {
+    pub fn new(text: &'l str) -> Reader<'l> {
         Reader {
             text: text,
-
             line: 1,
             column: 1,
             offset: 0,
-
             cursor: text.chars().peekable(),
         }
     }
 
-    pub fn capture<F>(&mut self, block: F) -> Option<&str> where F: Fn(&mut Reader<'s>) {
+    pub fn capture<F>(&mut self, block: F) -> Option<&str> where F: Fn(&mut Reader<'l>) {
         let start = self.offset;
         block(self);
         let end = self.offset;
-
         if end > start {
             Some(&self.text[start..end])
         } else {
@@ -188,7 +183,7 @@ impl<'s> Reader<'s> {
     }
 }
 
-impl<'s> Iterator for Reader<'s> {
+impl<'l> Iterator for Reader<'l> {
     type Item = char;
 
     fn next(&mut self) -> Option<char> {
