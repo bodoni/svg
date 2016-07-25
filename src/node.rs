@@ -3,6 +3,8 @@
 use std::ascii::AsciiExt;
 use std::collections::HashMap;
 
+use composer::{Composer, Result};
+
 /// Attributes.
 #[derive(Clone, Debug)]
 pub struct Attributes {
@@ -42,6 +44,16 @@ impl Node {
     /// Create a node.
     pub fn new<T: Into<String>>(name: T) -> Self {
         Node { name: name.into(), attributes: Attributes::new(), children: vec![] }
+    }
+
+    /// Append a node.
+    pub fn append<T: Into<Node>>(&mut self, node: T) {
+        self.children.push(node.into());
+    }
+
+    /// Write the node.
+    pub fn compose<T>(&mut self, _: &mut Composer<T>) -> Result<()> {
+        Ok(())
     }
 }
 

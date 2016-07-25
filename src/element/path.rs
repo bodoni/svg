@@ -8,7 +8,7 @@ use reader::{Input, Reader};
 
 node! {
     #[doc = "A path element."]
-    pub Path
+    pub Path("path")
 }
 
 /// A data attribute.

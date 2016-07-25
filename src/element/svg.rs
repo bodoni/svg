@@ -4,5 +4,5 @@
 
 node! {
     #[doc = "An svg element."]
-    pub SVG
+    pub SVG("svg")
 }

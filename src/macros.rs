@@ -36,13 +36,28 @@ macro_rules! deref {
 }
 
 macro_rules! node {
-    ($(#[$attribute:meta])* pub $name:ident) => (
+    ($(#[$attribute:meta])* pub $kind:ident($name:expr)) => (
         $(#[$attribute])*
         #[derive(Clone, Debug)]
-        pub struct $name {
+        pub struct $kind {
             node: ::node::Node,
         }
 
-        deref! { $name::node => ::node::Node }
+        impl $kind {
+            /// Create an instance.
+            #[inline]
+            pub fn new() -> Self {
+                $kind { node: ::node::Node::new($name) }
+            }
+        }
+
+        impl From<$kind> for ::node::Node {
+            #[inline]
+            fn from($kind { node, .. }: $kind) -> ::node::Node {
+                node
+            }
+        }
+
+        deref! { $kind::node => ::node::Node }
     );
 }
