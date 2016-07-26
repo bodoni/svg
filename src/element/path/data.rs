@@ -7,9 +7,7 @@ use reader::Reader;
 ///
 /// [1]: http://www.w3.org/TR/SVG/paths.html#PathData
 #[derive(Clone, Debug)]
-pub struct Data {
-    commands: Vec<Command>,
-}
+pub struct Data(Vec<Command>);
 
 /// A command.
 #[derive(Clone, Debug)]
@@ -88,13 +86,9 @@ impl Data {
     pub fn parse<'l, T: Into<Cow<'l, str>>>(content: T) -> Result<Self> {
         Parser::new(content).process()
     }
-
-    /// Return an iterator over the commands.
-    #[inline]
-    pub fn iter(&self) -> ::std::slice::Iter<Command> {
-        self.commands.iter()
-    }
 }
+
+deref! { Data::0 => [Command] }
 
 macro_rules! raise(
     ($parser:expr, $($arg:tt)*) => ({
@@ -118,7 +112,7 @@ impl<'l> Parser<'l> {
                 _ => break,
             }
         }
-        Ok(Data { commands: commands })
+        Ok(Data(commands))
     }
 
     fn read_command(&mut self) -> Result<Option<Command>> {
@@ -209,13 +203,13 @@ mod tests {
     fn data_parse() {
         let data = Data::parse("M1,2 l3,4").unwrap();
 
-        assert_eq!(data.commands.len(), 2);
+        assert_eq!(data.len(), 2);
 
-        match data.commands[0] {
+        match data[0] {
             MoveTo(Absolute, ref parameters) => assert_eq!(*parameters, vec![1.0, 2.0]),
             _ => assert!(false),
         }
-        match data.commands[1] {
+        match data[1] {
             LineTo(Relative, ref parameters) => assert_eq!(*parameters, vec![3.0, 4.0]),
             _ => assert!(false),
         }

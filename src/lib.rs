@@ -5,10 +5,10 @@ use std::path::Path;
 #[macro_use]
 mod macros;
 
-mod node;
 mod reader;
 
 pub mod element;
+pub mod node;
 pub mod parser;
 pub mod tag;
 

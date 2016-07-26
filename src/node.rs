@@ -5,15 +5,16 @@ use std::collections::HashMap;
 use std::fmt;
 
 /// Attributes.
-#[derive(Default)]
+#[derive(Clone, Debug, Default)]
 pub struct Attributes(HashMap<String, String>);
 
 /// Children.
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct Children(Vec<Box<Node>>);
 
 /// A node.
-pub trait Node: fmt::Display { }
+pub trait Node: fmt::Debug + fmt::Display {
+}
 
 impl Attributes {
     /// Get an attribute.
@@ -46,7 +47,7 @@ impl Children {
     }
 }
 
-deref! { Children::0 => Vec<Box<Node>> }
+deref! { Children::0 => [Box<Node>] }
 
 impl fmt::Display for Children {
     fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {

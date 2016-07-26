@@ -100,7 +100,7 @@ macro_rules! node {
         }
     ) => (
         $(#[$attribute])*
-        #[derive(Default)]
+        #[derive(Clone, Debug, Default)]
         pub struct $struct_name {
             attributes: ::node::Attributes,
         }
@@ -119,7 +119,7 @@ macro_rules! node {
         }
     ) => (
         $(#[$attribute])*
-        #[derive(Default)]
+        #[derive(Debug, Default)]
         pub struct $struct_name {
             attributes: ::node::Attributes,
             children: ::node::Children,
@@ -131,15 +131,6 @@ macro_rules! node {
         node! {
             @implement(Attributes) $struct_name
             $($attribute_setter [$attribute_name] [$($attribute_type)*],)*
-        }
-    );
-}
-
-macro_rules! proxy {
-    ($field_name:ident::$method_name:ident -> $return_type:ty) => (
-        #[inline]
-        pub fn $method_name(&self) -> $return_type {
-            self.$field_name.$method_name()
         }
     );
 }

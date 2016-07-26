@@ -1,6 +1,6 @@
-/// The [path][1] element.
-///
-/// [1]: https://www.w3.org/TR/SVG/paths.html#PathElement
+//! The [path][1] element.
+//!
+//! [1]: https://www.w3.org/TR/SVG/paths.html#PathElement
 
 mod data;
 
