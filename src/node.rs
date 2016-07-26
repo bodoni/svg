@@ -3,6 +3,8 @@
 use std::collections::HashMap;
 use std::fmt;
 
+use value::Value;
+
 /// Attributes.
 #[derive(Clone, Debug, Default)]
 pub struct Attributes(HashMap<String, String>);
@@ -24,7 +26,7 @@ impl Attributes {
 
     /// Set an attribute.
     #[inline]
-    pub fn set<T: Into<String>>(&mut self, name: T, value: T) {
+    pub fn set<T: Into<String>, U: Value>(&mut self, name: T, value: U) {
         self.0.insert(name.into(), value.into());
     }
 }
@@ -58,5 +60,16 @@ impl fmt::Display for Children {
             }
         }
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use node::Attributes;
+
+    #[test]
+    fn set() {
+        let mut attributes = Attributes::default();
+        attributes.set("foo", 42);
     }
 }

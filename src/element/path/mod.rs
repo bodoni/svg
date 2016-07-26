@@ -10,8 +10,6 @@ node! {
     @empty
     #[doc = "An svg element."]
     pub struct Path("path") {
-        stroke ["stroke"] [<paint>],
-        stroke_width ["stroke-width"] [<percentage> | <length> | inherit],
     }
 }
 

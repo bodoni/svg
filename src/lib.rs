@@ -9,8 +9,8 @@
 //!
 //! # fn main() {
 //! let path = Path::new()
-//!                 .stroke("black")
-//!                 .stroke_width(3)
+//!                 .set("stroke", "black")
+//!                 .set("stroke-width", 3)
 //!                 .move_to((10, 10))
 //!                 .line_by((0, 50))
 //!                 .line_by((50, 0))
@@ -18,7 +18,7 @@
 //!                 .close();
 //!
 //! let document = Document::new()
-//!                         .view_box((0, 0, 70, 70))
+//!                         .set("viewBox", (0, 0, 70, 70))
 //!                         .append(path);
 //!
 //! println!("{}", document);
@@ -60,6 +60,7 @@ use std::path::Path;
 mod macros;
 
 mod reader;
+mod value;
 
 pub mod element;
 pub mod error;
@@ -71,6 +72,7 @@ pub mod tag;
 pub use node::Node;
 pub use reactor::Reactor;
 pub use tag::Tag;
+pub use value::Value;
 
 /// A document.
 pub type Document = element::SVG;

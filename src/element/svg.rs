@@ -5,6 +5,5 @@
 node! {
     #[doc = "An svg element."]
     pub struct SVG("svg") {
-        view_box ["viewBox"] [<natural natural natural natural>],
     }
 }

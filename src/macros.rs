@@ -19,10 +19,7 @@ macro_rules! deref {
 }
 
 macro_rules! node {
-    (
-        @implement(Attributes) $struct_name:ident
-        $($attribute_setter:ident [$attribute_name:expr] [$($attribute_type:tt)*],)*
-    ) => (
+    (@implement(Attributes) $struct_name:ident) => (
         impl $struct_name {
             /// Get an attribute.
             #[inline]
@@ -32,17 +29,10 @@ macro_rules! node {
 
             /// Set an attribute.
             #[inline]
-            pub fn set<T: Into<String>>(mut self, name: T, value: T) -> Self {
+            pub fn set<T: Into<String>, U: ::value::Value>(mut self, name: T, value: U) -> Self {
                 self.attributes.set(name, value);
                 self
             }
-
-            $(
-                #[inline]
-                pub fn $attribute_setter<T>(self, _: T) -> Self {
-                    self
-                }
-            )*
         }
     );
     (@implement(Base) $struct_name:ident) => (
@@ -96,26 +86,24 @@ macro_rules! node {
         @empty
         $(#[$attribute:meta])*
         pub struct $struct_name:ident($tag_name:expr) {
-            $($attribute_setter:ident [$attribute_name:expr] [$($attribute_type:tt)*],)*
+            $($field_name:ident: $field_type:ty,)*
         }
     ) => (
         $(#[$attribute])*
         #[derive(Clone, Debug, Default)]
         pub struct $struct_name {
             attributes: ::node::Attributes,
+            $($field_name: $field_type,)*
         }
 
         node! { @implement(Base) $struct_name }
         node! { @implement(Display) @empty $struct_name($tag_name) }
-        node! {
-            @implement(Attributes) $struct_name
-            $($attribute_setter [$attribute_name] [$($attribute_type)*],)*
-        }
+        node! { @implement(Attributes) $struct_name }
     );
     (
         $(#[$attribute:meta])*
         pub struct $struct_name:ident($tag_name:expr) {
-            $($attribute_setter:ident [$attribute_name:expr] [$($attribute_type:tt)*],)*
+            $($field_name:ident: $field_type:ty,)*
         }
     ) => (
         $(#[$attribute])*
@@ -123,14 +111,12 @@ macro_rules! node {
         pub struct $struct_name {
             attributes: ::node::Attributes,
             children: ::node::Children,
+            $($field_name: $field_type,)*
         }
 
         node! { @implement(Base) $struct_name }
         node! { @implement(Display) $struct_name($tag_name) }
         node! { @implement(Children) $struct_name }
-        node! {
-            @implement(Attributes) $struct_name
-            $($attribute_setter [$attribute_name] [$($attribute_type)*],)*
-        }
+        node! { @implement(Attributes) $struct_name }
     );
 }
