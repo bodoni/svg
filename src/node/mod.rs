@@ -10,7 +10,7 @@ pub use self::value::Value;
 #[derive(Debug)]
 pub struct Node {
     name: String,
-    is_empty: bool,
+    leaf: bool,
     attributes: Vec<(String, String)>,
     children: Vec<Node>,
 }
@@ -18,16 +18,16 @@ pub struct Node {
 impl Node {
     /// Create a node.
     #[inline]
-    pub fn new<T: Into<String>>(name: T, is_empty: bool) -> Self {
+    pub fn new<T: Into<String>>(name: T, leaf: bool) -> Self {
         Node {
             name: name.into(),
-            is_empty: is_empty,
+            leaf: leaf,
             attributes: Default::default(),
             children: Default::default(),
         }
     }
 
-    /// Append a child.
+    /// Append a node.
     #[inline]
     pub fn append<T: Into<Node>>(&mut self, node: T) {
         self.children.push(node.into())
@@ -46,7 +46,7 @@ impl fmt::Display for Node {
         for &(ref name, ref value) in self.attributes.iter() {
             try!(write!(formatter, " {}='{}'", name, value));
         }
-        if self.is_empty {
+        if self.leaf {
             return write!(formatter, "/>");
         }
         try!(write!(formatter, ">"));

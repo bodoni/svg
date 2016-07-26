@@ -19,7 +19,7 @@ macro_rules! deref {
 }
 
 macro_rules! node {
-    ($(#[$attribute:meta])* pub struct $struct_name:ident($tag_name:expr, $is_empty:expr)) => (
+    ($(#[$attribute:meta])* pub struct $struct_name:ident($tag:expr, $leaf:expr)) => (
         $(#[$attribute])*
         #[derive(Debug)]
         pub struct $struct_name(::node::Node);
@@ -28,7 +28,7 @@ macro_rules! node {
             /// Create a node.
             #[inline]
             pub fn new() -> Self {
-                $struct_name(::node::Node::new($tag_name, $is_empty))
+                $struct_name(::node::Node::new($tag, $leaf))
             }
 
             /// Append a node.
