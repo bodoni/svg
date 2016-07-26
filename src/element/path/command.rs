@@ -99,7 +99,6 @@ macro_rules! implement {
     (@express $e:expr) => ($e);
     ($(($t:ident, $n:tt)),*) => (
         impl<$($t),*> Parameters for ($($t),*) where $($t: Parameters),* {
-            #[inline]
             fn into(self) -> Vec<f32> {
                 let mut result = vec![];
                 $(result.append(&mut implement!(@express self.$n).into());)*
