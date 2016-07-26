@@ -1,4 +1,5 @@
 use std::borrow::Cow;
+use std::ops::{Deref, DerefMut};
 
 use {Error, Result};
 use element::Value;
@@ -154,7 +155,21 @@ impl Data {
     }
 }
 
-deref! { Data::0 => [Command] }
+impl Deref for Data {
+    type Target = [Command];
+
+    #[inline]
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl DerefMut for Data {
+    #[inline]
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
 
 impl From<Vec<Command>> for Data {
     #[inline]

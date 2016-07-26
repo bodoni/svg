@@ -58,9 +58,6 @@ use std::borrow::Cow;
 use std::path::Path;
 use std::{fmt, io};
 
-#[macro_use]
-mod macros;
-
 mod error;
 mod reader;
 
