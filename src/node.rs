@@ -1,6 +1,5 @@
 //! The nodes.
 
-use std::ascii::AsciiExt;
 use std::collections::HashMap;
 use std::fmt;
 
@@ -19,15 +18,14 @@ pub trait Node: fmt::Debug + fmt::Display {
 impl Attributes {
     /// Get an attribute.
     #[inline]
-    pub fn get<T: Into<String>>(&self, name: T) -> Option<&str> {
-        let name = name.into().to_ascii_lowercase();
-        self.0.get(&name).map(|name| name.as_str())
+    pub fn get<T: AsRef<str>>(&self, name: T) -> Option<&str> {
+        self.0.get(name.as_ref()).map(|name| name.as_str())
     }
 
     /// Set an attribute.
     #[inline]
     pub fn set<T: Into<String>>(&mut self, name: T, value: T) {
-        self.0.insert(name.into().to_ascii_lowercase(), value.into());
+        self.0.insert(name.into(), value.into());
     }
 }
 

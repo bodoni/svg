@@ -26,7 +26,7 @@ macro_rules! node {
         impl $struct_name {
             /// Get an attribute.
             #[inline]
-            pub fn get<T: Into<String>>(&self, name: T) -> Option<&str> {
+            pub fn get<T: AsRef<str>>(&self, name: T) -> Option<&str> {
                 self.attributes.get(name)
             }
 
