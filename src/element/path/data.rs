@@ -1,6 +1,6 @@
 use std::borrow::Cow;
 
-use element::path::command::{Command, Parameters, Position};
+use element::path::{Command, Parameter, Position};
 use error::Parse as Error;
 use node::Value;
 use reader::Reader;
@@ -34,117 +34,117 @@ macro_rules! command(
     ($data:ident, $command:ident) => (
         $data.0.push(Command::$command);
     );
-    ($data:ident, $command:ident, $position:ident, $parameters:ident) => (
-        $data.0.push(Command::$command(Position::$position, $parameters.into()));
+    ($data:ident, $command:ident, $position:ident, $parameter:ident) => (
+        $data.0.push(Command::$command(Position::$position, $parameter.into()));
     );
 );
 
 impl Data {
-    /// Add an aboslute `Command::Move` command.
-    pub fn move_to<T: Parameters>(mut self, parameters: T) -> Self {
-        command!(self, Move, Absolute, parameters);
+    /// Add an absolute `Command::Move` command.
+    pub fn move_to<T: Parameter>(mut self, parameter: T) -> Self {
+        command!(self, Move, Absolute, parameter);
         self
     }
 
     /// Add a relative `Command::Move` command.
-    pub fn move_by<T: Parameters>(mut self, parameters: T) -> Self {
-        command!(self, Move, Relative, parameters);
+    pub fn move_by<T: Parameter>(mut self, parameter: T) -> Self {
+        command!(self, Move, Relative, parameter);
         self
     }
 
-    /// Add an aboslute `Command::Line` command.
-    pub fn line_to<T: Parameters>(mut self, parameters: T) -> Self {
-        command!(self, Line, Absolute, parameters);
+    /// Add an absolute `Command::Line` command.
+    pub fn line_to<T: Parameter>(mut self, parameter: T) -> Self {
+        command!(self, Line, Absolute, parameter);
         self
     }
 
     /// Add a relative `Command::Line` command.
-    pub fn line_by<T: Parameters>(mut self, parameters: T) -> Self {
-        command!(self, Line, Relative, parameters);
+    pub fn line_by<T: Parameter>(mut self, parameter: T) -> Self {
+        command!(self, Line, Relative, parameter);
         self
     }
 
-    /// Add an aboslute `Command::HorizontalLine` command.
-    pub fn horizontal_line_to<T: Parameters>(mut self, parameters: T) -> Self {
-        command!(self, HorizontalLine, Absolute, parameters);
+    /// Add an absolute `Command::HorizontalLine` command.
+    pub fn horizontal_line_to<T: Parameter>(mut self, parameter: T) -> Self {
+        command!(self, HorizontalLine, Absolute, parameter);
         self
     }
 
     /// Add a relative `Command::HorizontalLine` command.
-    pub fn horizontal_line_by<T: Parameters>(mut self, parameters: T) -> Self {
-        command!(self, HorizontalLine, Relative, parameters);
+    pub fn horizontal_line_by<T: Parameter>(mut self, parameter: T) -> Self {
+        command!(self, HorizontalLine, Relative, parameter);
         self
     }
 
-    /// Add an aboslute `Command::VerticalLine` command.
-    pub fn vertical_line_to<T: Parameters>(mut self, parameters: T) -> Self {
-        command!(self, VerticalLine, Absolute, parameters);
+    /// Add an absolute `Command::VerticalLine` command.
+    pub fn vertical_line_to<T: Parameter>(mut self, parameter: T) -> Self {
+        command!(self, VerticalLine, Absolute, parameter);
         self
     }
 
     /// Add a relative `Command::VerticalLine` command.
-    pub fn vertical_line_by<T: Parameters>(mut self, parameters: T) -> Self {
-        command!(self, VerticalLine, Relative, parameters);
+    pub fn vertical_line_by<T: Parameter>(mut self, parameter: T) -> Self {
+        command!(self, VerticalLine, Relative, parameter);
         self
     }
 
-    /// Add an aboslute `Command::QuadraticCurve` command.
-    pub fn quadratic_curve_to<T: Parameters>(mut self, parameters: T) -> Self {
-        command!(self, QuadraticCurve, Absolute, parameters);
+    /// Add an absolute `Command::QuadraticCurve` command.
+    pub fn quadratic_curve_to<T: Parameter>(mut self, parameter: T) -> Self {
+        command!(self, QuadraticCurve, Absolute, parameter);
         self
     }
 
     /// Add a relative `Command::QuadraticCurve` command.
-    pub fn quadratic_curve_by<T: Parameters>(mut self, parameters: T) -> Self {
-        command!(self, QuadraticCurve, Relative, parameters);
+    pub fn quadratic_curve_by<T: Parameter>(mut self, parameter: T) -> Self {
+        command!(self, QuadraticCurve, Relative, parameter);
         self
     }
 
-    /// Add an aboslute `Command::SmoothQuadraticCurve` command.
-    pub fn smooth_quadratic_curve_to<T: Parameters>(mut self, parameters: T) -> Self {
-        command!(self, SmoothQuadraticCurve, Absolute, parameters);
+    /// Add an absolute `Command::SmoothQuadraticCurve` command.
+    pub fn smooth_quadratic_curve_to<T: Parameter>(mut self, parameter: T) -> Self {
+        command!(self, SmoothQuadraticCurve, Absolute, parameter);
         self
     }
 
     /// Add a relative `Command::SmoothQuadraticCurve` command.
-    pub fn smooth_quadratic_curve_by<T: Parameters>(mut self, parameters: T) -> Self {
-        command!(self, SmoothQuadraticCurve, Relative, parameters);
+    pub fn smooth_quadratic_curve_by<T: Parameter>(mut self, parameter: T) -> Self {
+        command!(self, SmoothQuadraticCurve, Relative, parameter);
         self
     }
 
-    /// Add an aboslute `Command::CubicCurve` command.
-    pub fn cubic_curve_to<T: Parameters>(mut self, parameters: T) -> Self {
-        command!(self, CubicCurve, Absolute, parameters);
+    /// Add an absolute `Command::CubicCurve` command.
+    pub fn cubic_curve_to<T: Parameter>(mut self, parameter: T) -> Self {
+        command!(self, CubicCurve, Absolute, parameter);
         self
     }
 
     /// Add a relative `Command::CubicCurve` command.
-    pub fn cubic_curve_by<T: Parameters>(mut self, parameters: T) -> Self {
-        command!(self, CubicCurve, Relative, parameters);
+    pub fn cubic_curve_by<T: Parameter>(mut self, parameter: T) -> Self {
+        command!(self, CubicCurve, Relative, parameter);
         self
     }
 
-    /// Add an aboslute `Command::SmoothCubicCurve` command.
-    pub fn smooth_cubic_curve_to<T: Parameters>(mut self, parameters: T) -> Self {
-        command!(self, SmoothCubicCurve, Absolute, parameters);
+    /// Add an absolute `Command::SmoothCubicCurve` command.
+    pub fn smooth_cubic_curve_to<T: Parameter>(mut self, parameter: T) -> Self {
+        command!(self, SmoothCubicCurve, Absolute, parameter);
         self
     }
 
     /// Add a relative `Command::SmoothCubicCurve` command.
-    pub fn smooth_cubic_curve_by<T: Parameters>(mut self, parameters: T) -> Self {
-        command!(self, SmoothCubicCurve, Relative, parameters);
+    pub fn smooth_cubic_curve_by<T: Parameter>(mut self, parameter: T) -> Self {
+        command!(self, SmoothCubicCurve, Relative, parameter);
         self
     }
 
-    /// Add an aboslute `Command::EllipticalArc` command.
-    pub fn elliptical_arc_to<T: Parameters>(mut self, parameters: T) -> Self {
-        command!(self, EllipticalArc, Absolute, parameters);
+    /// Add an absolute `Command::EllipticalArc` command.
+    pub fn elliptical_arc_to<T: Parameter>(mut self, parameter: T) -> Self {
+        command!(self, EllipticalArc, Absolute, parameter);
         self
     }
 
     /// Add a relative `Command::EllipticalArc` command.
-    pub fn elliptical_arc_by<T: Parameters>(mut self, parameters: T) -> Self {
-        command!(self, EllipticalArc, Relative, parameters);
+    pub fn elliptical_arc_by<T: Parameter>(mut self, parameter: T) -> Self {
+        command!(self, EllipticalArc, Relative, parameter);
         self
     }
 
@@ -213,34 +213,34 @@ impl<'l> Parser<'l> {
             _ => return Ok(None),
         };
         self.reader.consume_whitespace();
-        let parameters = try!(self.read_parameters());
+        let parameter = try!(self.read_parameter());
         Ok(Some(match name {
-            'M' => Move(Absolute, parameters),
-            'm' => Move(Relative, parameters),
+            'M' => Move(Absolute, parameter),
+            'm' => Move(Relative, parameter),
 
-            'L' => Line(Absolute, parameters),
-            'l' => Line(Relative, parameters),
+            'L' => Line(Absolute, parameter),
+            'l' => Line(Relative, parameter),
 
-            'H' => HorizontalLine(Absolute, parameters),
-            'h' => HorizontalLine(Relative, parameters),
+            'H' => HorizontalLine(Absolute, parameter),
+            'h' => HorizontalLine(Relative, parameter),
 
-            'V' => VerticalLine(Absolute, parameters),
-            'v' => VerticalLine(Relative, parameters),
+            'V' => VerticalLine(Absolute, parameter),
+            'v' => VerticalLine(Relative, parameter),
 
-            'Q' => QuadraticCurve(Absolute, parameters),
-            'q' => QuadraticCurve(Relative, parameters),
+            'Q' => QuadraticCurve(Absolute, parameter),
+            'q' => QuadraticCurve(Relative, parameter),
 
-            'T' => SmoothQuadraticCurve(Absolute, parameters),
-            't' => SmoothQuadraticCurve(Relative, parameters),
+            'T' => SmoothQuadraticCurve(Absolute, parameter),
+            't' => SmoothQuadraticCurve(Relative, parameter),
 
-            'C' => CubicCurve(Absolute, parameters),
-            'c' => CubicCurve(Relative, parameters),
+            'C' => CubicCurve(Absolute, parameter),
+            'c' => CubicCurve(Relative, parameter),
 
-            'S' => SmoothCubicCurve(Absolute, parameters),
-            's' => SmoothCubicCurve(Relative, parameters),
+            'S' => SmoothCubicCurve(Absolute, parameter),
+            's' => SmoothCubicCurve(Relative, parameter),
 
-            'A' => EllipticalArc(Absolute, parameters),
-            'a' => EllipticalArc(Relative, parameters),
+            'A' => EllipticalArc(Absolute, parameter),
+            'a' => EllipticalArc(Relative, parameter),
 
             'Z' | 'z' => Close,
 
@@ -248,17 +248,17 @@ impl<'l> Parser<'l> {
         }))
     }
 
-    fn read_parameters(&mut self) -> Result<Vec<f32>> {
-        let mut parameters = Vec::new();
+    fn read_parameter(&mut self) -> Result<Vec<f32>> {
+        let mut parameter = Vec::new();
         loop {
             match try!(self.read_number()) {
-                Some(number) => parameters.push(number),
+                Some(number) => parameter.push(number),
                 _ => break,
             }
             self.reader.consume_whitespace();
             self.reader.consume_any(",");
         }
-        Ok(parameters)
+        Ok(parameter)
     }
 
     pub fn read_number(&mut self) -> Result<Option<f32>> {
@@ -292,11 +292,11 @@ mod tests {
         assert_eq!(data.len(), 2);
 
         match data[0] {
-            Move(Absolute, ref parameters) => assert_eq!(*parameters, vec![1.0, 2.0]),
+            Move(Absolute, ref parameter) => assert_eq!(*parameter, vec![1.0, 2.0]),
             _ => assert!(false),
         }
         match data[1] {
-            Line(Relative, ref parameters) => assert_eq!(*parameters, vec![3.0, 4.0]),
+            Line(Relative, ref parameter) => assert_eq!(*parameter, vec![3.0, 4.0]),
             _ => assert!(false),
         }
     }
@@ -311,9 +311,9 @@ mod tests {
         );
 
         macro_rules! test(
-            ($content:expr, $command:ident, $position:ident, $parameters:expr) => (
+            ($content:expr, $command:ident, $position:ident, $parameter:expr) => (
                 match run!($content) {
-                    $command($position, parameters) => assert_eq!(parameters, $parameters),
+                    $command($position, parameter) => assert_eq!(parameter, $parameter),
                     _ => assert!(false),
                 }
             );
@@ -357,10 +357,10 @@ mod tests {
     }
 
     #[test]
-    fn parser_read_parameters() {
+    fn parser_read_parameter() {
         let mut parser = Parser::new("1,2 3,4 5 6.7");
-        let parameters = parser.read_parameters().unwrap();
-        assert_eq!(parameters, vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.7]);
+        let parameter = parser.read_parameter().unwrap();
+        assert_eq!(parameter, vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.7]);
     }
 
     #[test]

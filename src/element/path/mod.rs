@@ -4,9 +4,11 @@
 
 mod command;
 mod data;
+mod parameter;
 
-pub use self::command::{Command, Parameters, Position};
+pub use self::command::{Command, Position};
 pub use self::data::Data;
+pub use self::parameter::Parameter;
 
 node! {
     @empty
