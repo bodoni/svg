@@ -2,7 +2,7 @@
 //!
 //! [1]: https://www.w3.org/TR/SVG/struct.html#SVGElement
 
-node! {
+element! {
     #[doc = "An svg element."]
-    pub struct SVG("svg", false)
+    pub struct SVG("svg")
 }

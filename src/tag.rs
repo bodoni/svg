@@ -21,9 +21,9 @@ pub enum Tag {
 /// [1]: http://www.w3.org/TR/REC-xml/#sec-starttags
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum Type {
-    /// An opening tag.
+    /// A start tag.
     Start,
-    /// A closing tag.
+    /// An end tag.
     End,
     /// An empty tag.
     Empty,

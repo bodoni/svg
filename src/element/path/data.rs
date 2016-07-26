@@ -1,8 +1,8 @@
 use std::borrow::Cow;
 
+use element::Value;
 use element::path::{Command, Parameter, Position};
 use error::Parse as Error;
-use node::Value;
 use reader::Reader;
 use result::Parse as Result;
 

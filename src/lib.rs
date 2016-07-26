@@ -56,6 +56,7 @@
 //! ```
 
 use std::borrow::Cow;
+use std::fmt;
 use std::path::Path;
 
 #[macro_use]
@@ -65,17 +66,19 @@ mod reader;
 
 pub mod element;
 pub mod error;
-pub mod node;
 pub mod reactor;
 pub mod result;
 pub mod tag;
 
-pub use node::Node;
 pub use reactor::Reactor;
 pub use tag::Tag;
 
 /// A document.
 pub type Document = element::SVG;
+
+/// A node.
+pub trait Node: fmt::Debug + fmt::Display {
+}
 
 /// Open a document.
 pub fn open<'l, T: AsRef<Path>>(path: T) -> result::Read<Reactor<'l>> {

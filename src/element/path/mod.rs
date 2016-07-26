@@ -10,7 +10,7 @@ pub use self::command::{Command, Position};
 pub use self::data::Data;
 pub use self::parameter::Parameter;
 
-node! {
+element! {
     #[doc = "A path element."]
-    pub struct Path("path", true)
+    pub struct Path("path")
 }
