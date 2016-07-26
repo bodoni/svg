@@ -12,7 +12,7 @@ pub use self::parameter::Parameter;
 
 node! {
     @empty
-    #[doc = "An svg element."]
+    #[doc = "A path element."]
     pub struct Path("path") {
     }
 }
