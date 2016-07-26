@@ -1,7 +1,8 @@
 use std::borrow::Cow;
 
-use parser::{Error, Result};
+use error::Parse as Error;
 use reader::Reader;
+use result::Parse as Result;
 
 /// A [data][1] attribute.
 ///
@@ -91,10 +92,9 @@ impl Data {
 deref! { Data::0 => [Command] }
 
 macro_rules! raise(
-    ($parser:expr, $($arg:tt)*) => ({
-        let (line, column) = $parser.reader.position();
-        return Err(Error { line: line, column: column, message: format!($($arg)*) })
-    });
+    ($parser:expr, $($argument:tt)*) => (
+        return Err(Error::new($parser.reader.position(), format!($($argument)*)));
+    );
 );
 
 impl<'l> Parser<'l> {

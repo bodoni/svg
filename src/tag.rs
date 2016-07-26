@@ -3,9 +3,10 @@
 use std::ascii::AsciiExt;
 use std::borrow::Cow;
 
+use error::Parse as Error;
 use node::Attributes;
-use parser::{Error, Result};
 use reader::Reader;
+use result::Parse as Result;
 
 /// A tag.
 pub enum Tag {
@@ -41,10 +42,9 @@ impl Tag {
 }
 
 macro_rules! raise(
-    ($parser:expr, $($arg:tt)*) => ({
-        let (line, column) = $parser.reader.position();
-        return Err(Error { line: line, column: column, message: format!($($arg)*) })
-    });
+    ($parser:expr, $($argument:tt)*) => (
+        return Err(Error::new($parser.reader.position(), format!($($argument)*)));
+    );
 );
 
 impl<'l> Parser<'l> {

@@ -1,12 +1,12 @@
 extern crate svg;
 
-use svg::Tag;
+use svg::{Document, Tag};
 use svg::element::path::{Command, Data};
-use svg::parser::Event;
+use svg::reactor::Event;
 
 fn main() {
     let path = "tests/fixtures/benton.svg";
-    for event in svg::parse(path).unwrap() {
+    for event in Document::open(path).unwrap() {
         if let Event::Tag(Tag::Path(_, attributes)) = event {
             let data = attributes.get("d").unwrap();
             let data = Data::parse(data).unwrap();
