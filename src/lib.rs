@@ -23,9 +23,6 @@ pub trait Content<'l>: Into<Cow<'l, str>> { }
 /// A document.
 pub type Document = element::SVG;
 
-/// A number.
-pub type Number = f32;
-
 impl<'l, T> Content<'l> for T where T: Into<Cow<'l, str>> { }
 
 /// Parse a file.

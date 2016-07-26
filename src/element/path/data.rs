@@ -1,4 +1,4 @@
-use {Content, Number};
+use Content;
 use parser::{Error, Result};
 use reader::Reader;
 
@@ -16,7 +16,7 @@ pub enum Command {
     /// [Establish][1] a new current point.
     ///
     /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataMovetoCommands
-    MoveTo(Position, Vec<Number>),
+    MoveTo(Position, Vec<f32>),
 
     /// [End][1] the current subpath.
     ///
@@ -26,46 +26,46 @@ pub enum Command {
     /// [Draw][1] straight lines.
     ///
     /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataLinetoCommands
-    LineTo(Position, Vec<Number>),
+    LineTo(Position, Vec<f32>),
 
     /// [Draw][1] horizontal lines.
     ///
     /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataLinetoCommands
-    HorizontalLineTo(Position, Vec<Number>),
+    HorizontalLineTo(Position, Vec<f32>),
 
     /// [Draw][1] vertical lines.
     ///
     /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataLinetoCommands
-    VerticalLineTo(Position, Vec<Number>),
+    VerticalLineTo(Position, Vec<f32>),
 
     /// [Draw][1] a cubic Bézier curve.
     ///
     /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataCubicBezierCommands
-    CurveTo(Position, Vec<Number>),
+    CurveTo(Position, Vec<f32>),
 
     /// [Draw][1] a cubic Bézier curve assuming the first control point to be
     /// the reflection of the second control point on the previous command
     /// relative to the current point.
     ///
     /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataCubicBezierCommands
-    SmoothCurveTo(Position, Vec<Number>),
+    SmoothCurveTo(Position, Vec<f32>),
 
     /// [Draw][1] a quadratic Bézier curve.
     ///
     /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataQuadraticBezierCommands
-    QuadraticBezierCurveTo(Position, Vec<Number>),
+    QuadraticBezierCurveTo(Position, Vec<f32>),
 
     /// [Draw][1] a quadratic Bézier curve assuming the control point to be the
     /// reflection of the control point on the previous command relative to the
     /// current point.
     ///
     /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataQuadraticBezierCommands
-    SmoothQuadraticBezierCurveTo(Position, Vec<Number>),
+    SmoothQuadraticBezierCurveTo(Position, Vec<f32>),
 
     /// [Draw][1] an elliptical arc.
     ///
     /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataEllipticalArcCommands
-    EllipticalArc(Position, Vec<Number>),
+    EllipticalArc(Position, Vec<f32>),
 }
 
 /// A type of positioning.
@@ -167,7 +167,7 @@ impl<'l> Parser<'l> {
         }))
     }
 
-    fn read_parameters(&mut self) -> Result<Vec<Number>> {
+    fn read_parameters(&mut self) -> Result<Vec<f32>> {
         let mut parameters = Vec::new();
         loop {
             match try!(self.read_number()) {
@@ -180,7 +180,7 @@ impl<'l> Parser<'l> {
         Ok(parameters)
     }
 
-    pub fn read_number(&mut self) -> Result<Option<Number>> {
+    pub fn read_number(&mut self) -> Result<Option<f32>> {
         self.reader.consume_whitespace();
         let number = self.reader.capture(|reader| {
             reader.consume_char('-');
