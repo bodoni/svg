@@ -10,11 +10,12 @@ The package provides an SVG composer and parser.
 use svg::element::{Document, Path};
 use svg::element::path::Data;
 
-let data = Data::new().move_to((10, 10))
-                      .line_by((0, 50))
-                      .line_by((50, 0))
-                      .line_by((0, -50))
-                      .close();
+let data = Data::new()
+                .move_to((10, 10))
+                .line_by((0, 50))
+                .line_by((50, 0))
+                .line_by((0, -50))
+                .close();
 
 let path = Path::new()
                 .set("stroke", "black")

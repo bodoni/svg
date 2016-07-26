@@ -8,11 +8,12 @@
 //! use svg::element::path::Data;
 //!
 //! # fn main() {
-//! let data = Data::new().move_to((10, 10))
-//!                       .line_by((0, 50))
-//!                       .line_by((50, 0))
-//!                       .line_by((0, -50))
-//!                       .close();
+//! let data = Data::new()
+//!                 .move_to((10, 10))
+//!                 .line_by((0, 50))
+//!                 .line_by((50, 0))
+//!                 .line_by((0, -50))
+//!                 .close();
 //!
 //! let path = Path::new()
 //!                 .set("stroke", "black")
