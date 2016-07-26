@@ -1,4 +1,3 @@
-use std::borrow::Cow;
 use std::iter::Peekable;
 use std::str::Chars;
 
@@ -6,16 +5,20 @@ pub struct Reader<'l> {
     line: usize,
     column: usize,
     offset: usize,
-    content: Cow<'l, str>,
-    cursor: Peekable<Chars<'static>>,
+    content: &'l str,
+    cursor: Peekable<Chars<'l>>,
 }
 
 impl<'l> Reader<'l> {
     #[inline]
-    pub fn new<T: Into<Cow<'l, str>>>(content: T) -> Self {
-        let content = content.into();
-        let cursor = unsafe { ::std::mem::transmute(content.chars().peekable()) };
-        Reader { line: 1, column: 1, offset: 0, content: content, cursor: cursor }
+    pub fn new(content: &'l str) -> Self {
+        Reader {
+            line: 1,
+            column: 1,
+            offset: 0,
+            content: content,
+            cursor: content.chars().peekable(),
+        }
     }
 
     pub fn capture<F>(&mut self, block: F) -> Option<&str> where F: Fn(&mut Reader<'l>) {

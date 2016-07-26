@@ -1,7 +1,6 @@
 //! The tags.
 
 use std::ascii::AsciiExt;
-use std::borrow::Cow;
 use std::collections::HashMap;
 
 use {Error, Result};
@@ -38,7 +37,7 @@ struct Parser<'l> {
 impl Tag {
     /// Parse a tag.
     #[inline]
-    pub fn parse<'l, T: Into<Cow<'l, str>>>(content: T) -> Result<Self> {
+    pub fn parse(content: &str) -> Result<Self> {
         Parser::new(content).process()
     }
 }
@@ -51,7 +50,7 @@ macro_rules! raise(
 
 impl<'l> Parser<'l> {
     #[inline]
-    fn new<T: Into<Cow<'l, str>>>(content: T) -> Self {
+    fn new(content: &'l str) -> Self {
         Parser { reader: Reader::new(content) }
     }
 

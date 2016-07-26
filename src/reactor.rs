@@ -8,6 +8,8 @@ use tag::Tag;
 
 /// A reactor.
 pub struct Reactor<'l> {
+    #[allow(dead_code)]
+    content: Cow<'l, str>,
     reader: Reader<'l>,
 }
 
@@ -29,7 +31,9 @@ impl<'l> Reactor<'l> {
     /// Create a reactor.
     #[inline]
     pub fn new<T: Into<Cow<'l, str>>>(content: T) -> Self {
-        Reactor { reader: Reader::new(content) }
+        let content = content.into();
+        let reader = unsafe { ::std::mem::transmute(Reader::new(&*content)) };
+        Reactor { content: content, reader: reader }
     }
 }
 
@@ -64,7 +68,7 @@ impl<'l> Iterator for Reactor<'l> {
         } else if content.starts_with("?") {
             Event::Instruction
         } else {
-            match Tag::parse(content) {
+            match Tag::parse(&content) {
                 Ok(tag) => Event::Tag(tag),
                 Err(error) => Event::Error(error),
             }

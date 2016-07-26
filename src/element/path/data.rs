@@ -1,4 +1,3 @@
-use std::borrow::Cow;
 use std::ops::{Deref, DerefMut};
 
 use {Error, Result};
@@ -25,7 +24,7 @@ impl Data {
 
     /// Parse a data attribute.
     #[inline]
-    pub fn parse<'l, T: Into<Cow<'l, str>>>(content: T) -> Result<Self> {
+    pub fn parse(content: &str) -> Result<Self> {
         Parser::new(content).process()
     }
 }
@@ -199,7 +198,7 @@ macro_rules! raise(
 
 impl<'l> Parser<'l> {
     #[inline]
-    fn new<T: Into<Cow<'l, str>>>(content: T) -> Self {
+    fn new(content: &'l str) -> Self {
         Parser { reader: Reader::new(content) }
     }
 
