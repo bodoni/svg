@@ -1,6 +1,5 @@
 //! An SVG composer and parser.
 
-use std::borrow::Cow;
 use std::path::Path;
 
 #[macro_use]
@@ -17,13 +16,8 @@ pub use node::Node;
 pub use parser::Parser;
 pub use tag::Tag;
 
-/// A content.
-pub trait Content<'l>: Into<Cow<'l, str>> { }
-
 /// A document.
 pub type Document = element::SVG;
-
-impl<'l, T> Content<'l> for T where T: Into<Cow<'l, str>> { }
 
 /// Parse a file.
 pub fn parse<'l, T: AsRef<Path>>(path: T) -> std::io::Result<Parser<'l>> {

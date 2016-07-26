@@ -1,8 +1,8 @@
 //! The parser.
 
+use std::borrow::Cow;
 use std::{error, fmt};
 
-use Content;
 use reader::Reader;
 use tag::Tag;
 
@@ -42,7 +42,7 @@ pub type Result<T> = ::std::result::Result<T, Error>;
 impl<'l> Parser<'l> {
     /// Create a parser.
     #[inline]
-    pub fn new<T: Content<'l>>(content: T) -> Self {
+    pub fn new<T: Into<Cow<'l, str>>>(content: T) -> Self {
         Parser { reader: Reader::new(content) }
     }
 }

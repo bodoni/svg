@@ -1,4 +1,5 @@
-use Content;
+use std::borrow::Cow;
+
 use parser::{Error, Result};
 use reader::Reader;
 
@@ -84,7 +85,7 @@ struct Parser<'l> {
 impl Data {
     /// Parse a data attribute.
     #[inline]
-    pub fn parse<'l, T: Content<'l>>(content: T) -> Result<Self> {
+    pub fn parse<'l, T: Into<Cow<'l, str>>>(content: T) -> Result<Self> {
         Parser::new(content).process()
     }
 
@@ -104,7 +105,7 @@ macro_rules! raise(
 
 impl<'l> Parser<'l> {
     #[inline]
-    fn new<T: Content<'l>>(content: T) -> Self {
+    fn new<T: Into<Cow<'l, str>>>(content: T) -> Self {
         Parser { reader: Reader::new(content) }
     }
 
