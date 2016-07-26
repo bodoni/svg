@@ -11,8 +11,6 @@ pub use self::data::Data;
 pub use self::parameter::Parameter;
 
 node! {
-    @empty
     #[doc = "A path element."]
-    pub struct Path("path") {
-    }
+    pub struct Path("path", true)
 }

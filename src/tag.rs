@@ -2,9 +2,9 @@
 
 use std::ascii::AsciiExt;
 use std::borrow::Cow;
+use std::collections::HashMap;
 
 use error::Parse as Error;
-use node::Attributes;
 use reader::Reader;
 use result::Parse as Result;
 
@@ -28,6 +28,9 @@ pub enum Type {
     /// An empty tag.
     Empty,
 }
+
+/// Attributes.
+pub type Attributes = HashMap<String, String>;
 
 struct Parser<'l> {
     reader: Reader<'l>,
@@ -82,7 +85,9 @@ impl<'l> Parser<'l> {
         loop {
             self.reader.consume_whitespace();
             match try!(self.read_attribute()) {
-                Some((name, value)) => attributes.set(name, value),
+                Some((name, value)) => {
+                    attributes.insert(name, value);
+                },
                 _ => break,
             }
         }

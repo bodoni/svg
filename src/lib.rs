@@ -22,7 +22,7 @@
 //!
 //! let document = Document::new()
 //!                         .set("viewBox", (0, 0, 70, 70))
-//!                         .append(path);
+//!                         .add(path);
 //!
 //! println!("{}", document);
 //! # }
@@ -42,7 +42,7 @@
 //! for event in svg::open(path).unwrap() {
 //!     if let Event::Tag(Tag::Path(_, attributes)) = event {
 //!         let data = attributes.get("d").unwrap();
-//!         let data = Data::parse(data).unwrap();
+//!         let data = Data::parse(data.as_str()).unwrap();
 //!         for command in data.iter() {
 //!             match command {
 //!                 &Command::Move(..) => println!("Move!"),

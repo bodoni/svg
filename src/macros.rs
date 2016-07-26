@@ -19,104 +19,44 @@ macro_rules! deref {
 }
 
 macro_rules! node {
-    (@implement(Attributes) $struct_name:ident) => (
-        impl $struct_name {
-            /// Get an attribute.
-            #[inline]
-            pub fn get<T: AsRef<str>>(&self, name: T) -> Option<&str> {
-                self.attributes.get(name)
-            }
+    ($(#[$attribute:meta])* pub struct $struct_name:ident($tag_name:expr, $is_empty:expr)) => (
+        $(#[$attribute])*
+        #[derive(Debug)]
+        pub struct $struct_name(::node::Node);
 
-            /// Set an attribute.
-            #[inline]
-            pub fn set<T: Into<String>, U: ::node::Value>(mut self, name: T, value: U) -> Self {
-                self.attributes.set(name, value);
-                self
-            }
-        }
-    );
-    (@implement(Base) $struct_name:ident) => (
         impl $struct_name {
-            /// Create an instance.
+            /// Create a node.
             #[inline]
             pub fn new() -> Self {
-                Default::default()
+                $struct_name(::node::Node::new($tag_name, $is_empty))
             }
-        }
 
-        impl ::node::Node for $struct_name {
-        }
-    );
-    (@implement(Children) $struct_name:ident) => (
-        impl $struct_name {
             /// Append a node.
-            pub fn append<T: 'static + ::node::Node>(mut self, node: T) -> Self {
-                self.children.append(node);
+            pub fn add<T: Into<::node::Node>>(mut self, node: T) -> Self {
+                self.0.append(node);
+                self
+            }
+
+            /// Assign an attribute.
+            #[inline]
+            pub fn set<T: Into<String>, U: ::node::Value>(mut self, name: T, value: U) -> Self {
+                self.0.assign(name, value);
                 self
             }
         }
-    );
-    (@implement(Display) @empty $struct_name:ident($tag_name:expr)) => (
+
         impl ::std::fmt::Display for $struct_name {
+            #[inline]
             fn fmt(&self, formatter: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-                if self.attributes.is_empty() {
-                    write!(formatter, "<{tag}/>",
-                           tag=$tag_name)
-                } else {
-                    write!(formatter, "<{tag} {attributes}/>",
-                           tag=$tag_name, attributes=self.attributes)
-                }
+                self.0.fmt(formatter)
             }
         }
-    );
-    (@implement(Display) $struct_name:ident($tag_name:expr)) => (
-        impl ::std::fmt::Display for $struct_name {
-            fn fmt(&self, formatter: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-                if self.attributes.is_empty() {
-                    write!(formatter, "<{tag}>\n{children}\n</{tag}>",
-                           tag=$tag_name, children=self.children)
-                } else {
-                    write!(formatter, "<{tag} {attributes}>\n{children}\n</{tag}>",
-                           tag=$tag_name, attributes=self.attributes, children=self.children)
-                }
+
+        impl From<$struct_name> for ::node::Node {
+            #[inline]
+            fn from(node: $struct_name) -> ::node::Node {
+                node.0
             }
         }
-    );
-    (
-        @empty
-        $(#[$attribute:meta])*
-        pub struct $struct_name:ident($tag_name:expr) {
-            $($field_name:ident: $field_type:ty,)*
-        }
-    ) => (
-        $(#[$attribute])*
-        #[derive(Clone, Debug, Default)]
-        pub struct $struct_name {
-            attributes: ::node::Attributes,
-            $($field_name: $field_type,)*
-        }
-
-        node! { @implement(Base) $struct_name }
-        node! { @implement(Display) @empty $struct_name($tag_name) }
-        node! { @implement(Attributes) $struct_name }
-    );
-    (
-        $(#[$attribute:meta])*
-        pub struct $struct_name:ident($tag_name:expr) {
-            $($field_name:ident: $field_type:ty,)*
-        }
-    ) => (
-        $(#[$attribute])*
-        #[derive(Debug, Default)]
-        pub struct $struct_name {
-            attributes: ::node::Attributes,
-            children: ::node::Children,
-            $($field_name: $field_type,)*
-        }
-
-        node! { @implement(Base) $struct_name }
-        node! { @implement(Display) $struct_name($tag_name) }
-        node! { @implement(Children) $struct_name }
-        node! { @implement(Attributes) $struct_name }
     );
 }

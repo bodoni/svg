@@ -4,6 +4,5 @@
 
 node! {
     #[doc = "An svg element."]
-    pub struct SVG("svg") {
-    }
+    pub struct SVG("svg", false)
 }

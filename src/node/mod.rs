@@ -1,78 +1,58 @@
 //! The nodes.
 
-use std::collections::HashMap;
 use std::fmt;
 
 mod value;
 
 pub use self::value::Value;
 
-/// Attributes.
-#[derive(Clone, Debug, Default)]
-pub struct Attributes(HashMap<String, String>);
-
-/// Children.
-#[derive(Debug, Default)]
-pub struct Children(Vec<Box<Node>>);
-
 /// A node.
-pub trait Node: fmt::Debug + fmt::Display {
+#[derive(Debug)]
+pub struct Node {
+    name: String,
+    is_empty: bool,
+    attributes: Vec<(String, String)>,
+    children: Vec<Node>,
 }
 
-impl Attributes {
-    /// Get an attribute.
+impl Node {
+    /// Create a node.
     #[inline]
-    pub fn get<T: AsRef<str>>(&self, name: T) -> Option<&str> {
-        self.0.get(name.as_ref()).map(|name| name.as_str())
+    pub fn new<T: Into<String>>(name: T, is_empty: bool) -> Self {
+        Node {
+            name: name.into(),
+            is_empty: is_empty,
+            attributes: Default::default(),
+            children: Default::default(),
+        }
     }
 
-    /// Set an attribute.
-    #[inline]
-    pub fn set<T: Into<String>, U: Value>(&mut self, name: T, value: U) {
-        self.0.insert(name.into(), value.into());
-    }
-}
-
-deref! { Attributes::0 => HashMap<String, String> }
-
-impl fmt::Display for Attributes {
-    fn fmt(&self, _: &mut fmt::Formatter) -> fmt::Result {
-        Ok(())
-    }
-}
-
-impl Children {
     /// Append a child.
     #[inline]
-    pub fn append<T: 'static + Node>(&mut self, node: T) {
-        self.0.push(Box::new(node))
+    pub fn append<T: Into<Node>>(&mut self, node: T) {
+        self.children.push(node.into())
+    }
+
+    /// Assign an attribute.
+    #[inline]
+    pub fn assign<T: Into<String>, U: Value>(&mut self, name: T, value: U) {
+        self.attributes.push((name.into(), value.into()));
     }
 }
 
-deref! { Children::0 => [Box<Node>] }
-
-impl fmt::Display for Children {
+impl fmt::Display for Node {
     fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        let count = self.0.len();
-        for i in 0..count {
-            if i > 0 {
-                try!(write!(formatter, "\n{}", self.0[i]));
-            } else {
-                try!(write!(formatter, "{}", self.0[i]));
-            }
+        try!(write!(formatter, "<{}", self.name));
+        for &(ref name, ref value) in self.attributes.iter() {
+            try!(write!(formatter, " {}='{}'", name, value));
         }
-        Ok(())
-    }
-}
-
-
-#[cfg(test)]
-mod tests {
-    use node::Attributes;
-
-    #[test]
-    fn set() {
-        let mut attributes = Attributes::default();
-        attributes.set("foo", 42);
+        if self.is_empty {
+            return write!(formatter, "/>");
+        }
+        try!(write!(formatter, ">"));
+        for child in self.children.iter() {
+            try!(write!(formatter, "\n{}", child));
+        }
+        write!(formatter, "\n</{}>", self.name)
     }
 }
