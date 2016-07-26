@@ -1,87 +1,28 @@
 use std::borrow::Cow;
 
+use element::path::command::{Command, Parameters, Position};
 use error::Parse as Error;
+use node::Value;
 use reader::Reader;
 use result::Parse as Result;
 
 /// A [data][1] attribute.
 ///
 /// [1]: http://www.w3.org/TR/SVG/paths.html#PathData
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub struct Data(Vec<Command>);
-
-/// A command.
-#[derive(Clone, Debug)]
-pub enum Command {
-    /// [Establish][1] a new current point.
-    ///
-    /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataMovetoCommands
-    MoveTo(Position, Vec<f32>),
-
-    /// [End][1] the current subpath.
-    ///
-    /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataClosePathCommand
-    ClosePath,
-
-    /// [Draw][1] straight lines.
-    ///
-    /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataLinetoCommands
-    LineTo(Position, Vec<f32>),
-
-    /// [Draw][1] horizontal lines.
-    ///
-    /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataLinetoCommands
-    HorizontalLineTo(Position, Vec<f32>),
-
-    /// [Draw][1] vertical lines.
-    ///
-    /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataLinetoCommands
-    VerticalLineTo(Position, Vec<f32>),
-
-    /// [Draw][1] a cubic Bézier curve.
-    ///
-    /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataCubicBezierCommands
-    CurveTo(Position, Vec<f32>),
-
-    /// [Draw][1] a cubic Bézier curve assuming the first control point to be
-    /// the reflection of the second control point on the previous command
-    /// relative to the current point.
-    ///
-    /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataCubicBezierCommands
-    SmoothCurveTo(Position, Vec<f32>),
-
-    /// [Draw][1] a quadratic Bézier curve.
-    ///
-    /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataQuadraticBezierCommands
-    QuadraticBezierCurveTo(Position, Vec<f32>),
-
-    /// [Draw][1] a quadratic Bézier curve assuming the control point to be the
-    /// reflection of the control point on the previous command relative to the
-    /// current point.
-    ///
-    /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataQuadraticBezierCommands
-    SmoothQuadraticBezierCurveTo(Position, Vec<f32>),
-
-    /// [Draw][1] an elliptical arc.
-    ///
-    /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataEllipticalArcCommands
-    EllipticalArc(Position, Vec<f32>),
-}
-
-/// A type of positioning.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum Position {
-    /// Absolute.
-    Absolute,
-    /// Relative.
-    Relative,
-}
 
 struct Parser<'l> {
     reader: Reader<'l>,
 }
 
 impl Data {
+    /// Create data.
+    #[inline]
+    pub fn new() -> Self {
+        Default::default()
+    }
+
     /// Parse a data attribute.
     #[inline]
     pub fn parse<'l, T: Into<Cow<'l, str>>>(content: T) -> Result<Self> {
@@ -89,7 +30,152 @@ impl Data {
     }
 }
 
+macro_rules! command(
+    ($data:ident, $command:ident) => (
+        $data.0.push(Command::$command);
+    );
+    ($data:ident, $command:ident, $position:ident, $parameters:ident) => (
+        $data.0.push(Command::$command(Position::$position, $parameters.into()));
+    );
+);
+
+impl Data {
+    /// Add an aboslute `Command::Move` command.
+    pub fn move_to<T: Parameters>(mut self, parameters: T) -> Self {
+        command!(self, Move, Absolute, parameters);
+        self
+    }
+
+    /// Add a relative `Command::Move` command.
+    pub fn move_by<T: Parameters>(mut self, parameters: T) -> Self {
+        command!(self, Move, Relative, parameters);
+        self
+    }
+
+    /// Add an aboslute `Command::Line` command.
+    pub fn line_to<T: Parameters>(mut self, parameters: T) -> Self {
+        command!(self, Line, Absolute, parameters);
+        self
+    }
+
+    /// Add a relative `Command::Line` command.
+    pub fn line_by<T: Parameters>(mut self, parameters: T) -> Self {
+        command!(self, Line, Relative, parameters);
+        self
+    }
+
+    /// Add an aboslute `Command::HorizontalLine` command.
+    pub fn horizontal_line_to<T: Parameters>(mut self, parameters: T) -> Self {
+        command!(self, HorizontalLine, Absolute, parameters);
+        self
+    }
+
+    /// Add a relative `Command::HorizontalLine` command.
+    pub fn horizontal_line_by<T: Parameters>(mut self, parameters: T) -> Self {
+        command!(self, HorizontalLine, Relative, parameters);
+        self
+    }
+
+    /// Add an aboslute `Command::VerticalLine` command.
+    pub fn vertical_line_to<T: Parameters>(mut self, parameters: T) -> Self {
+        command!(self, VerticalLine, Absolute, parameters);
+        self
+    }
+
+    /// Add a relative `Command::VerticalLine` command.
+    pub fn vertical_line_by<T: Parameters>(mut self, parameters: T) -> Self {
+        command!(self, VerticalLine, Relative, parameters);
+        self
+    }
+
+    /// Add an aboslute `Command::QuadraticCurve` command.
+    pub fn quadratic_curve_to<T: Parameters>(mut self, parameters: T) -> Self {
+        command!(self, QuadraticCurve, Absolute, parameters);
+        self
+    }
+
+    /// Add a relative `Command::QuadraticCurve` command.
+    pub fn quadratic_curve_by<T: Parameters>(mut self, parameters: T) -> Self {
+        command!(self, QuadraticCurve, Relative, parameters);
+        self
+    }
+
+    /// Add an aboslute `Command::SmoothQuadraticCurve` command.
+    pub fn smooth_quadratic_curve_to<T: Parameters>(mut self, parameters: T) -> Self {
+        command!(self, SmoothQuadraticCurve, Absolute, parameters);
+        self
+    }
+
+    /// Add a relative `Command::SmoothQuadraticCurve` command.
+    pub fn smooth_quadratic_curve_by<T: Parameters>(mut self, parameters: T) -> Self {
+        command!(self, SmoothQuadraticCurve, Relative, parameters);
+        self
+    }
+
+    /// Add an aboslute `Command::CubicCurve` command.
+    pub fn cubic_curve_to<T: Parameters>(mut self, parameters: T) -> Self {
+        command!(self, CubicCurve, Absolute, parameters);
+        self
+    }
+
+    /// Add a relative `Command::CubicCurve` command.
+    pub fn cubic_curve_by<T: Parameters>(mut self, parameters: T) -> Self {
+        command!(self, CubicCurve, Relative, parameters);
+        self
+    }
+
+    /// Add an aboslute `Command::SmoothCubicCurve` command.
+    pub fn smooth_cubic_curve_to<T: Parameters>(mut self, parameters: T) -> Self {
+        command!(self, SmoothCubicCurve, Absolute, parameters);
+        self
+    }
+
+    /// Add a relative `Command::SmoothCubicCurve` command.
+    pub fn smooth_cubic_curve_by<T: Parameters>(mut self, parameters: T) -> Self {
+        command!(self, SmoothCubicCurve, Relative, parameters);
+        self
+    }
+
+    /// Add an aboslute `Command::EllipticalArc` command.
+    pub fn elliptical_arc_to<T: Parameters>(mut self, parameters: T) -> Self {
+        command!(self, EllipticalArc, Absolute, parameters);
+        self
+    }
+
+    /// Add a relative `Command::EllipticalArc` command.
+    pub fn elliptical_arc_by<T: Parameters>(mut self, parameters: T) -> Self {
+        command!(self, EllipticalArc, Relative, parameters);
+        self
+    }
+
+    /// Add a `Command::Close` command.
+    pub fn close(mut self) -> Self {
+        command!(self, Close);
+        self
+    }
+}
+
 deref! { Data::0 => [Command] }
+
+impl From<Vec<Command>> for Data {
+    #[inline]
+    fn from(commands: Vec<Command>) -> Self {
+        Data(commands)
+    }
+}
+
+impl From<Data> for Vec<Command> {
+    #[inline]
+    fn from(Data(commands): Data) -> Self {
+        commands
+    }
+}
+
+impl Value for Data {
+    fn into(self) -> String {
+        "".to_string()
+    }
+}
 
 macro_rules! raise(
     ($parser:expr, $($argument:tt)*) => (
@@ -116,8 +202,8 @@ impl<'l> Parser<'l> {
     }
 
     fn read_command(&mut self) -> Result<Option<Command>> {
-        use self::Command::*;
-        use self::Position::*;
+        use element::path::command::Command::*;
+        use element::path::command::Position::*;
 
         let name = match self.reader.next() {
             Some(name) => match name {
@@ -129,34 +215,34 @@ impl<'l> Parser<'l> {
         self.reader.consume_whitespace();
         let parameters = try!(self.read_parameters());
         Ok(Some(match name {
-            'M' => MoveTo(Absolute, parameters),
-            'm' => MoveTo(Relative, parameters),
+            'M' => Move(Absolute, parameters),
+            'm' => Move(Relative, parameters),
 
-            'Z' | 'z' => ClosePath,
+            'L' => Line(Absolute, parameters),
+            'l' => Line(Relative, parameters),
 
-            'L' => LineTo(Absolute, parameters),
-            'l' => LineTo(Relative, parameters),
+            'H' => HorizontalLine(Absolute, parameters),
+            'h' => HorizontalLine(Relative, parameters),
 
-            'H' => HorizontalLineTo(Absolute, parameters),
-            'h' => HorizontalLineTo(Relative, parameters),
+            'V' => VerticalLine(Absolute, parameters),
+            'v' => VerticalLine(Relative, parameters),
 
-            'V' => VerticalLineTo(Absolute, parameters),
-            'v' => VerticalLineTo(Relative, parameters),
+            'Q' => QuadraticCurve(Absolute, parameters),
+            'q' => QuadraticCurve(Relative, parameters),
 
-            'C' => CurveTo(Absolute, parameters),
-            'c' => CurveTo(Relative, parameters),
+            'T' => SmoothQuadraticCurve(Absolute, parameters),
+            't' => SmoothQuadraticCurve(Relative, parameters),
 
-            'S' => SmoothCurveTo(Absolute, parameters),
-            's' => SmoothCurveTo(Relative, parameters),
+            'C' => CubicCurve(Absolute, parameters),
+            'c' => CubicCurve(Relative, parameters),
 
-            'Q' => QuadraticBezierCurveTo(Absolute, parameters),
-            'q' => QuadraticBezierCurveTo(Relative, parameters),
-
-            'T' => SmoothQuadraticBezierCurveTo(Absolute, parameters),
-            't' => SmoothQuadraticBezierCurveTo(Relative, parameters),
+            'S' => SmoothCubicCurve(Absolute, parameters),
+            's' => SmoothCubicCurve(Relative, parameters),
 
             'A' => EllipticalArc(Absolute, parameters),
             'a' => EllipticalArc(Relative, parameters),
+
+            'Z' | 'z' => Close,
 
             _ => raise!(self, "found an unknown path command '{}'", name),
         }))
@@ -195,9 +281,9 @@ impl<'l> Parser<'l> {
 
 #[cfg(test)]
 mod tests {
+    use element::path::Command::*;
+    use element::path::Position::*;
     use super::{Data, Parser};
-    use super::Command::*;
-    use super::Position::*;
 
     #[test]
     fn data_parse() {
@@ -206,11 +292,11 @@ mod tests {
         assert_eq!(data.len(), 2);
 
         match data[0] {
-            MoveTo(Absolute, ref parameters) => assert_eq!(*parameters, vec![1.0, 2.0]),
+            Move(Absolute, ref parameters) => assert_eq!(*parameters, vec![1.0, 2.0]),
             _ => assert!(false),
         }
         match data[1] {
-            LineTo(Relative, ref parameters) => assert_eq!(*parameters, vec![3.0, 4.0]),
+            Line(Relative, ref parameters) => assert_eq!(*parameters, vec![3.0, 4.0]),
             _ => assert!(false),
         }
     }
@@ -239,35 +325,35 @@ mod tests {
             );
         );
 
-        test!("M4,2", MoveTo, Absolute, vec![4.0, 2.0]);
-        test!("m4,\n2", MoveTo, Relative, vec![4.0, 2.0]);
+        test!("M4,2", Move, Absolute, vec![4.0, 2.0]);
+        test!("m4,\n2", Move, Relative, vec![4.0, 2.0]);
 
-        test!("Z", ClosePath);
-        test!("z", ClosePath);
+        test!("L7, 8  9", Line, Absolute, vec![7.0, 8.0, 9.0]);
+        test!("l 7,8 \n9", Line, Relative, vec![7.0, 8.0, 9.0]);
 
-        test!("L7, 8  9", LineTo, Absolute, vec![7.0, 8.0, 9.0]);
-        test!("l 7,8 \n9", LineTo, Relative, vec![7.0, 8.0, 9.0]);
+        test!("H\t6,9", HorizontalLine, Absolute, vec![6.0, 9.0]);
+        test!("h6,  \t9", HorizontalLine, Relative, vec![6.0, 9.0]);
 
-        test!("H\t6,9", HorizontalLineTo, Absolute, vec![6.0, 9.0]);
-        test!("h6,  \t9", HorizontalLineTo, Relative, vec![6.0, 9.0]);
+        test!("V2.1,-3", VerticalLine, Absolute, vec![2.1, -3.0]);
+        test!("v\n2.1 -3", VerticalLine, Relative, vec![2.1, -3.0]);
 
-        test!("V2.1,-3", VerticalLineTo, Absolute, vec![2.1, -3.0]);
-        test!("v\n2.1 -3", VerticalLineTo, Relative, vec![2.1, -3.0]);
+        test!("Q90.5 0", QuadraticCurve, Absolute, vec![90.5, 0.0]);
+        test!("q90.5\n, 0", QuadraticCurve, Relative, vec![90.5, 0.0]);
 
-        test!("C0,1 0,2", CurveTo, Absolute, vec![0.0, 1.0, 0.0, 2.0]);
-        test!("c0 ,1 0,  2", CurveTo, Relative, vec![0.0, 1.0, 0.0, 2.0]);
+        test!("T-1", SmoothQuadraticCurve, Absolute, vec![-1.0]);
+        test!("t -1", SmoothQuadraticCurve, Relative, vec![-1.0]);
 
-        test!("S42,0", SmoothCurveTo, Absolute, vec![42.0, 0.0]);
-        test!("s \t 42,0", SmoothCurveTo, Relative, vec![42.0, 0.0]);
+        test!("C0,1 0,2", CubicCurve, Absolute, vec![0.0, 1.0, 0.0, 2.0]);
+        test!("c0 ,1 0,  2", CubicCurve, Relative, vec![0.0, 1.0, 0.0, 2.0]);
 
-        test!("Q90.5 0", QuadraticBezierCurveTo, Absolute, vec![90.5, 0.0]);
-        test!("q90.5\n, 0", QuadraticBezierCurveTo, Relative, vec![90.5, 0.0]);
-
-        test!("T-1", SmoothQuadraticBezierCurveTo, Absolute, vec![-1.0]);
-        test!("t -1", SmoothQuadraticBezierCurveTo, Relative, vec![-1.0]);
+        test!("S42,0", SmoothCubicCurve, Absolute, vec![42.0, 0.0]);
+        test!("s \t 42,0", SmoothCubicCurve, Relative, vec![42.0, 0.0]);
 
         test!("A2.6,0 -7", EllipticalArc, Absolute, vec![2.6, 0.0, -7.0]);
         test!("a 2.6 ,0 -7", EllipticalArc, Relative, vec![2.6, 0.0, -7.0]);
+
+        test!("Z", Close);
+        test!("z", Close);
     }
 
     #[test]

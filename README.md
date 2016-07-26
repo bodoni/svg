@@ -40,9 +40,8 @@ for event in svg::open(path).unwrap() {
         let data = Data::parse(data).unwrap();
         for command in data.iter() {
             match command {
-                &Command::MoveTo(..) => println!("Move!"),
-                &Command::LineTo(..) => println!("Line!"),
-                &Command::CurveTo(..) => println!("Curve!"),
+                &Command::Move(..) => println!("Move!"),
+                &Command::Line(..) => println!("Line!"),
                 _ => {},
             }
         }

@@ -6,16 +6,19 @@
 //! # extern crate svg;
 //! use svg::Document;
 //! use svg::element::Path;
+//! use svg::element::path::Data;
 //!
 //! # fn main() {
+//! let data = Data::new().move_to((10, 10))
+//!                       .line_by((0, 50))
+//!                       .line_by((50, 0))
+//!                       .line_by((0, -50))
+//!                       .close();
+//!
 //! let path = Path::new()
 //!                 .set("stroke", "black")
 //!                 .set("stroke-width", 3)
-//!                 .move_to((10, 10))
-//!                 .line_by((0, 50))
-//!                 .line_by((50, 0))
-//!                 .line_by((0, -50))
-//!                 .close();
+//!                 .set("d", data);
 //!
 //! let document = Document::new()
 //!                         .set("viewBox", (0, 0, 70, 70))
@@ -42,9 +45,8 @@
 //!         let data = Data::parse(data).unwrap();
 //!         for command in data.iter() {
 //!             match command {
-//!                 &Command::MoveTo(..) => println!("Move!"),
-//!                 &Command::LineTo(..) => println!("Line!"),
-//!                 &Command::CurveTo(..) => println!("Curve!"),
+//!                 &Command::Move(..) => println!("Move!"),
+//!                 &Command::Line(..) => println!("Line!"),
 //!                 _ => {},
 //!             }
 //!         }
@@ -60,7 +62,6 @@ use std::path::Path;
 mod macros;
 
 mod reader;
-mod value;
 
 pub mod element;
 pub mod error;
@@ -72,7 +73,6 @@ pub mod tag;
 pub use node::Node;
 pub use reactor::Reactor;
 pub use tag::Tag;
-pub use value::Value;
 
 /// A document.
 pub type Document = element::SVG;

@@ -29,7 +29,7 @@ macro_rules! node {
 
             /// Set an attribute.
             #[inline]
-            pub fn set<T: Into<String>, U: ::value::Value>(mut self, name: T, value: U) -> Self {
+            pub fn set<T: Into<String>, U: ::node::Value>(mut self, name: T, value: U) -> Self {
                 self.attributes.set(name, value);
                 self
             }
