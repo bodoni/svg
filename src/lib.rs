@@ -20,6 +20,9 @@ pub use tag::Tag;
 /// A content.
 pub trait Content<'l>: Into<Cow<'l, str>> { }
 
+/// A document.
+pub type Document = element::SVG;
+
 /// A number.
 pub type Number = f32;
 

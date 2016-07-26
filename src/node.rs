@@ -30,6 +30,8 @@ impl Attributes {
     }
 }
 
+deref! { Attributes::0 => HashMap<String, String> }
+
 impl fmt::Display for Attributes {
     fn fmt(&self, _: &mut fmt::Formatter) -> fmt::Result {
         Ok(())
@@ -43,6 +45,8 @@ impl Children {
         self.0.push(Box::new(node))
     }
 }
+
+deref! { Children::0 => Vec<Box<Node>> }
 
 impl fmt::Display for Children {
     fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
