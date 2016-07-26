@@ -2,7 +2,7 @@
 
 use std::borrow::Cow;
 
-use error::Parse as Error;
+use Error;
 use reader::Reader;
 use tag::Tag;
 

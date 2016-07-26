@@ -55,20 +55,21 @@
 //! ```
 
 use std::borrow::Cow;
-use std::fmt;
 use std::path::Path;
+use std::{fmt, io};
 
 #[macro_use]
 mod macros;
 
+mod error;
 mod reader;
 
 pub mod element;
-pub mod error;
 pub mod reactor;
-pub mod result;
 pub mod tag;
 
+pub use element::Element;
+pub use error::Error;
 pub use reactor::Reactor;
 pub use tag::Tag;
 
@@ -76,8 +77,11 @@ pub use tag::Tag;
 pub trait Node: fmt::Debug + fmt::Display {
 }
 
+/// A result.
+pub type Result<T> = std::result::Result<T, Error>;
+
 /// Open a document.
-pub fn open<'l, T: AsRef<Path>>(path: T) -> result::Read<Reactor<'l>> {
+pub fn open<'l, T: AsRef<Path>>(path: T) -> io::Result<Reactor<'l>> {
     use std::fs::File;
     use std::io::Read;
 

@@ -1,34 +1,31 @@
 //! The errors.
 
-use std::{error, fmt, io};
+use std::{error, fmt};
 
-/// A parsing error.
+/// An error.
 #[derive(Debug)]
-pub struct Parse {
+pub struct Error {
     line: usize,
     column: usize,
     message: String,
 }
 
-/// A reading error.
-pub type Read = io::Error;
-
-impl Parse {
+impl Error {
     /// Create an error.
     #[inline]
     pub fn new<T: Into<String>>((line, column): (usize, usize), message: T) -> Self {
-        Parse { line: line, column: column, message: message.into() }
+        Error { line: line, column: column, message: message.into() }
     }
 }
 
-impl error::Error for Parse {
+impl error::Error for Error {
     #[inline]
     fn description(&self) -> &str {
         &self.message
     }
 }
 
-impl fmt::Display for Parse {
+impl fmt::Display for Error {
     fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
         if self.line > 0 && self.column > 0 {
             write!(formatter, "{} (line {}, column {})", self.message, self.line, self.column)

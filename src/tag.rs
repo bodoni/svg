@@ -4,9 +4,8 @@ use std::ascii::AsciiExt;
 use std::borrow::Cow;
 use std::collections::HashMap;
 
-use error::Parse as Error;
+use {Error, Result};
 use reader::Reader;
-use result::Parse as Result;
 
 /// A tag.
 pub enum Tag {

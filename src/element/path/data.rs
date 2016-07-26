@@ -1,10 +1,9 @@
 use std::borrow::Cow;
 
+use {Error, Result};
 use element::Value;
 use element::path::{Command, Parameter, Position};
-use error::Parse as Error;
 use reader::Reader;
-use result::Parse as Result;
 
 /// A [data][1] attribute.
 ///
