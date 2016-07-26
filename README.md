@@ -6,7 +6,7 @@ The package provides an SVG composer and parser.
 
 ## Example: Composing
 
-```
+```rust
 use svg::Document;
 use svg::element::Path;
 
