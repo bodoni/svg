@@ -4,28 +4,46 @@ The package provides an SVG composer and parser.
 
 ## [Documentation][doc]
 
-## Example
+## Example: Composing
+
+```
+use svg::Document;
+use svg::element::Path;
+
+let path = Path::new()
+                .stroke("black")
+                .stroke_width(3)
+                .move_to((10, 10))
+                .line_by((0, 50))
+                .line_by((50, 0))
+                .line_by((0, -50))
+                .close();
+
+let document = Document::new()
+                        .view_box((0, 0, 70, 70))
+                        .append(path);
+
+println!("{}", document);
+```
+
+## Example: Parsing
 
 ```rust
-extern crate svg;
-
-use svg::{Document, Tag};
+use svg::Tag;
 use svg::element::path::{Command, Data};
-use svg::parser::Event;
+use svg::reactor::Event;
 
-fn main() {
-    let path = "benton.svg";
-    for event in Document::open(path).unwrap() {
-        if let Event::Tag(Tag::Path(_, attributes)) = event {
-            let data = attributes.get("d").unwrap();
-            let data = Data::parse(data).unwrap();
-            for command in data.iter() {
-                match command {
-                    &Command::MoveTo(..) => println!("Move!"),
-                    &Command::LineTo(..) => println!("Line!"),
-                    &Command::CurveTo(..) => println!("Curve!"),
-                    _ => {},
-                }
+let path = "image.svg";
+for event in svg::open(path).unwrap() {
+    if let Event::Tag(Tag::Path(_, attributes)) = event {
+        let data = attributes.get("d").unwrap();
+        let data = Data::parse(data).unwrap();
+        for command in data.iter() {
+            match command {
+                &Command::MoveTo(..) => println!("Move!"),
+                &Command::LineTo(..) => println!("Line!"),
+                &Command::CurveTo(..) => println!("Curve!"),
+                _ => {},
             }
         }
     }

@@ -1,3 +1,5 @@
+//! The reactor.
+
 use std::borrow::Cow;
 
 use error::Parse as Error;
