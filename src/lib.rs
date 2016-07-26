@@ -4,8 +4,7 @@
 //!
 //! ```
 //! # extern crate svg;
-//! use svg::Document;
-//! use svg::element::Path;
+//! use svg::element::{Document, Path};
 //! use svg::element::path::Data;
 //!
 //! # fn main() {
@@ -72,9 +71,6 @@ pub mod tag;
 
 pub use reactor::Reactor;
 pub use tag::Tag;
-
-/// A document.
-pub type Document = element::SVG;
 
 /// A node.
 pub trait Node: fmt::Debug + fmt::Display {

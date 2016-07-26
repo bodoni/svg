@@ -94,7 +94,12 @@ macro_rules! element {
 }
 
 pub mod path;
-pub mod svg;
 
 pub use self::path::Path;
-pub use self::svg::SVG;
+
+element! {
+    #[doc = "
+    The [svg][1] element.
+    [1]: https://www.w3.org/TR/SVG/struct.html#SVGElement"]
+    pub struct Document("svg")
+}
