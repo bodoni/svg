@@ -54,7 +54,7 @@ impl<'l> Parser<'l> {
         if self.reader.consume_char('/') {
             self.read_end_tag()
         } else {
-            self.read_start_or_empty_element_tag()
+            self.read_start_or_empty_tag()
         }
     }
 
@@ -110,7 +110,7 @@ impl<'l> Parser<'l> {
         }
     }
 
-    fn read_start_or_empty_element_tag(&mut self) -> Result<Tag> {
+    fn read_start_or_empty_tag(&mut self) -> Result<Tag> {
         let name = try!(self.read_name());
         let attributes = try!(self.read_attributes());
         self.reader.consume_whitespace();
