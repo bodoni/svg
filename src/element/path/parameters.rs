@@ -13,6 +13,12 @@ impl Deref for Parameters {
     }
 }
 
+impl From<Parameters> for String {
+    fn from(Parameters(inner): Parameters) -> Self {
+        inner.iter().map(|value| value.to_string()).collect::<Vec<_>>().join(",")
+    }
+}
+
 impl From<Vec<f32>> for Parameters {
     #[inline]
     fn from(inner: Vec<f32>) -> Self {

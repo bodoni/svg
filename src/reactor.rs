@@ -86,7 +86,7 @@ mod tests {
                 let mut reactor = Reactor::new($content);
                 match reactor.next().unwrap() {
                     Event::Tag(Tag::Unknown(_, name, _)) => assert_eq!(&*name, $name),
-                    _ => assert!(false),
+                    _ => unreachable!(),
                 }
             })
         );

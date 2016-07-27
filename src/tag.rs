@@ -143,7 +143,7 @@ mod tests {
                 let mut parser = Parser::new($content);
                 match parser.process().unwrap() {
                     Tag::Unknown(Type::$kind, _, _) => {},
-                    _ => assert!(false),
+                    _ => unreachable!(),
                 }
             });
         );

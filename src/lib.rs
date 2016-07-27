@@ -104,7 +104,7 @@ mod tests {
         macro_rules! test(
             ($matcher:pat) => (match reactor.next().unwrap() {
                 $matcher => {},
-                _ => assert!(false),
+                _ => unreachable!(),
             });
         );
 

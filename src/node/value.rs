@@ -56,15 +56,7 @@ impl<'l> From<&'l str> for Value {
 
 impl<T> From<Vec<T>> for Value where T: Into<Value> {
     fn from(mut inner: Vec<T>) -> Self {
-        let mut result = String::new();
-        for (i, inner) in inner.drain(..).enumerate() {
-            let Value(inner) = inner.into();
-            if i > 0 {
-                result.push(' ');
-            }
-            result.push_str(&inner);
-        }
-        Value(result)
+        Value(inner.drain(..).map(|value| value.into().0).collect::<Vec<_>>().join(" "))
     }
 }
 
@@ -81,3 +73,13 @@ macro_rules! implement {
 
 implement! { "{} {}", (T0, 0), (T1, 1) }
 implement! { "{} {} {} {}", (T0, 0), (T1, 1), (T2, 2), (T3, 3) }
+
+#[cfg(test)]
+mod tests {
+    use super::Value;
+
+    #[test]
+    fn value_from_vector() {
+        assert_eq!(String::from(Value::from(vec![42, 69])), "42 69");
+    }
+}

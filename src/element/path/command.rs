@@ -58,3 +58,41 @@ pub enum Command {
     /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataClosePathCommand
     Close,
 }
+
+macro_rules! implement {
+    ($($command:ident($position:ident) => $letter:expr,)*) => (
+        impl From<Command> for String {
+            fn from(command: Command) -> Self {
+                use self::Command::*;
+                use super::Position::*;
+                match command {
+                    $($command($position, parameters) => {
+                        format!(concat!($letter, "{}"), String::from(parameters))
+                    })*
+                    Close => String::from("z"),
+                }
+            }
+        }
+    );
+}
+
+implement! {
+    Move(Absolute) => "M",
+    Move(Relative) => "m",
+    Line(Absolute) => "L",
+    Line(Relative) => "l",
+    HorizontalLine(Absolute) => "H",
+    HorizontalLine(Relative) => "h",
+    VerticalLine(Absolute) => "V",
+    VerticalLine(Relative) => "v",
+    QuadraticCurve(Absolute) => "Q",
+    QuadraticCurve(Relative) => "q",
+    SmoothQuadraticCurve(Absolute) => "T",
+    SmoothQuadraticCurve(Relative) => "t",
+    CubicCurve(Absolute) => "C",
+    CubicCurve(Relative) => "c",
+    SmoothCubicCurve(Absolute) => "S",
+    SmoothCubicCurve(Relative) => "s",
+    EllipticalArc(Absolute) => "A",
+    EllipticalArc(Relative) => "a",
+}

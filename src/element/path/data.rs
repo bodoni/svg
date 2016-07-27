@@ -30,14 +30,14 @@ impl Data {
 }
 
 macro_rules! implement {
-    (@method #[$doc:meta] fn $method:ident($command:ident, $position:ident)) => (
+    (@one #[$doc:meta] fn $method:ident($command:ident, $position:ident)) => (
         #[$doc]
         pub fn $method<T>(mut self, parameters: T) -> Self where T: Into<Parameters> {
             self.0.push(Command::$command(Position::$position, parameters.into()));
             self
         }
     );
-    (@method #[$doc:meta] fn $method:ident($command:ident)) => (
+    (@one #[$doc:meta] fn $method:ident($command:ident)) => (
         #[$doc]
         pub fn $method(mut self) -> Self {
             self.0.push(Command::$command);
@@ -46,7 +46,7 @@ macro_rules! implement {
     );
     ($(#[$doc:meta] fn $method:ident($($argument:tt)*))*) => (
         impl Data {
-            $(implement! { @method #[$doc] fn $method($($argument)*) })*
+            $(implement! { @one #[$doc] fn $method($($argument)*) })*
         }
     );
 }
@@ -134,8 +134,9 @@ impl From<Data> for Vec<Command> {
 }
 
 impl From<Data> for Value {
-    fn from(_: Data) -> Self {
-        "".into()
+    #[inline]
+    fn from(Data(mut inner): Data) -> Self {
+        inner.drain(..).map(|value| String::from(value)).collect::<Vec<_>>().join(" ").into()
     }
 }
 
@@ -243,23 +244,28 @@ impl<'l> Parser<'l> {
 
 #[cfg(test)]
 mod tests {
+    use node::Value;
     use super::{Data, Parser};
     use super::super::Command::*;
     use super::super::Position::*;
 
     #[test]
+    fn data_into_value() {
+        let data = Data::new().line_to((1, 2)).cubic_curve_by((1, 2.5, 3, 4, 5, 6)).close();
+        assert_eq!(Value::from(data).to_string(), "L1,2 c1,2.5,3,4,5,6 z");
+    }
+
+    #[test]
     fn data_parse() {
         let data = Data::parse("M1,2 l3,4").unwrap();
-
         assert_eq!(data.len(), 2);
-
         match data[0] {
             Move(Absolute, ref parameters) => assert_eq!(&parameters[..], &[1.0, 2.0]),
-            _ => assert!(false),
+            _ => unreachable!(),
         }
         match data[1] {
             Line(Relative, ref parameters) => assert_eq!(&parameters[..], &[3.0, 4.0]),
-            _ => assert!(false),
+            _ => unreachable!(),
         }
     }
 
@@ -276,13 +282,13 @@ mod tests {
             ($content:expr, $command:ident, $position:ident, $parameters:expr) => (
                 match run!($content) {
                     $command($position, parameters) => assert_eq!(&parameters[..], $parameters),
-                    _ => assert!(false),
+                    _ => unreachable!(),
                 }
             );
             ($content:expr, $command:ident) => (
                 match run!($content) {
                     $command => {},
-                    _ => assert!(false),
+                    _ => unreachable!(),
                 }
             );
         );
