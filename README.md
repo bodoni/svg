@@ -7,6 +7,7 @@ The package provides an SVG composer and parser.
 ## Example: Composing
 
 ```rust
+use svg::Document;
 use svg::element::{Path, SVG};
 use svg::element::path::Data;
 
@@ -23,11 +24,11 @@ let path = Path::new()
                 .set("stroke-width", 3)
                 .set("d", data);
 
-let svg = SVG::new()
-              .set("viewBox", (0, 0, 70, 70))
-              .add(path);
+let document = Document::new()
+                        .set("viewBox", (0, 0, 70, 70))
+                        .add(path);
 
-svg::save("image.svg", &svg).unwrap();
+svg::save("image.svg", &document).unwrap();
 ```
 
 ## Example: Parsing

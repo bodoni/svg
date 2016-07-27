@@ -4,7 +4,8 @@
 //!
 //! ```
 //! # extern crate svg;
-//! use svg::element::{Path, SVG};
+//! use svg::Document;
+//! use svg::element::Path;
 //! use svg::element::path::Data;
 //!
 //! # fn main() {
@@ -21,11 +22,11 @@
 //!                 .set("stroke-width", 3)
 //!                 .set("d", data);
 //!
-//! let svg = SVG::new()
-//!               .set("viewBox", (0, 0, 70, 70))
-//!               .add(path);
+//! let document = Document::new()
+//!                         .set("viewBox", (0, 0, 70, 70))
+//!                         .add(path);
 //!
-//! svg::save("image.svg", &svg).unwrap();
+//! svg::save("image.svg", &document).unwrap();
 //! # ::std::fs::remove_file("image.svg");
 //! # }
 //! ```
@@ -60,6 +61,10 @@ use std::borrow::Cow;
 use std::io;
 use std::path::Path;
 
+#[macro_use]
+mod macros;
+
+mod document;
 mod error;
 mod reactor;
 mod reader;
@@ -68,6 +73,7 @@ pub mod element;
 pub mod node;
 pub mod tag;
 
+pub use document::Document;
 pub use element::Element;
 pub use error::Error;
 pub use node::Node;

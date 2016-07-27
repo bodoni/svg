@@ -67,43 +67,9 @@ macro_rules! element {
             pub fn new() -> Self {
                 $struct_name { inner: ::element::Element::new($name) }
             }
-
-            /// Append a node.
-            pub fn add<T>(mut self, node: T) -> Self where T: ::node::Node {
-                ::node::Node::append(&mut self, node);
-                self
-            }
-
-            /// Assign an attribute.
-            #[inline]
-            pub fn set<T, U>(mut self, name: T, value: U) -> Self
-                where T: Into<String>, U: Into<::node::Value>
-            {
-                ::node::Node::assign(&mut self, name, value);
-                self
-            }
         }
 
-        impl ::std::fmt::Display for $struct_name {
-            #[inline]
-            fn fmt(&self, formatter: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-                self.inner.fmt(formatter)
-            }
-        }
-
-        impl ::node::Node for $struct_name {
-            #[inline]
-            fn append<T>(&mut self, node: T) where T: ::node::Node {
-                self.inner.append(node)
-            }
-
-            #[inline]
-            fn assign<T, U>(&mut self, name: T, value: U)
-                where T: Into<String>, U: Into<::node::Value>
-            {
-                self.inner.assign(name, value)
-            }
-        }
+        node! { $struct_name::inner }
     );
 }
 
