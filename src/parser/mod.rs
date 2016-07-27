@@ -2,14 +2,16 @@
 
 use std::borrow::Cow;
 
-use reader::Reader;
-
 mod error;
+mod reader;
 
 pub mod tag;
 
 pub use self::error::Error;
 pub use self::tag::Tag;
+
+#[doc(hidden)]
+pub use self::reader::Reader;
 
 /// A parser.
 pub struct Parser<'l> {

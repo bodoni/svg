@@ -3,8 +3,7 @@
 use std::ascii::AsciiExt;
 
 use node::Attributes;
-use parser::{Error, Result};
-use reader::Reader;
+use parser::{Error, Reader, Result};
 
 /// A tag.
 pub enum Tag {

@@ -1,8 +1,7 @@
 use std::ops::Deref;
 
 use node::Value;
-use parser::{Error, Result};
-use reader::Reader;
+use parser::{Error, Reader, Result};
 use super::{Command, Parameters, Position};
 
 /// A [data][1] attribute.

@@ -65,7 +65,6 @@ use std::path::Path;
 mod macros;
 
 mod document;
-mod reader;
 
 pub mod node;
 pub mod parser;
