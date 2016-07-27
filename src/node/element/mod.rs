@@ -74,7 +74,7 @@ macro_rules! implement {
         $(
             #[$doc]
             pub struct $struct_name {
-                inner: ::node::element::Element,
+                inner: Element,
             }
 
             impl $struct_name {
