@@ -1,7 +1,5 @@
 //! Tags.
 
-use std::ascii::AsciiExt;
-
 use node::Attributes;
 use parser::{Error, Reader, Result};
 
@@ -94,7 +92,7 @@ impl<'l> Parser<'l> {
         if !self.reader.is_done() {
             raise!(self, "found an end tag with excessive data");
         }
-        Ok(match &*name.clone().to_ascii_lowercase() {
+        Ok(match name.as_str() {
             "path" => Tag::Path(Type::End, Default::default()),
             _ => Tag::Unknown(Type::End, name, Default::default()),
         })
@@ -124,7 +122,7 @@ impl<'l> Parser<'l> {
             },
             _ => Type::Start,
         };
-        Ok(match &*name.clone().to_ascii_lowercase() {
+        Ok(match name.as_str() {
             "path" => Tag::Path(kind, attributes),
             _ => Tag::Unknown(kind, name, attributes),
         })
