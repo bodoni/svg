@@ -55,7 +55,7 @@ impl fmt::Display for Element {
 }
 
 macro_rules! element {
-    ($(#[$attribute:meta])* pub struct $struct_name:ident($name:expr)) => (
+    ($(#[$attribute:meta])* struct $struct_name:ident($name:expr)) => (
         $(#[$attribute])*
         #[derive(Debug)]
         pub struct $struct_name(::element::Element);
@@ -101,5 +101,5 @@ element! {
     #[doc = "
     The [svg][1] element.
     [1]: https://www.w3.org/TR/SVG/struct.html#SVGElement"]
-    pub struct Document("svg")
+    struct Document("svg")
 }

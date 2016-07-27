@@ -2,8 +2,8 @@ use std::ops::{Deref, DerefMut};
 
 use {Error, Result};
 use element::Value;
-use element::path::{Command, Parameters, Position};
 use reader::Reader;
+use super::{Command, Parameters, Position};
 
 /// A [data][1] attribute.
 ///
@@ -171,8 +171,8 @@ impl<'l> Parser<'l> {
     }
 
     fn read_command(&mut self) -> Result<Option<Command>> {
-        use element::path::command::Command::*;
-        use element::path::command::Position::*;
+        use super::Command::*;
+        use super::Position::*;
 
         let name = match self.reader.next() {
             Some(name) => match name {
@@ -250,9 +250,9 @@ impl<'l> Parser<'l> {
 
 #[cfg(test)]
 mod tests {
-    use element::path::Command::*;
-    use element::path::Position::*;
     use super::{Data, Parser};
+    use super::super::Command::*;
+    use super::super::Position::*;
 
     #[test]
     fn data_parse() {

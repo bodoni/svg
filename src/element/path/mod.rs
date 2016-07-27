@@ -6,11 +6,20 @@ mod command;
 mod data;
 mod parameters;
 
-pub use self::command::{Command, Position};
+pub use self::command::Command;
 pub use self::data::Data;
 pub use self::parameters::Parameters;
 
+/// A type of positioning.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum Position {
+    /// Absolute.
+    Absolute,
+    /// Relative.
+    Relative,
+}
+
 element! {
     #[doc = "A path element."]
-    pub struct Path("path")
+    struct Path("path")
 }

@@ -1,3 +1,5 @@
+use super::Position;
+
 /// A command.
 #[derive(Clone, Debug)]
 pub enum Command {
@@ -54,13 +56,4 @@ pub enum Command {
     ///
     /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataClosePathCommand
     Close,
-}
-
-/// A type of positioning.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum Position {
-    /// Absolute.
-    Absolute,
-    /// Relative.
-    Relative,
 }
