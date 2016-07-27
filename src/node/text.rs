@@ -16,6 +16,7 @@ impl Text {
 }
 
 impl fmt::Display for Text {
+    #[inline]
     fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
         self.content.fmt(formatter)
     }
