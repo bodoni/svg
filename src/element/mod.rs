@@ -25,7 +25,7 @@ impl Element {
 
     /// Append a node.
     #[inline]
-    pub fn append<T: 'static + Node>(&mut self, node: T) {
+    pub fn append<T: Node>(&mut self, node: T) {
         self.children.push(Box::new(node));
     }
 
@@ -54,21 +54,24 @@ impl fmt::Display for Element {
     }
 }
 
+impl Node for Element {
+}
+
 macro_rules! element {
     ($(#[$attribute:meta])* struct $struct_name:ident($name:expr)) => (
         $(#[$attribute])*
         #[derive(Debug)]
-        pub struct $struct_name(::element::Element);
+        pub struct $struct_name(pub ::element::Element);
 
         impl $struct_name {
-            /// Create a node.
+            /// Create an element.
             #[inline]
             pub fn new() -> Self {
                 $struct_name(::element::Element::new($name))
             }
 
             /// Append a node.
-            pub fn add<T: 'static + ::Node>(mut self, node: T) -> Self {
+            pub fn add<T: ::Node>(mut self, node: T) -> Self {
                 self.0.append(node);
                 self
             }
@@ -78,6 +81,22 @@ macro_rules! element {
             pub fn set<T: Into<String>, U: ::element::Value>(mut self, name: T, value: U) -> Self {
                 self.0.assign(name, value);
                 self
+            }
+        }
+
+        impl ::std::ops::Deref for $struct_name {
+            type Target = ::element::Element;
+
+            #[inline]
+            fn deref(&self) -> &Self::Target {
+                &self.0
+            }
+        }
+
+        impl ::std::ops::DerefMut for $struct_name {
+            #[inline]
+            fn deref_mut(&mut self) -> &mut Self::Target {
+                &mut self.0
             }
         }
 
@@ -101,5 +120,25 @@ element! {
     #[doc = "
     The [svg][1] element.
     [1]: https://www.w3.org/TR/SVG/struct.html#SVGElement"]
-    struct Document("svg")
+    struct SVG("svg")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Element;
+
+    #[test]
+    fn display() {
+        let mut element = Element::new("foo");
+        element.assign("x", -15);
+        element.assign("y", "10px");
+        element.assign("size", (42.5, 69.0));
+        element.assign("color", "green");
+        element.append(Element::new("bar"));
+        assert_eq!(element.to_string(), "\
+            <foo x='-15' y='10px' size='42.5 69' color='green'>\n\
+            <bar/>\n\
+            </foo>\
+        ");
+    }
 }

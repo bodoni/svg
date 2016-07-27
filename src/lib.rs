@@ -4,7 +4,7 @@
 //!
 //! ```
 //! # extern crate svg;
-//! use svg::element::{Document, Path};
+//! use svg::element::{Path, SVG};
 //! use svg::element::path::Data;
 //!
 //! # fn main() {
@@ -20,11 +20,11 @@
 //!                 .set("stroke-width", 3)
 //!                 .set("d", data);
 //!
-//! let document = Document::new()
-//!                         .set("viewBox", (0, 0, 70, 70))
-//!                         .add(path);
+//! let svg = SVG::new()
+//!               .set("viewBox", (0, 0, 70, 70))
+//!               .add(path);
 //!
-//! println!("{}", document);
+//! println!("{}", svg);
 //! # }
 //! ```
 //!
@@ -72,7 +72,7 @@ pub use reactor::Reactor;
 pub use tag::Tag;
 
 /// A node.
-pub trait Node: fmt::Debug + fmt::Display {
+pub trait Node: 'static + fmt::Debug + fmt::Display {
 }
 
 /// A result.
