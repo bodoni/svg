@@ -16,6 +16,7 @@
 //!                 .close();
 //!
 //! let path = Path::new()
+//!                 .set("fill", "none")
 //!                 .set("stroke", "black")
 //!                 .set("stroke-width", 3)
 //!                 .set("d", data);
@@ -24,7 +25,8 @@
 //!               .set("viewBox", (0, 0, 70, 70))
 //!               .add(path);
 //!
-//! println!("{}", svg);
+//! svg::save("image.svg", &svg).unwrap();
+//! # ::std::fs::remove_file("image.svg");
 //! # }
 //! ```
 //!
@@ -90,6 +92,15 @@ pub fn open<'l, T>(path: T) -> io::Result<Reactor<'l>> where T: AsRef<Path> {
 #[inline]
 pub fn read<'l, T>(content: T) -> Reactor<'l> where T: Into<Cow<'l, str>> {
     Reactor::new(content)
+}
+
+/// Save a document.
+pub fn save<T, U>(path: T, document: &U) -> io::Result<()> where T: AsRef<Path>, U: Node {
+    use std::fs::File;
+    use std::io::Write;
+
+    let mut file = try!(File::create(path));
+    file.write_all(&document.to_string().into_bytes())
 }
 
 #[cfg(test)]

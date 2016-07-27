@@ -18,6 +18,7 @@ let data = Data::new()
                 .close();
 
 let path = Path::new()
+                .set("fill", "none")
                 .set("stroke", "black")
                 .set("stroke-width", 3)
                 .set("d", data);
@@ -26,7 +27,7 @@ let svg = SVG::new()
               .set("viewBox", (0, 0, 70, 70))
               .add(path);
 
-println!("{}", svg);
+svg::save("image.svg", &svg).unwrap();
 ```
 
 ## Example: Parsing
