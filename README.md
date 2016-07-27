@@ -8,8 +8,8 @@ The package provides an SVG composer and parser.
 
 ```rust
 use svg::Document;
-use svg::element::{Path, SVG};
-use svg::element::path::Data;
+use svg::node::element::{Path, SVG};
+use svg::node::element::path::Data;
 
 let data = Data::new()
                 .move_to((10, 10))
@@ -35,7 +35,7 @@ svg::save("image.svg", &document).unwrap();
 
 ```rust
 use svg::Tag;
-use svg::element::path::{Command, Data};
+use svg::node::element::path::{Command, Data};
 use svg::reactor::Event;
 
 let path = "image.svg";

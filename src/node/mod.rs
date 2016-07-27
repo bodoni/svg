@@ -3,8 +3,12 @@
 use std::collections::HashMap;
 use std::fmt;
 
+mod text;
 mod value;
 
+pub mod element;
+
+pub use self::text::Text;
 pub use self::value::Value;
 
 /// Attributes.

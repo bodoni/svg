@@ -33,7 +33,7 @@ impl Node for Text {
 
 #[cfg(test)]
 mod tests {
-    use element::Style;
+    use node::element::Style;
     use super::Text;
 
     #[test]

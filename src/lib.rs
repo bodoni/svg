@@ -5,8 +5,8 @@
 //! ```
 //! # extern crate svg;
 //! use svg::Document;
-//! use svg::element::Path;
-//! use svg::element::path::Data;
+//! use svg::node::element::Path;
+//! use svg::node::element::path::Data;
 //!
 //! # fn main() {
 //! let data = Data::new()
@@ -36,7 +36,7 @@
 //! ```
 //! # extern crate svg;
 //! use svg::{Event, Tag};
-//! use svg::element::path::{Command, Data};
+//! use svg::node::element::path::{Command, Data};
 //!
 //! # fn main() {
 //! let path = "image.svg";
@@ -68,19 +68,15 @@ mod document;
 mod error;
 mod reactor;
 mod reader;
-mod text;
 
-pub mod element;
 pub mod node;
 pub mod tag;
 
 pub use document::Document;
-pub use element::Element;
 pub use error::Error;
 pub use node::Node;
 pub use reactor::{Event, Reactor};
 pub use tag::Tag;
-pub use text::Text;
 
 /// A result.
 pub type Result<T> = std::result::Result<T, Error>;

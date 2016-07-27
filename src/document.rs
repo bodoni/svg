@@ -1,4 +1,4 @@
-use element::SVG;
+use node::element::SVG;
 
 /// A document.
 pub struct Document {
