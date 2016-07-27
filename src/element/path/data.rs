@@ -1,14 +1,14 @@
-use std::ops::{Deref, DerefMut};
+use std::ops::Deref;
 
 use {Error, Result};
-use element::Value;
+use node::Value;
 use reader::Reader;
-use super::{Command, Parameters, Positioning};
+use super::{Command, Parameters, Position};
 
 /// A [data][1] attribute.
 ///
 /// [1]: http://www.w3.org/TR/SVG/paths.html#PathData
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Default)]
 pub struct Data(Vec<Command>);
 
 struct Parser<'l> {
@@ -30,10 +30,10 @@ impl Data {
 }
 
 macro_rules! implement {
-    (@method #[$doc:meta] fn $method:ident($command:ident, $positioning:ident)) => (
+    (@method #[$doc:meta] fn $method:ident($command:ident, $position:ident)) => (
         #[$doc]
-        pub fn $method<T: Parameters>(mut self, parameters: T) -> Self {
-            self.0.push(Command::$command(Positioning::$positioning, parameters.into()));
+        pub fn $method<T>(mut self, parameters: T) -> Self where T: Into<Parameters> {
+            self.0.push(Command::$command(Position::$position, parameters.into()));
             self
         }
     );
@@ -119,13 +119,6 @@ impl Deref for Data {
     }
 }
 
-impl DerefMut for Data {
-    #[inline]
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.0
-    }
-}
-
 impl From<Vec<Command>> for Data {
     #[inline]
     fn from(commands: Vec<Command>) -> Self {
@@ -140,9 +133,9 @@ impl From<Data> for Vec<Command> {
     }
 }
 
-impl Value for Data {
-    fn into(self) -> String {
-        "".to_string()
+impl From<Data> for Value {
+    fn from(_: Data) -> Self {
+        "".into()
     }
 }
 
@@ -172,7 +165,7 @@ impl<'l> Parser<'l> {
 
     fn read_command(&mut self) -> Result<Option<Command>> {
         use super::Command::*;
-        use super::Positioning::*;
+        use super::Position::*;
 
         let name = match self.reader.next() {
             Some(name) => match name {
@@ -182,7 +175,7 @@ impl<'l> Parser<'l> {
             _ => return Ok(None),
         };
         self.reader.consume_whitespace();
-        let parameters = try!(self.read_parameters());
+        let parameters = try!(self.read_parameters()).into();
         Ok(Some(match name {
             'M' => Move(Absolute, parameters),
             'm' => Move(Relative, parameters),
@@ -252,7 +245,7 @@ impl<'l> Parser<'l> {
 mod tests {
     use super::{Data, Parser};
     use super::super::Command::*;
-    use super::super::Positioning::*;
+    use super::super::Position::*;
 
     #[test]
     fn data_parse() {
@@ -261,11 +254,11 @@ mod tests {
         assert_eq!(data.len(), 2);
 
         match data[0] {
-            Move(Absolute, ref parameters) => assert_eq!(*parameters, vec![1.0, 2.0]),
+            Move(Absolute, ref parameters) => assert_eq!(&parameters[..], &[1.0, 2.0]),
             _ => assert!(false),
         }
         match data[1] {
-            Line(Relative, ref parameters) => assert_eq!(*parameters, vec![3.0, 4.0]),
+            Line(Relative, ref parameters) => assert_eq!(&parameters[..], &[3.0, 4.0]),
             _ => assert!(false),
         }
     }
@@ -280,9 +273,9 @@ mod tests {
         );
 
         macro_rules! test(
-            ($content:expr, $command:ident, $positioning:ident, $parameters:expr) => (
+            ($content:expr, $command:ident, $position:ident, $parameters:expr) => (
                 match run!($content) {
-                    $command($positioning, parameters) => assert_eq!(parameters, $parameters),
+                    $command($position, parameters) => assert_eq!(&parameters[..], $parameters),
                     _ => assert!(false),
                 }
             );
@@ -294,32 +287,32 @@ mod tests {
             );
         );
 
-        test!("M4,2", Move, Absolute, vec![4.0, 2.0]);
-        test!("m4,\n2", Move, Relative, vec![4.0, 2.0]);
+        test!("M4,2", Move, Absolute, &[4.0, 2.0]);
+        test!("m4,\n2", Move, Relative, &[4.0, 2.0]);
 
-        test!("L7, 8  9", Line, Absolute, vec![7.0, 8.0, 9.0]);
-        test!("l 7,8 \n9", Line, Relative, vec![7.0, 8.0, 9.0]);
+        test!("L7, 8  9", Line, Absolute, &[7.0, 8.0, 9.0]);
+        test!("l 7,8 \n9", Line, Relative, &[7.0, 8.0, 9.0]);
 
-        test!("H\t6,9", HorizontalLine, Absolute, vec![6.0, 9.0]);
-        test!("h6,  \t9", HorizontalLine, Relative, vec![6.0, 9.0]);
+        test!("H\t6,9", HorizontalLine, Absolute, &[6.0, 9.0]);
+        test!("h6,  \t9", HorizontalLine, Relative, &[6.0, 9.0]);
 
-        test!("V2.1,-3", VerticalLine, Absolute, vec![2.1, -3.0]);
-        test!("v\n2.1 -3", VerticalLine, Relative, vec![2.1, -3.0]);
+        test!("V2.1,-3", VerticalLine, Absolute, &[2.1, -3.0]);
+        test!("v\n2.1 -3", VerticalLine, Relative, &[2.1, -3.0]);
 
-        test!("Q90.5 0", QuadraticCurve, Absolute, vec![90.5, 0.0]);
-        test!("q90.5\n, 0", QuadraticCurve, Relative, vec![90.5, 0.0]);
+        test!("Q90.5 0", QuadraticCurve, Absolute, &[90.5, 0.0]);
+        test!("q90.5\n, 0", QuadraticCurve, Relative, &[90.5, 0.0]);
 
-        test!("T-1", SmoothQuadraticCurve, Absolute, vec![-1.0]);
-        test!("t -1", SmoothQuadraticCurve, Relative, vec![-1.0]);
+        test!("T-1", SmoothQuadraticCurve, Absolute, &[-1.0]);
+        test!("t -1", SmoothQuadraticCurve, Relative, &[-1.0]);
 
-        test!("C0,1 0,2", CubicCurve, Absolute, vec![0.0, 1.0, 0.0, 2.0]);
-        test!("c0 ,1 0,  2", CubicCurve, Relative, vec![0.0, 1.0, 0.0, 2.0]);
+        test!("C0,1 0,2", CubicCurve, Absolute, &[0.0, 1.0, 0.0, 2.0]);
+        test!("c0 ,1 0,  2", CubicCurve, Relative, &[0.0, 1.0, 0.0, 2.0]);
 
-        test!("S42,0", SmoothCubicCurve, Absolute, vec![42.0, 0.0]);
-        test!("s \t 42,0", SmoothCubicCurve, Relative, vec![42.0, 0.0]);
+        test!("S42,0", SmoothCubicCurve, Absolute, &[42.0, 0.0]);
+        test!("s \t 42,0", SmoothCubicCurve, Relative, &[42.0, 0.0]);
 
-        test!("A2.6,0 -7", EllipticalArc, Absolute, vec![2.6, 0.0, -7.0]);
-        test!("a 2.6 ,0 -7", EllipticalArc, Relative, vec![2.6, 0.0, -7.0]);
+        test!("A2.6,0 -7", EllipticalArc, Absolute, &[2.6, 0.0, -7.0]);
+        test!("a 2.6 ,0 -7", EllipticalArc, Relative, &[2.6, 0.0, -7.0]);
 
         test!("Z", Close);
         test!("z", Close);
@@ -329,7 +322,7 @@ mod tests {
     fn parser_read_parameters() {
         let mut parser = Parser::new("1,2 3,4 5 6.7");
         let parameters = parser.read_parameters().unwrap();
-        assert_eq!(parameters, vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.7]);
+        assert_eq!(&parameters[..], &[1.0, 2.0, 3.0, 4.0, 5.0, 6.7]);
     }
 
     #[test]

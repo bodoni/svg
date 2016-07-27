@@ -1,9 +1,9 @@
-//! The tags.
+//! Tags.
 
 use std::ascii::AsciiExt;
-use std::collections::HashMap;
 
 use {Error, Result};
+use node::Attributes;
 use reader::Reader;
 
 /// A tag.
@@ -11,10 +11,10 @@ pub enum Tag {
     /// A path tag.
     Path(Type, Attributes),
     /// An unknown tag.
-    Unknown(String, Type, Attributes),
+    Unknown(Type, String, Attributes),
 }
 
-/// A [type][1].
+/// A [type][1] of a tag.
 ///
 /// [1]: http://www.w3.org/TR/REC-xml/#sec-starttags
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -26,9 +26,6 @@ pub enum Type {
     /// An empty tag.
     Empty,
 }
-
-/// Attributes.
-pub type Attributes = HashMap<String, String>;
 
 struct Parser<'l> {
     reader: Reader<'l>,
@@ -79,12 +76,12 @@ impl<'l> Parser<'l> {
     }
 
     fn read_attributes(&mut self) -> Result<Attributes> {
-        let mut attributes = Attributes::default();
+        let mut attributes = Attributes::new();
         loop {
             self.reader.consume_whitespace();
             match try!(self.read_attribute()) {
                 Some((name, value)) => {
-                    attributes.insert(name, value);
+                    attributes.insert(name, value.into());
                 },
                 _ => break,
             }
@@ -100,7 +97,7 @@ impl<'l> Parser<'l> {
         }
         Ok(match &*name.clone().to_ascii_lowercase() {
             "path" => Tag::Path(Type::End, Default::default()),
-            _ => Tag::Unknown(name, Type::End, Default::default()),
+            _ => Tag::Unknown(Type::End, name, Default::default()),
         })
     }
 
@@ -130,7 +127,7 @@ impl<'l> Parser<'l> {
         };
         Ok(match &*name.clone().to_ascii_lowercase() {
             "path" => Tag::Path(kind, attributes),
-            _ => Tag::Unknown(name, kind, attributes),
+            _ => Tag::Unknown(kind, name, attributes),
         })
     }
 }
@@ -145,7 +142,7 @@ mod tests {
             ($content:expr, $kind:ident) => ({
                 let mut parser = Parser::new($content);
                 match parser.process().unwrap() {
-                    Tag::Unknown(_, Type::$kind, _) => {},
+                    Tag::Unknown(Type::$kind, _, _) => {},
                     _ => assert!(false),
                 }
             });

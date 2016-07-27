@@ -32,9 +32,8 @@
 //!
 //! ```
 //! # extern crate svg;
-//! use svg::Tag;
+//! use svg::{Event, Tag};
 //! use svg::element::path::{Command, Data};
-//! use svg::reactor::Event;
 //!
 //! # fn main() {
 //! let path = "image.svg";
@@ -42,7 +41,7 @@
 //! for event in svg::open(path).unwrap() {
 //!     if let Event::Tag(Tag::Path(_, attributes)) = event {
 //!         let data = attributes.get("d").unwrap();
-//!         let data = Data::parse(data.as_str()).unwrap();
+//!         let data = Data::parse(data).unwrap();
 //!         for command in data.iter() {
 //!             match command {
 //!                 &Command::Move(..) => println!("Move!"),
@@ -56,30 +55,28 @@
 //! ```
 
 use std::borrow::Cow;
+use std::io;
 use std::path::Path;
-use std::{fmt, io};
 
 mod error;
+mod reactor;
 mod reader;
 
 pub mod element;
-pub mod reactor;
+pub mod node;
 pub mod tag;
 
 pub use element::Element;
 pub use error::Error;
-pub use reactor::Reactor;
+pub use node::Node;
+pub use reactor::{Event, Reactor};
 pub use tag::Tag;
-
-/// A node.
-pub trait Node: 'static + fmt::Debug + fmt::Display {
-}
 
 /// A result.
 pub type Result<T> = std::result::Result<T, Error>;
 
 /// Open a document.
-pub fn open<'l, T: AsRef<Path>>(path: T) -> io::Result<Reactor<'l>> {
+pub fn open<'l, T>(path: T) -> io::Result<Reactor<'l>> where T: AsRef<Path> {
     use std::fs::File;
     use std::io::Read;
 
@@ -91,7 +88,7 @@ pub fn open<'l, T: AsRef<Path>>(path: T) -> io::Result<Reactor<'l>> {
 
 /// Read a document.
 #[inline]
-pub fn read<'l, T: Into<Cow<'l, str>>>(content: T) -> Reactor<'l> {
+pub fn read<'l, T>(content: T) -> Reactor<'l> where T: Into<Cow<'l, str>> {
     Reactor::new(content)
 }
 

@@ -1,22 +1,38 @@
+use std::ops::Deref;
+
 /// Parameters of a command.
-pub trait Parameters {
-    /// Convert into a vector.
-    fn into(self) -> Vec<f32>;
+#[derive(Clone)]
+pub struct Parameters(Vec<f32>);
+
+impl Deref for Parameters {
+    type Target = [f32];
+
+    #[inline]
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
 }
 
-impl Parameters for Vec<f32> {
+impl From<Vec<f32>> for Parameters {
     #[inline]
-    fn into(self) -> Vec<f32> {
-        self
+    fn from(inner: Vec<f32>) -> Self {
+        Parameters(inner)
+    }
+}
+
+impl From<Parameters> for Vec<f32> {
+    #[inline]
+    fn from(Parameters(inner): Parameters) -> Self {
+        inner
     }
 }
 
 macro_rules! implement {
     ($($primitive:ty,)*) => (
-        $(impl Parameters for $primitive {
+        $(impl From<$primitive> for Parameters {
             #[inline]
-            fn into(self) -> Vec<f32> {
-                vec![self as f32]
+            fn from(inner: $primitive) -> Self {
+                Parameters(vec![inner as f32])
             }
         })*
     );
@@ -31,11 +47,11 @@ implement! {
 macro_rules! implement {
     (@express $e:expr) => ($e);
     ($(($t:ident, $n:tt)),*) => (
-        impl<$($t),*> Parameters for ($($t),*) where $($t: Parameters),* {
-            fn into(self) -> Vec<f32> {
+        impl<$($t),*> From<($($t),*)> for Parameters where $($t: Into<Parameters>),* {
+            fn from(inner: ($($t),*)) -> Self {
                 let mut result = vec![];
-                $(result.append(&mut implement!(@express self.$n).into());)*
-                result
+                $(result.append(&mut implement!(@express inner.$n).into().into());)*
+                Parameters(result)
             }
         }
     );

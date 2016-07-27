@@ -40,7 +40,7 @@ let path = "image.svg";
 for event in svg::open(path).unwrap() {
     if let Event::Tag(Tag::Path(_, attributes)) = event {
         let data = attributes.get("d").unwrap();
-        let data = Data::parse(data.as_str()).unwrap();
+        let data = Data::parse(data).unwrap();
         for command in data.iter() {
             match command {
                 &Command::Move(..) => println!("Move!"),

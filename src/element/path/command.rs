@@ -1,56 +1,57 @@
-use super::Positioning;
+use super::Parameters;
+use super::Position;
 
-/// A command.
-#[derive(Clone, Debug)]
+/// A command of a data attribute.
+#[derive(Clone)]
 pub enum Command {
     /// [Establish][1] a new current point.
     ///
     /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataMovetoCommands
-    Move(Positioning, Vec<f32>),
+    Move(Position, Parameters),
 
     /// [Draw][1] straight lines.
     ///
     /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataLinetoCommands
-    Line(Positioning, Vec<f32>),
+    Line(Position, Parameters),
 
     /// [Draw][1] horizontal lines.
     ///
     /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataLinetoCommands
-    HorizontalLine(Positioning, Vec<f32>),
+    HorizontalLine(Position, Parameters),
 
     /// [Draw][1] vertical lines.
     ///
     /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataLinetoCommands
-    VerticalLine(Positioning, Vec<f32>),
+    VerticalLine(Position, Parameters),
 
     /// [Draw][1] a quadratic Bézier curve.
     ///
     /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataQuadraticBezierCommands
-    QuadraticCurve(Positioning, Vec<f32>),
+    QuadraticCurve(Position, Parameters),
 
     /// [Draw][1] a quadratic Bézier curve assuming the control point to be the
     /// reflection of the control point on the previous command relative to the
     /// current point.
     ///
     /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataQuadraticBezierCommands
-    SmoothQuadraticCurve(Positioning, Vec<f32>),
+    SmoothQuadraticCurve(Position, Parameters),
 
     /// [Draw][1] a cubic Bézier curve.
     ///
     /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataCubicBezierCommands
-    CubicCurve(Positioning, Vec<f32>),
+    CubicCurve(Position, Parameters),
 
     /// [Draw][1] a cubic Bézier curve assuming the first control point to be
     /// the reflection of the second control point on the previous command
     /// relative to the current point.
     ///
     /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataCubicBezierCommands
-    SmoothCubicCurve(Positioning, Vec<f32>),
+    SmoothCubicCurve(Position, Parameters),
 
     /// [Draw][1] an elliptical arc.
     ///
     /// [1]: http://www.w3.org/TR/SVG/paths.html#PathDataEllipticalArcCommands
-    EllipticalArc(Positioning, Vec<f32>),
+    EllipticalArc(Position, Parameters),
 
     /// [End][1] the current subpath.
     ///

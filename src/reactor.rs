@@ -1,5 +1,3 @@
-//! The reactor.
-
 use std::borrow::Cow;
 
 use Error;
@@ -30,7 +28,7 @@ pub enum Event {
 impl<'l> Reactor<'l> {
     /// Create a reactor.
     #[inline]
-    pub fn new<T: Into<Cow<'l, str>>>(content: T) -> Self {
+    pub fn new<T>(content: T) -> Self where T: Into<Cow<'l, str>> {
         let content = content.into();
         let reader = unsafe { ::std::mem::transmute(Reader::new(&*content)) };
         Reactor { content: content, reader: reader }
@@ -87,7 +85,7 @@ mod tests {
             ($content:expr, $name:expr) => ({
                 let mut reactor = Reactor::new($content);
                 match reactor.next().unwrap() {
-                    Event::Tag(Tag::Unknown(name, _, _)) => assert_eq!(&*name, $name),
+                    Event::Tag(Tag::Unknown(_, name, _)) => assert_eq!(&*name, $name),
                     _ => assert!(false),
                 }
             })

@@ -1,113 +1,108 @@
-//! The elements.
+//! Elements.
 
 use std::fmt;
 
-use Node;
-
-mod value;
-
-pub use self::value::Value;
+use node::{Attributes, Children, Node, Value};
 
 /// An element.
-#[derive(Debug)]
 pub struct Element {
     name: String,
-    attributes: Vec<(String, String)>,
-    children: Vec<Box<Node>>,
+    attributes: Attributes,
+    children: Children,
 }
 
 impl Element {
     /// Create an element.
     #[inline]
-    pub fn new<T: Into<String>>(name: T) -> Self {
-        Element { name: name.into(), attributes: vec![], children: vec![] }
-    }
-
-    /// Append a node.
-    #[inline]
-    pub fn append<T: Node>(&mut self, node: T) {
-        self.children.push(Box::new(node));
-    }
-
-    /// Assign an attribute.
-    #[inline]
-    pub fn assign<T: Into<String>, U: Value>(&mut self, name: T, value: U) {
-        self.attributes.push((name.into(), value.into()));
+    pub fn new<T>(name: T) -> Self where T: Into<String> {
+        Element {
+            name: name.into(),
+            attributes: Attributes::new(),
+            children: Children::new(),
+        }
     }
 }
 
 impl fmt::Display for Element {
     fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
         try!(write!(formatter, "<{}", self.name));
-        for &(ref name, ref value) in self.attributes.iter() {
+        let mut attributes = self.attributes.iter().collect::<Vec<_>>();
+        attributes.sort_by_key(|pair| pair.0.as_str());
+        for (name, value) in attributes {
             try!(write!(formatter, " {}='{}'", name, value));
         }
         if self.children.is_empty() {
-            write!(formatter, "/>")
-        } else {
-            try!(write!(formatter, ">"));
-            for child in self.children.iter() {
-                try!(write!(formatter, "\n{}", child));
-            }
-            write!(formatter, "\n</{}>", self.name)
+            return write!(formatter, "/>");
         }
+        try!(write!(formatter, ">"));
+        for child in self.children.iter() {
+            try!(write!(formatter, "\n{}", child));
+        }
+        write!(formatter, "\n</{}>", self.name)
     }
 }
 
 impl Node for Element {
+    #[inline]
+    fn append<T>(&mut self, node: T) where T: Node {
+        self.children.push(Box::new(node));
+    }
+
+    #[inline]
+    fn assign<T, U>(&mut self, name: T, value: U) where T: Into<String>, U: Into<Value> {
+        self.attributes.insert(name.into(), value.into());
+    }
 }
 
 macro_rules! element {
     ($(#[$attribute:meta])* struct $struct_name:ident($name:expr)) => (
         $(#[$attribute])*
-        #[derive(Debug)]
-        pub struct $struct_name(pub ::element::Element);
+        pub struct $struct_name {
+            inner: ::element::Element,
+        }
 
         impl $struct_name {
             /// Create an element.
             #[inline]
             pub fn new() -> Self {
-                $struct_name(::element::Element::new($name))
+                $struct_name { inner: ::element::Element::new($name) }
             }
 
             /// Append a node.
-            pub fn add<T: ::Node>(mut self, node: T) -> Self {
-                self.0.append(node);
+            pub fn add<T>(mut self, node: T) -> Self where T: ::node::Node {
+                ::node::Node::append(&mut self, node);
                 self
             }
 
             /// Assign an attribute.
             #[inline]
-            pub fn set<T: Into<String>, U: ::element::Value>(mut self, name: T, value: U) -> Self {
-                self.0.assign(name, value);
+            pub fn set<T, U>(mut self, name: T, value: U) -> Self
+                where T: Into<String>, U: Into<::node::Value>
+            {
+                ::node::Node::assign(&mut self, name, value);
                 self
-            }
-        }
-
-        impl ::std::ops::Deref for $struct_name {
-            type Target = ::element::Element;
-
-            #[inline]
-            fn deref(&self) -> &Self::Target {
-                &self.0
-            }
-        }
-
-        impl ::std::ops::DerefMut for $struct_name {
-            #[inline]
-            fn deref_mut(&mut self) -> &mut Self::Target {
-                &mut self.0
             }
         }
 
         impl ::std::fmt::Display for $struct_name {
             #[inline]
             fn fmt(&self, formatter: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-                self.0.fmt(formatter)
+                self.inner.fmt(formatter)
             }
         }
 
-        impl ::Node for $struct_name {
+        impl ::node::Node for $struct_name {
+            #[inline]
+            fn append<T>(&mut self, node: T) where T: ::node::Node {
+                self.inner.append(node)
+            }
+
+            #[inline]
+            fn assign<T, U>(&mut self, name: T, value: U)
+                where T: Into<String>, U: Into<::node::Value>
+            {
+                self.inner.assign(name, value)
+            }
         }
     );
 }
@@ -118,13 +113,14 @@ pub use self::path::Path;
 
 element! {
     #[doc = "
-    The [svg][1] element.
+    An [svg][1] element.
     [1]: https://www.w3.org/TR/SVG/struct.html#SVGElement"]
     struct SVG("svg")
 }
 
 #[cfg(test)]
 mod tests {
+    use node::Node;
     use super::Element;
 
     #[test]
@@ -136,7 +132,7 @@ mod tests {
         element.assign("color", "green");
         element.append(Element::new("bar"));
         assert_eq!(element.to_string(), "\
-            <foo x='-15' y='10px' size='42.5 69' color='green'>\n\
+            <foo color='green' size='42.5 69' x='-15' y='10px'>\n\
             <bar/>\n\
             </foo>\
         ");
