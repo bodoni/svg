@@ -50,6 +50,25 @@ impl Node for Element {
     }
 }
 
+/// A [`svg`][1] element.
+///
+/// [1]: https://www.w3.org/TR/SVG/struct.html#SVGElement
+pub struct SVG {
+    inner: Element,
+}
+
+impl SVG {
+    /// Create a node.
+    #[inline]
+    pub fn new() -> Self {
+        let mut inner = Element::new("svg");
+        inner.assign("xmlns", "http://www.w3.org/2000/svg");
+        SVG { inner: inner }
+    }
+}
+
+node! { SVG::inner }
+
 macro_rules! implement {
     ($(#[$doc:meta] struct $struct_name:ident($tag_name:expr))*) => (
         $(
@@ -163,10 +182,6 @@ implement! {
     #[doc = "A [`rect`][1] element.
     [1]: https://www.w3.org/TR/SVG/shapes.html#RectElement"]
     struct Rectangle("rect")
-
-    #[doc = "A [`svg`][1] element.
-    [1]: https://www.w3.org/TR/SVG/struct.html#SVGElement"]
-    struct SVG("svg")
 
     #[doc = "A [`script`][1] element.
     [1]: https://www.w3.org/TR/SVG/script.html#ScriptElement"]

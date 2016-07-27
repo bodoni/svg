@@ -64,14 +64,14 @@ use std::path::Path;
 #[macro_use]
 mod macros;
 
-mod document;
-
 pub mod node;
 pub mod parser;
 
-pub use document::Document;
 pub use node::Node;
 pub use parser::Parser;
+
+/// A document.
+pub type Document = node::element::SVG;
 
 /// Open a document.
 pub fn open<'l, T>(path: T) -> io::Result<Parser<'l>> where T: AsRef<Path> {
