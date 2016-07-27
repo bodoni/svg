@@ -99,7 +99,7 @@ pub fn save<T, U>(path: T, document: &U) -> io::Result<()> where T: AsRef<Path>,
 #[cfg(test)]
 mod tests {
     #[test]
-    fn parse() {
+    fn open() {
         use parser::{Event, Tag};
 
         let mut parser = ::open("tests/fixtures/benton.svg").unwrap();
