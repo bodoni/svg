@@ -1,11 +1,18 @@
+//! The parser.
+
 use std::borrow::Cow;
 
-use Error;
 use reader::Reader;
-use tag::Tag;
 
-/// A reactor.
-pub struct Reactor<'l> {
+mod error;
+
+pub mod tag;
+
+pub use self::error::Error;
+pub use self::tag::Tag;
+
+/// A parser.
+pub struct Parser<'l> {
     #[allow(dead_code)]
     content: Cow<'l, str>,
     reader: Reader<'l>,
@@ -25,23 +32,26 @@ pub enum Event {
     Tag(Tag),
 }
 
-impl<'l> Reactor<'l> {
-    /// Create a reactor.
+/// A result.
+pub type Result<T> = ::std::result::Result<T, Error>;
+
+impl<'l> Parser<'l> {
+    /// Create a parser.
     #[inline]
     pub fn new<T>(content: T) -> Self where T: Into<Cow<'l, str>> {
         let content = content.into();
         let reader = unsafe { ::std::mem::transmute(Reader::new(&*content)) };
-        Reactor { content: content, reader: reader }
+        Parser { content: content, reader: reader }
     }
 }
 
 macro_rules! raise(
-    ($reactor:expr, $($argument:tt)*) => (
-        return Some(Event::Error(Error::new($reactor.reader.position(), format!($($argument)*))));
+    ($parser:expr, $($argument:tt)*) => (
+        return Some(Event::Error(Error::new($parser.reader.position(), format!($($argument)*))));
     );
 );
 
-impl<'l> Iterator for Reactor<'l> {
+impl<'l> Iterator for Parser<'l> {
     type Item = Event;
 
     fn next(&mut self) -> Option<Event> {
@@ -76,15 +86,14 @@ impl<'l> Iterator for Reactor<'l> {
 
 #[cfg(test)]
 mod tests {
-    use reactor::{Event, Reactor};
-    use tag::Tag;
+    use parser::{Event, Parser, Tag};
 
     #[test]
     fn next() {
         macro_rules! test(
             ($content:expr, $name:expr) => ({
-                let mut reactor = Reactor::new($content);
-                match reactor.next().unwrap() {
+                let mut parser = Parser::new($content);
+                match parser.next().unwrap() {
                     Event::Tag(Tag::Unknown(_, name, _)) => assert_eq!(&*name, $name),
                     _ => unreachable!(),
                 }

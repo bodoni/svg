@@ -1,4 +1,4 @@
-//! Element nodes.
+//! The element nodes.
 
 use std::fmt;
 

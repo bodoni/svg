@@ -1,4 +1,4 @@
-//! Nodes.
+//! The nodes.
 
 use std::collections::HashMap;
 use std::fmt;

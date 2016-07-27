@@ -1,7 +1,7 @@
 use std::ops::Deref;
 
-use {Error, Result};
 use node::Value;
+use parser::{Error, Result};
 use reader::Reader;
 use super::{Command, Parameters, Position};
 

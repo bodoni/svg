@@ -35,8 +35,8 @@
 //!
 //! ```
 //! # extern crate svg;
-//! use svg::{Event, Tag};
 //! use svg::node::element::path::{Command, Data};
+//! use svg::parser::{Event, Tag};
 //!
 //! # fn main() {
 //! let path = "image.svg";
@@ -65,24 +65,17 @@ use std::path::Path;
 mod macros;
 
 mod document;
-mod error;
-mod reactor;
 mod reader;
 
 pub mod node;
-pub mod tag;
+pub mod parser;
 
 pub use document::Document;
-pub use error::Error;
 pub use node::Node;
-pub use reactor::{Event, Reactor};
-pub use tag::Tag;
-
-/// A result.
-pub type Result<T> = std::result::Result<T, Error>;
+pub use parser::Parser;
 
 /// Open a document.
-pub fn open<'l, T>(path: T) -> io::Result<Reactor<'l>> where T: AsRef<Path> {
+pub fn open<'l, T>(path: T) -> io::Result<Parser<'l>> where T: AsRef<Path> {
     use std::fs::File;
     use std::io::Read;
 
@@ -94,8 +87,8 @@ pub fn open<'l, T>(path: T) -> io::Result<Reactor<'l>> where T: AsRef<Path> {
 
 /// Read a document.
 #[inline]
-pub fn read<'l, T>(content: T) -> Reactor<'l> where T: Into<Cow<'l, str>> {
-    Reactor::new(content)
+pub fn read<'l, T>(content: T) -> Parser<'l> where T: Into<Cow<'l, str>> {
+    Parser::new(content)
 }
 
 /// Save a document.
@@ -111,13 +104,12 @@ pub fn save<T, U>(path: T, document: &U) -> io::Result<()> where T: AsRef<Path>,
 mod tests {
     #[test]
     fn parse() {
-        use reactor::Event;
-        use tag::Tag;
+        use parser::{Event, Tag};
 
-        let mut reactor = ::open("tests/fixtures/benton.svg").unwrap();
+        let mut parser = ::open("tests/fixtures/benton.svg").unwrap();
 
         macro_rules! test(
-            ($matcher:pat) => (match reactor.next().unwrap() {
+            ($matcher:pat) => (match parser.next().unwrap() {
                 $matcher => {},
                 _ => unreachable!(),
             });
@@ -133,6 +125,6 @@ mod tests {
         test!(Event::Tag(Tag::Path(..)));
         test!(Event::Tag(Tag::Unknown(..)));
 
-        assert!(reactor.next().is_none());
+        assert!(parser.next().is_none());
     }
 }

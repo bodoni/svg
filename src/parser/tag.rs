@@ -2,8 +2,8 @@
 
 use std::ascii::AsciiExt;
 
-use {Error, Result};
 use node::Attributes;
+use parser::{Error, Result};
 use reader::Reader;
 
 /// A tag.

@@ -34,9 +34,8 @@ svg::save("image.svg", &document).unwrap();
 ## Example: Parsing
 
 ```rust
-use svg::Tag;
 use svg::node::element::path::{Command, Data};
-use svg::reactor::Event;
+use svg::reactor::{Event, Tag};
 
 let path = "image.svg";
 for event in svg::open(path).unwrap() {
