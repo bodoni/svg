@@ -1,10 +1,10 @@
-/// A parameter.
-pub trait Parameter {
+/// Parameters.
+pub trait Parameters {
     /// Convert into a vector.
     fn into(self) -> Vec<f32>;
 }
 
-impl Parameter for Vec<f32> {
+impl Parameters for Vec<f32> {
     #[inline]
     fn into(self) -> Vec<f32> {
         self
@@ -13,7 +13,7 @@ impl Parameter for Vec<f32> {
 
 macro_rules! implement {
     ($($primitive:ty,)*) => (
-        $(impl Parameter for $primitive {
+        $(impl Parameters for $primitive {
             #[inline]
             fn into(self) -> Vec<f32> {
                 vec![self as f32]
@@ -31,7 +31,7 @@ implement! {
 macro_rules! implement {
     (@express $e:expr) => ($e);
     ($(($t:ident, $n:tt)),*) => (
-        impl<$($t),*> Parameter for ($($t),*) where $($t: Parameter),* {
+        impl<$($t),*> Parameters for ($($t),*) where $($t: Parameters),* {
             fn into(self) -> Vec<f32> {
                 let mut result = vec![];
                 $(result.append(&mut implement!(@express self.$n).into());)*
