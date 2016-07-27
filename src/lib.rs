@@ -61,9 +61,6 @@ use std::borrow::Cow;
 use std::io;
 use std::path::Path;
 
-#[macro_use]
-mod macros;
-
 pub mod node;
 pub mod parser;
 
