@@ -1,4 +1,4 @@
-/// A value.
+/// A value of an attribute.
 pub trait Value {
     /// Convert into a string.
     fn into(self) -> String;

@@ -3,7 +3,7 @@ use std::ops::{Deref, DerefMut};
 use {Error, Result};
 use element::Value;
 use reader::Reader;
-use super::{Command, Parameters, Position};
+use super::{Command, Parameters, Positioning};
 
 /// A [data][1] attribute.
 ///
@@ -16,7 +16,7 @@ struct Parser<'l> {
 }
 
 impl Data {
-    /// Create data.
+    /// Create a data attribute.
     #[inline]
     pub fn new() -> Self {
         Default::default()
@@ -30,10 +30,10 @@ impl Data {
 }
 
 macro_rules! implement {
-    (@method #[$doc:meta] fn $method:ident($command:ident, $position:ident)) => (
+    (@method #[$doc:meta] fn $method:ident($command:ident, $positioning:ident)) => (
         #[$doc]
         pub fn $method<T: Parameters>(mut self, parameters: T) -> Self {
-            self.0.push(Command::$command(Position::$position, parameters.into()));
+            self.0.push(Command::$command(Positioning::$positioning, parameters.into()));
             self
         }
     );
@@ -172,7 +172,7 @@ impl<'l> Parser<'l> {
 
     fn read_command(&mut self) -> Result<Option<Command>> {
         use super::Command::*;
-        use super::Position::*;
+        use super::Positioning::*;
 
         let name = match self.reader.next() {
             Some(name) => match name {
@@ -252,7 +252,7 @@ impl<'l> Parser<'l> {
 mod tests {
     use super::{Data, Parser};
     use super::super::Command::*;
-    use super::super::Position::*;
+    use super::super::Positioning::*;
 
     #[test]
     fn data_parse() {
@@ -280,9 +280,9 @@ mod tests {
         );
 
         macro_rules! test(
-            ($content:expr, $command:ident, $position:ident, $parameters:expr) => (
+            ($content:expr, $command:ident, $positioning:ident, $parameters:expr) => (
                 match run!($content) {
-                    $command($position, parameters) => assert_eq!(parameters, $parameters),
+                    $command($positioning, parameters) => assert_eq!(parameters, $parameters),
                     _ => assert!(false),
                 }
             );

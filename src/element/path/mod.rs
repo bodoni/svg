@@ -10,9 +10,9 @@ pub use self::command::Command;
 pub use self::data::Data;
 pub use self::parameters::Parameters;
 
-/// A type of positioning.
+/// A positioning.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum Position {
+pub enum Positioning {
     /// Absolute.
     Absolute,
     /// Relative.

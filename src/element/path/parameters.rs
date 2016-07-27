@@ -1,4 +1,4 @@
-/// Parameters.
+/// Parameters of a command.
 pub trait Parameters {
     /// Convert into a vector.
     fn into(self) -> Vec<f32>;
