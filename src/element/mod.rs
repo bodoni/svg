@@ -1,10 +1,10 @@
-//! Elements.
+//! Element nodes.
 
 use std::fmt;
 
 use node::{Attributes, Children, Node, Value};
 
-/// An element.
+/// An element node.
 pub struct Element {
     name: String,
     attributes: Attributes,
@@ -12,7 +12,7 @@ pub struct Element {
 }
 
 impl Element {
-    /// Create an element.
+    /// Create a node.
     #[inline]
     pub fn new<T>(name: T) -> Self where T: Into<String> {
         Element { name: name.into(), attributes: Attributes::new(), children: Children::new() }
@@ -59,7 +59,7 @@ macro_rules! implement {
             }
 
             impl $struct_name {
-                /// Create an element.
+                /// Create a node.
                 #[inline]
                 pub fn new() -> Self {
                     $struct_name { inner: Element::new($tag_name) }

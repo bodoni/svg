@@ -68,6 +68,7 @@ mod document;
 mod error;
 mod reactor;
 mod reader;
+mod text;
 
 pub mod element;
 pub mod node;
@@ -79,6 +80,7 @@ pub use error::Error;
 pub use node::Node;
 pub use reactor::{Event, Reactor};
 pub use tag::Tag;
+pub use text::Text;
 
 /// A result.
 pub type Result<T> = std::result::Result<T, Error>;
