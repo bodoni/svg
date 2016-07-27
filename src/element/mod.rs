@@ -15,11 +15,7 @@ impl Element {
     /// Create an element.
     #[inline]
     pub fn new<T>(name: T) -> Self where T: Into<String> {
-        Element {
-            name: name.into(),
-            attributes: Attributes::new(),
-            children: Children::new(),
-        }
+        Element { name: name.into(), attributes: Attributes::new(), children: Children::new() }
     }
 }
 
@@ -54,35 +50,11 @@ impl Node for Element {
     }
 }
 
-macro_rules! element {
-    ($(#[$attribute:meta])* struct $struct_name:ident($name:expr)) => (
-        $(#[$attribute])*
-        pub struct $struct_name {
-            inner: ::element::Element,
-        }
-
-        impl $struct_name {
-            /// Create an element.
-            #[inline]
-            pub fn new() -> Self {
-                $struct_name { inner: ::element::Element::new($name) }
-            }
-        }
-
-        node! { $struct_name::inner }
-    );
-}
-
 pub mod path;
+pub mod svg;
 
 pub use self::path::Path;
-
-element! {
-    #[doc = "
-    An [svg][1] element.
-    [1]: https://www.w3.org/TR/SVG/struct.html#SVGElement"]
-    struct SVG("svg")
-}
+pub use self::svg::SVG;
 
 #[cfg(test)]
 mod tests {

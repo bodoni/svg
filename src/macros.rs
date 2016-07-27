@@ -20,14 +20,14 @@ macro_rules! node(
         impl ::node::Node for $struct_name {
             #[inline]
             fn append<T>(&mut self, node: T) where T: ::node::Node {
-                self.$field_name.append(node)
+                self.$field_name.append(node);
             }
 
             #[inline]
             fn assign<T, U>(&mut self, name: T, value: U)
                 where T: Into<String>, U: Into<::node::Value>
             {
-                self.$field_name.assign(name, value)
+                self.$field_name.assign(name, value);
             }
         }
 
