@@ -50,25 +50,6 @@ impl Node for Element {
     }
 }
 
-/// A [`svg`][1] element.
-///
-/// [1]: https://www.w3.org/TR/SVG/struct.html#SVGElement
-pub struct SVG {
-    inner: Element,
-}
-
-impl SVG {
-    /// Create a node.
-    #[inline]
-    pub fn new() -> Self {
-        let mut inner = Element::new("svg");
-        inner.assign("xmlns", "http://www.w3.org/2000/svg");
-        SVG { inner: inner }
-    }
-}
-
-node! { SVG::inner }
-
 macro_rules! implement {
     ($(#[$doc:meta] struct $struct_name:ident($tag_name:expr))*) => (
         $(
@@ -183,17 +164,9 @@ implement! {
     [1]: https://www.w3.org/TR/SVG/shapes.html#RectElement"]
     struct Rectangle("rect")
 
-    #[doc = "A [`script`][1] element.
-    [1]: https://www.w3.org/TR/SVG/script.html#ScriptElement"]
-    struct Script("script")
-
     #[doc = "A [`stop`][1] element.
     [1]: https://www.w3.org/TR/SVG/pservers.html#StopElement"]
     struct Stop("stop")
-
-    #[doc = "A [`style`][1] element.
-    [1]: https://www.w3.org/TR/SVG/styling.html#StyleElement"]
-    struct Style("style")
 
     #[doc = "A [`symbol`][1] element.
     [1]: https://www.w3.org/TR/SVG/struct.html#SymbolElement"]
@@ -216,15 +189,70 @@ implement! {
     struct Use("use")
 }
 
+
+macro_rules! implement {
+    (@itemize $i:item) => ($i);
+    (
+        $(
+            #[$doc:meta]
+            struct $struct_name:ident($tag_name:expr)
+            [$($pn:ident: $($pt:tt)*),*] [$inner:ident $(,$an:ident: $at:ty)*] $body:block
+        )*
+    ) => (
+        $(
+            #[$doc]
+            pub struct $struct_name {
+                inner: Element,
+            }
+
+            implement! { @itemize
+                impl $struct_name {
+                    /// Create a node.
+                    #[inline]
+                    pub fn new<$($pn: $($pt)*),*>($($an: $at),*) -> Self {
+                        #[inline(always)]
+                        fn initialize<$($pn: $($pt)*),*>($inner: &mut Element $(, $an: $at)*) $body
+                        let mut inner = Element::new($tag_name);
+                        initialize(&mut inner $(, $an)*);
+                        $struct_name { inner: inner }
+                    }
+                }
+            }
+
+            node! { $struct_name::inner }
+        )*
+    );
+}
+
+implement! {
+    #[doc = "An [`svg`][1] element.
+    [1]: https://www.w3.org/TR/SVG/struct.html#SVGElement"]
+    struct SVG("svg") [] [inner] {
+        inner.assign("xmlns", "http://www.w3.org/2000/svg");
+    }
+
+    #[doc = "A [`script`][1] element.
+    [1]: https://www.w3.org/TR/SVG/script.html#ScriptElement"]
+    struct Script("script") [T: Into<String>] [inner, content: T] {
+        inner.append(::node::Text::new(content));
+    }
+
+    #[doc = "A [`style`][1] element.
+    [1]: https://www.w3.org/TR/SVG/styling.html#StyleElement"]
+    struct Style("style") [T: Into<String>] [inner, content: T] {
+        inner.append(::node::Text::new(content));
+    }
+}
+
 pub mod path;
 
 #[cfg(test)]
 mod tests {
     use node::Node;
-    use super::Element;
+    use super::{Element, Style};
 
     #[test]
-    fn display() {
+    fn element_display() {
         let mut element = Element::new("foo");
         element.assign("x", -15);
         element.assign("y", "10px");
@@ -235,6 +263,16 @@ mod tests {
             <foo color='green' size='42.5 69' x='-15' y='10px'>\n\
             <bar/>\n\
             </foo>\
+        ");
+    }
+
+    #[test]
+    fn text_display() {
+        let element = Style::new("* { font-family: foo; }");
+        assert_eq!(element.to_string(), "\
+            <style>\n\
+            * { font-family: foo; }\n\
+            </style>\
         ");
     }
 }

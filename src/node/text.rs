@@ -30,19 +30,3 @@ impl Node for Text {
     fn assign<T, U>(&mut self, _: T, _: U) where T: Into<String>, U: Into<Value> {
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use node::element::Style;
-    use super::Text;
-
-    #[test]
-    fn display() {
-        let element = Style::new().add(Text::new("* { font-family: foo; }"));
-        assert_eq!(element.to_string(), "\
-            <style>\n\
-            * { font-family: foo; }\n\
-            </style>\
-        ");
-    }
-}
