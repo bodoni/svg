@@ -50,11 +50,158 @@ impl Node for Element {
     }
 }
 
-pub mod path;
-pub mod svg;
+macro_rules! implement {
+    ($(#[$doc:meta] struct $struct_name:ident($tag_name:expr))*) => (
+        $(
+            #[$doc]
+            pub struct $struct_name {
+                inner: ::element::Element,
+            }
 
-pub use self::path::Path;
-pub use self::svg::SVG;
+            impl $struct_name {
+                /// Create an element.
+                #[inline]
+                pub fn new() -> Self {
+                    $struct_name { inner: Element::new($tag_name) }
+                }
+            }
+
+            node! { $struct_name::inner }
+        )*
+    );
+}
+
+implement! {
+    #[doc = "An [`animate`][1] element.
+    [1]: https://www.w3.org/TR/SVG/animate.html#AnimateElement"]
+    struct Animate("animate")
+
+    #[doc = "An [`animateColor`][1] element.
+    [1]: https://www.w3.org/TR/SVG/animate.html#AnimateColorElement"]
+    struct AnimateColor("animateColor")
+
+    #[doc = "An [`animateMotion`][1] element.
+    [1]: https://www.w3.org/TR/SVG/animate.html#AnimateMotionElement"]
+    struct AnimateMotion("animateMotion")
+
+    #[doc = "An [`animateTransform`][1] element.
+    [1]: https://www.w3.org/TR/SVG/animate.html#AnimateTransformElement"]
+    struct AnimateTransform("animateTransform")
+
+    #[doc = "A [`circle`][1] element.
+    [1]: https://www.w3.org/TR/SVG/shapes.html#CircleElement"]
+    struct Circle("circle")
+
+    #[doc = "A [`clipPath`][1] element.
+    [1]: https://www.w3.org/TR/SVG/masking.html#ClipPathElement"]
+    struct ClipPath("clipPath")
+
+    #[doc = "A [`defs`][1] element.
+    [1]: https://www.w3.org/TR/SVG/struct.html#DefsElement"]
+    struct Definitions("defs")
+
+    #[doc = "A [`desc`][1] element.
+    [1]: https://www.w3.org/TR/SVG/struct.html#DescElement"]
+    struct Description("desc")
+
+    #[doc = "An [`ellipse`][1] element.
+    [1]: https://www.w3.org/TR/SVG/shapes.html#EllipseElement"]
+    struct Ellipse("ellipse")
+
+    #[doc = "A [`filter`][1] element.
+    [1]: https://www.w3.org/TR/SVG/filters.html#FilterElement"]
+    struct Filter("filter")
+
+    #[doc = "A [`g`][1] element.
+    [1]: https://www.w3.org/TR/SVG/struct.html#GElement"]
+    struct Group("g")
+
+    #[doc = "An [`image`][1] element.
+    [1]: https://www.w3.org/TR/SVG/struct.html#ImageElement"]
+    struct Image("image")
+
+    #[doc = "A [`line`][1] element.
+    [1]: https://www.w3.org/TR/SVG/shapes.html#LineElement"]
+    struct Line("line")
+
+    #[doc = "A [`linearGradient`][1] element.
+    [1]: https://www.w3.org/TR/SVG/pservers.html#LinearGradientElement"]
+    struct LinearGradient("linearGradient")
+
+    #[doc = "An [`a`][1] element.
+    [1]: https://www.w3.org/TR/SVG/linking.html#AElement"]
+    struct Link("a")
+
+    #[doc = "A [`marker`][1] element.
+    [1]: https://www.w3.org/TR/SVG/painting.html#MarkerElement"]
+    struct Marker("marker")
+
+    #[doc = "A [`mask`][1] element.
+    [1]: https://www.w3.org/TR/SVG/masking.html#MaskElement"]
+    struct Mask("mask")
+
+    #[doc = "An [`mpath`][1] element.
+    [1]: https://www.w3.org/TR/SVG/animate.html#MPathElement"]
+    struct MotionPath("mpath")
+
+    #[doc = "A [`path`][1] element.
+    [1]: https://www.w3.org/TR/SVG/paths.html#PathElement"]
+    struct Path("path")
+
+    #[doc = "A [`polygon`][1] element.
+    [1]: https://www.w3.org/TR/SVG/shapes.html#PolygonElement"]
+    struct Polygon("polygon")
+
+    #[doc = "A [`polyline`][1] element.
+    [1]: https://www.w3.org/TR/SVG/shapes.html#PolylineElement"]
+    struct Polyline("polyline")
+
+    #[doc = "A [`radialGradient`][1] element.
+    [1]: https://www.w3.org/TR/SVG/pservers.html#RadialGradientElement"]
+    struct RadialGradient("radialGradient")
+
+    #[doc = "A [`rect`][1] element.
+    [1]: https://www.w3.org/TR/SVG/shapes.html#RectElement"]
+    struct Rectangle("rect")
+
+    #[doc = "A [`svg`][1] element.
+    [1]: https://www.w3.org/TR/SVG/struct.html#SVGElement"]
+    struct SVG("svg")
+
+    #[doc = "A [`script`][1] element.
+    [1]: https://www.w3.org/TR/SVG/script.html#ScriptElement"]
+    struct Script("script")
+
+    #[doc = "A [`stop`][1] element.
+    [1]: https://www.w3.org/TR/SVG/pservers.html#StopElement"]
+    struct Stop("stop")
+
+    #[doc = "A [`style`][1] element.
+    [1]: https://www.w3.org/TR/SVG/styling.html#StyleElement"]
+    struct Style("style")
+
+    #[doc = "A [`symbol`][1] element.
+    [1]: https://www.w3.org/TR/SVG/struct.html#SymbolElement"]
+    struct Symbol("symbol")
+
+    #[doc = "A [`text`][1] element.
+    [1]: https://www.w3.org/TR/SVG/text.html#TextElement"]
+    struct Text("text")
+
+    #[doc = "A [`textPath`][1] element.
+    [1]: https://www.w3.org/TR/SVG/text.html#TextPathElement"]
+    struct TextPath("textPath")
+
+    #[doc = "A [`title`][1] element.
+    [1]: https://www.w3.org/TR/SVG/struct.html#TitleElement"]
+    struct Title("title")
+
+    #[doc = "A [`use`][1] element.
+    [1]: https://www.w3.org/TR/SVG/struct.html#UseElement"]
+    struct Use("use")
+}
+
+pub mod path;
 
 #[cfg(test)]
 mod tests {
