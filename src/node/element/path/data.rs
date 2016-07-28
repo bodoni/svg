@@ -218,7 +218,7 @@ impl<'l> Parser<'l> {
                 _ => break,
             }
             self.reader.consume_whitespace();
-            self.reader.consume_any(",");
+            self.reader.consume_char(',');
         }
         Ok(parameters)
     }
@@ -226,15 +226,12 @@ impl<'l> Parser<'l> {
     pub fn read_number(&mut self) -> Result<Option<f32>> {
         self.reader.consume_whitespace();
         let number = self.reader.capture(|reader| {
-            reader.consume_char('-');
-            reader.consume_digits();
-            reader.consume_char('.');
-            reader.consume_digits();
+            reader.consume_number();
         }).and_then(|number| Some(String::from(number)));
         match number {
             Some(number) => match (&number).parse() {
                 Ok(number) => Ok(Some(number)),
-                Err(_) => raise!(self, "failed to parse a number '{}'", number),
+                _ => raise!(self, "failed to parse a number '{}'", number),
             },
             _ => Ok(None),
         }
@@ -328,16 +325,6 @@ mod tests {
         let mut parser = Parser::new("1,2 3,4 5 6.7");
         let parameters = parser.read_parameters().unwrap();
         assert_eq!(&parameters[..], &[1.0, 2.0, 3.0, 4.0, 5.0, 6.7]);
-    }
-
-    #[test]
-    fn parser_read_number() {
-        let contents = vec!["-1", "3", "3.14"];
-        let numbers = vec![-1.0, 3.0, 3.14];
-        for (&content, &number) in contents.iter().zip(numbers.iter()) {
-            let mut parser = Parser::new(content);
-            assert_eq!(parser.read_number().unwrap().unwrap(), number);
-        }
     }
 
     #[test]

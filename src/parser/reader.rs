@@ -143,6 +143,12 @@ impl<'l> Reader<'l> {
         })
     }
 
+    /// https://www.w3.org/TR/SVG/types.html#DataTypeNumber
+    pub fn consume_number(&mut self) -> bool {
+        self.consume_char('+') || self.consume_char('-');
+        self.consume_digits() && (!self.consume_char('.') || self.consume_digits())
+    }
+
     #[inline]
     pub fn consume_until_any(&mut self, chars: &str) -> bool {
         self.consume_while(|c| !chars.contains(c))
@@ -248,12 +254,12 @@ mod tests {
     #[test]
     fn consume_name() {
         macro_rules! test(
-            ($content:expr, $name:expr) => ({
+            ($content:expr, $value:expr) => ({
                 let mut reader = Reader::new($content);
-                let name = reader.capture(|reader| {
+                let value = reader.capture(|reader| {
                     reader.consume_name();
                 });
-                assert_eq!(name.unwrap(), $name);
+                assert_eq!(value.unwrap(), $value);
             });
         );
 
@@ -274,6 +280,24 @@ mod tests {
         test!("!foo");
         test!("<foo");
         test!("?foo");
+    }
+
+    #[test]
+    fn consume_number() {
+        macro_rules! test(
+            ($content:expr, $value:expr) => ({
+                let mut reader = Reader::new($content);
+                let value = reader.capture(|reader| {
+                    reader.consume_number();
+                });
+                assert_eq!(value.unwrap(), $value);
+            });
+        );
+
+        test!("-1.20", "-1.20");
+        test!("+30.4", "+30.4");
+        test!("50az", "50");
+        test!("6  ", "6");
     }
 
     #[test]
