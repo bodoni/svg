@@ -282,7 +282,7 @@ mod tests {
     }
 
     #[test]
-    fn text_display() {
+    fn style_display() {
         let element = Style::new("* { font-family: foo; }");
         assert_eq!(element.to_string(), "\
             <style>\n\
