@@ -24,14 +24,16 @@ pub struct Parser<'l> {
 pub enum Event<'l> {
     /// An error.
     Error(Error),
+    /// A tag.
+    Tag(&'l str, Type, Attributes),
+    /// A text.
+    Text(&'l str),
     /// A comment.
     Comment,
     /// A declaration.
     Declaration,
     /// An instruction.
     Instruction,
-    /// A tag.
-    Tag(&'l str, Type, Attributes),
 }
 
 /// A result.
@@ -57,7 +59,12 @@ impl<'l> Iterator for Parser<'l> {
     type Item = Event<'l>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        self.reader.consume_until_char('<');
+        let content = self.reader.capture(|reader| {
+            reader.consume_until_char('<');
+        });
+        if let Some(content) = content {
+            return Some(Event::Text(content));
+        }
         if !self.reader.consume_char('<') {
             return None;
         }
@@ -91,12 +98,12 @@ mod tests {
     use parser::{Event, Parser};
 
     #[test]
-    fn next() {
+    fn next_tag() {
         macro_rules! test(
-            ($content:expr, $name:expr) => ({
+            ($content:expr, $value:expr) => ({
                 let mut parser = Parser::new($content);
                 match parser.next().unwrap() {
-                    Event::Tag(name, _, _) => assert_eq!(&*name, $name),
+                    Event::Tag(value, _, _) => assert_eq!(value, $value),
                     _ => unreachable!(),
                 }
             })
@@ -105,7 +112,21 @@ mod tests {
         test!("<foo>", "foo");
         test!("<foo/>", "foo");
         test!("  <foo/>", "foo");
-        test!("foo <bar>", "bar");
-        test!("foo> <bar>", "bar");
+    }
+
+    #[test]
+    fn next_text() {
+        macro_rules! test(
+            ($content:expr, $value:expr) => ({
+                let mut parser = Parser::new($content);
+                match parser.next().unwrap() {
+                    Event::Text(value) => assert_eq!(value, $value),
+                    _ => unreachable!(),
+                }
+            })
+        );
+        test!("foo <bar>", "foo");
+        test!("  foo<bar>", "foo");
+        test!("foo> <bar>", "foo>");
     }
 }

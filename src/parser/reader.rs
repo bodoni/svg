@@ -25,11 +25,8 @@ impl<'l> Reader<'l> {
         let start = self.offset;
         block(self);
         let end = self.offset;
-        if end > start {
-            Some(&self.content[start..end])
-        } else {
-            None
-        }
+        let content = &self.content[start..end].trim();
+        if content.is_empty() { None } else { Some(content) }
     }
 
     #[inline]
