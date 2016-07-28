@@ -12,8 +12,6 @@ pub struct Element {
 }
 
 impl Element {
-    /// Create a node.
-    #[inline]
     pub fn new<T>(name: T) -> Self where T: Into<String> {
         Element { name: name.into(), attributes: Attributes::new(), children: Children::new() }
     }
