@@ -273,7 +273,7 @@ mod tests {
     }
 
     #[test]
-    fn element_display_qoutes() {
+    fn element_display_quotes() {
         let mut element = Element::new("foo");
         element.assign("s", "'single'");
         element.assign("d", r#""double""#);
