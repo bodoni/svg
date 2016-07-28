@@ -57,24 +57,22 @@ impl Node for Element {
 }
 
 macro_rules! implement {
-    ($(#[$doc:meta] struct $struct_name:ident($tag_name:expr))*) => (
-        $(
-            #[$doc]
-            pub struct $struct_name {
-                inner: Element,
-            }
+    ($(#[$doc:meta] struct $struct_name:ident($tag_name:expr))*) => ($(
+        #[$doc]
+        pub struct $struct_name {
+            inner: Element,
+        }
 
-            impl $struct_name {
-                /// Create a node.
-                #[inline]
-                pub fn new() -> Self {
-                    $struct_name { inner: Element::new($tag_name) }
-                }
+        impl $struct_name {
+            /// Create a node.
+            #[inline]
+            pub fn new() -> Self {
+                $struct_name { inner: Element::new($tag_name) }
             }
+        }
 
-            node! { $struct_name::inner }
-        )*
-    );
+        node! { $struct_name::inner }
+    )*);
 }
 
 implement! {
@@ -198,36 +196,32 @@ implement! {
 
 macro_rules! implement {
     (@itemize $i:item) => ($i);
-    (
-        $(
-            #[$doc:meta]
-            struct $struct_name:ident($tag_name:expr)
-            [$($pn:ident: $($pt:tt)*),*] [$inner:ident $(,$an:ident: $at:ty)*] $body:block
-        )*
-    ) => (
-        $(
-            #[$doc]
-            pub struct $struct_name {
-                inner: Element,
-            }
+    ($(
+        #[$doc:meta]
+        struct $struct_name:ident($tag_name:expr)
+        [$($pn:ident: $($pt:tt)*),*] [$inner:ident $(,$an:ident: $at:ty)*] $body:block
+    )*) => ($(
+        #[$doc]
+        pub struct $struct_name {
+            inner: Element,
+        }
 
-            implement! { @itemize
-                impl $struct_name {
-                    /// Create a node.
-                    #[inline]
-                    pub fn new<$($pn: $($pt)*),*>($($an: $at),*) -> Self {
-                        #[inline(always)]
-                        fn initialize<$($pn: $($pt)*),*>($inner: &mut Element $(, $an: $at)*) $body
-                        let mut inner = Element::new($tag_name);
-                        initialize(&mut inner $(, $an)*);
-                        $struct_name { inner: inner }
-                    }
+        implement! { @itemize
+            impl $struct_name {
+                /// Create a node.
+                #[inline]
+                pub fn new<$($pn: $($pt)*),*>($($an: $at),*) -> Self {
+                    #[inline(always)]
+                    fn initialize<$($pn: $($pt)*),*>($inner: &mut Element $(, $an: $at)*) $body
+                    let mut inner = Element::new($tag_name);
+                    initialize(&mut inner $(, $an)*);
+                    $struct_name { inner: inner }
                 }
             }
+        }
 
-            node! { $struct_name::inner }
-        )*
-    );
+        node! { $struct_name::inner }
+    )*);
 }
 
 implement! {
