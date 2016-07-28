@@ -104,7 +104,7 @@ impl<'l> Parser<'l> {
         }).and_then(|name| Some(String::from(name)));
         match name {
             Some(name) => Ok(name),
-            None => raise!(self, "expected a name"),
+            _ => raise!(self, "expected a name"),
         }
     }
 
