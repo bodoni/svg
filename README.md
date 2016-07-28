@@ -35,12 +35,13 @@ svg::save("image.svg", &document).unwrap();
 
 ```rust
 use svg::node::element::path::{Command, Data};
+use svg::node::element::tag::Path;
 use svg::parser::Event;
 
 let path = "image.svg";
 for event in svg::open(path).unwrap() {
     match event {
-        Event::Tag("path", _, attributes) => {
+        Event::Tag(Path, _, attributes) => {
             let data = attributes.get("d").unwrap();
             let data = Data::parse(data).unwrap();
             for command in data.iter() {

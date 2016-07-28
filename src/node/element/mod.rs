@@ -4,6 +4,9 @@ use std::fmt;
 
 use node::{Attributes, Children, Node, Value};
 
+pub mod path;
+pub mod tag;
+
 #[doc(hidden)]
 pub struct Element {
     name: String,
@@ -57,7 +60,7 @@ impl Node for Element {
 }
 
 macro_rules! implement {
-    ($(#[$doc:meta] struct $struct_name:ident($tag_name:expr))*) => ($(
+    ($(#[$doc:meta] struct $struct_name:ident)*) => ($(
         #[$doc]
         pub struct $struct_name {
             inner: Element,
@@ -67,7 +70,7 @@ macro_rules! implement {
             /// Create a node.
             #[inline]
             pub fn new() -> Self {
-                $struct_name { inner: Element::new($tag_name) }
+                $struct_name { inner: Element::new(tag::$struct_name) }
             }
         }
 
@@ -78,127 +81,126 @@ macro_rules! implement {
 implement! {
     #[doc = "An [`animate`][1] element.
     [1]: https://www.w3.org/TR/SVG/animate.html#AnimateElement"]
-    struct Animate("animate")
+    struct Animate
 
     #[doc = "An [`animateColor`][1] element.
     [1]: https://www.w3.org/TR/SVG/animate.html#AnimateColorElement"]
-    struct AnimateColor("animateColor")
+    struct AnimateColor
 
     #[doc = "An [`animateMotion`][1] element.
     [1]: https://www.w3.org/TR/SVG/animate.html#AnimateMotionElement"]
-    struct AnimateMotion("animateMotion")
+    struct AnimateMotion
 
     #[doc = "An [`animateTransform`][1] element.
     [1]: https://www.w3.org/TR/SVG/animate.html#AnimateTransformElement"]
-    struct AnimateTransform("animateTransform")
+    struct AnimateTransform
 
     #[doc = "A [`circle`][1] element.
     [1]: https://www.w3.org/TR/SVG/shapes.html#CircleElement"]
-    struct Circle("circle")
+    struct Circle
 
     #[doc = "A [`clipPath`][1] element.
     [1]: https://www.w3.org/TR/SVG/masking.html#ClipPathElement"]
-    struct ClipPath("clipPath")
+    struct ClipPath
 
     #[doc = "A [`defs`][1] element.
     [1]: https://www.w3.org/TR/SVG/struct.html#DefsElement"]
-    struct Definitions("defs")
+    struct Definitions
 
     #[doc = "A [`desc`][1] element.
     [1]: https://www.w3.org/TR/SVG/struct.html#DescElement"]
-    struct Description("desc")
+    struct Description
 
     #[doc = "An [`ellipse`][1] element.
     [1]: https://www.w3.org/TR/SVG/shapes.html#EllipseElement"]
-    struct Ellipse("ellipse")
+    struct Ellipse
 
     #[doc = "A [`filter`][1] element.
     [1]: https://www.w3.org/TR/SVG/filters.html#FilterElement"]
-    struct Filter("filter")
+    struct Filter
 
     #[doc = "A [`g`][1] element.
     [1]: https://www.w3.org/TR/SVG/struct.html#GElement"]
-    struct Group("g")
+    struct Group
 
     #[doc = "An [`image`][1] element.
     [1]: https://www.w3.org/TR/SVG/struct.html#ImageElement"]
-    struct Image("image")
+    struct Image
 
     #[doc = "A [`line`][1] element.
     [1]: https://www.w3.org/TR/SVG/shapes.html#LineElement"]
-    struct Line("line")
+    struct Line
 
     #[doc = "A [`linearGradient`][1] element.
     [1]: https://www.w3.org/TR/SVG/pservers.html#LinearGradientElement"]
-    struct LinearGradient("linearGradient")
+    struct LinearGradient
 
     #[doc = "An [`a`][1] element.
     [1]: https://www.w3.org/TR/SVG/linking.html#AElement"]
-    struct Link("a")
+    struct Link
 
     #[doc = "A [`marker`][1] element.
     [1]: https://www.w3.org/TR/SVG/painting.html#MarkerElement"]
-    struct Marker("marker")
+    struct Marker
 
     #[doc = "A [`mask`][1] element.
     [1]: https://www.w3.org/TR/SVG/masking.html#MaskElement"]
-    struct Mask("mask")
+    struct Mask
 
     #[doc = "An [`mpath`][1] element.
     [1]: https://www.w3.org/TR/SVG/animate.html#MPathElement"]
-    struct MotionPath("mpath")
+    struct MotionPath
 
     #[doc = "A [`path`][1] element.
     [1]: https://www.w3.org/TR/SVG/paths.html#PathElement"]
-    struct Path("path")
+    struct Path
 
     #[doc = "A [`polygon`][1] element.
     [1]: https://www.w3.org/TR/SVG/shapes.html#PolygonElement"]
-    struct Polygon("polygon")
+    struct Polygon
 
     #[doc = "A [`polyline`][1] element.
     [1]: https://www.w3.org/TR/SVG/shapes.html#PolylineElement"]
-    struct Polyline("polyline")
+    struct Polyline
 
     #[doc = "A [`radialGradient`][1] element.
     [1]: https://www.w3.org/TR/SVG/pservers.html#RadialGradientElement"]
-    struct RadialGradient("radialGradient")
+    struct RadialGradient
 
     #[doc = "A [`rect`][1] element.
     [1]: https://www.w3.org/TR/SVG/shapes.html#RectElement"]
-    struct Rectangle("rect")
+    struct Rectangle
 
     #[doc = "A [`stop`][1] element.
     [1]: https://www.w3.org/TR/SVG/pservers.html#StopElement"]
-    struct Stop("stop")
+    struct Stop
 
     #[doc = "A [`symbol`][1] element.
     [1]: https://www.w3.org/TR/SVG/struct.html#SymbolElement"]
-    struct Symbol("symbol")
+    struct Symbol
 
     #[doc = "A [`text`][1] element.
     [1]: https://www.w3.org/TR/SVG/text.html#TextElement"]
-    struct Text("text")
+    struct Text
 
     #[doc = "A [`textPath`][1] element.
     [1]: https://www.w3.org/TR/SVG/text.html#TextPathElement"]
-    struct TextPath("textPath")
+    struct TextPath
 
     #[doc = "A [`title`][1] element.
     [1]: https://www.w3.org/TR/SVG/struct.html#TitleElement"]
-    struct Title("title")
+    struct Title
 
     #[doc = "A [`use`][1] element.
     [1]: https://www.w3.org/TR/SVG/struct.html#UseElement"]
-    struct Use("use")
+    struct Use
 }
-
 
 macro_rules! implement {
     (@itemize $i:item) => ($i);
     ($(
         #[$doc:meta]
-        struct $struct_name:ident($tag_name:expr)
+        struct $struct_name:ident
         [$($pn:ident: $($pt:tt)*),*] [$inner:ident $(,$an:ident: $at:ty)*] $body:block
     )*) => ($(
         #[$doc]
@@ -213,7 +215,7 @@ macro_rules! implement {
                 pub fn new<$($pn: $($pt)*),*>($($an: $at),*) -> Self {
                     #[inline(always)]
                     fn initialize<$($pn: $($pt)*),*>($inner: &mut Element $(, $an: $at)*) $body
-                    let mut inner = Element::new($tag_name);
+                    let mut inner = Element::new(tag::$struct_name);
                     initialize(&mut inner $(, $an)*);
                     $struct_name { inner: inner }
                 }
@@ -227,24 +229,22 @@ macro_rules! implement {
 implement! {
     #[doc = "An [`svg`][1] element.
     [1]: https://www.w3.org/TR/SVG/struct.html#SVGElement"]
-    struct SVG("svg") [] [inner] {
+    struct SVG [] [inner] {
         inner.assign("xmlns", "http://www.w3.org/2000/svg");
     }
 
     #[doc = "A [`script`][1] element.
     [1]: https://www.w3.org/TR/SVG/script.html#ScriptElement"]
-    struct Script("script") [T: Into<String>] [inner, content: T] {
+    struct Script [T: Into<String>] [inner, content: T] {
         inner.append(::node::Text::new(content));
     }
 
     #[doc = "A [`style`][1] element.
     [1]: https://www.w3.org/TR/SVG/styling.html#StyleElement"]
-    struct Style("style") [T: Into<String>] [inner, content: T] {
+    struct Style [T: Into<String>] [inner, content: T] {
         inner.append(::node::Text::new(content));
     }
 }
-
-pub mod path;
 
 #[cfg(test)]
 mod tests {
