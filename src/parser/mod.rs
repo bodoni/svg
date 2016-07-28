@@ -3,13 +3,10 @@
 use std::borrow::Cow;
 
 use node::Attributes;
+use node::element::tag::{Tag, Type};
 
 mod error;
 mod reader;
-
-pub mod tag;
-
-use self::tag::{Tag, Type};
 
 pub use self::error::Error;
 
