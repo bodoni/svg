@@ -36,14 +36,14 @@
 //! ```
 //! # extern crate svg;
 //! use svg::node::element::path::{Command, Data};
-//! use svg::parser::{Event, Tag};
+//! use svg::parser::Event;
 //!
 //! # fn main() {
 //! let path = "image.svg";
 //! # let path = "tests/fixtures/benton.svg";
 //! for event in svg::open(path).unwrap() {
 //!     match event {
-//!         Event::Tag(Tag("path", _, attributes)) => {
+//!         Event::Tag("path", _, attributes) => {
 //!             let data = attributes.get("d").unwrap();
 //!             let data = Data::parse(data).unwrap();
 //!             for command in data.iter() {
@@ -103,7 +103,7 @@ pub fn save<T, U>(path: T, document: &U) -> io::Result<()> where T: AsRef<Path>,
 mod tests {
     #[test]
     fn open() {
-        use parser::{Event, Tag};
+        use parser::Event;
 
         let mut parser = ::open("tests/fixtures/benton.svg").unwrap();
 
@@ -117,12 +117,12 @@ mod tests {
         test!(Event::Instruction);
         test!(Event::Comment);
         test!(Event::Declaration);
-        test!(Event::Tag(Tag("svg", _, _)));
-        test!(Event::Tag(Tag("path", _, _)));
-        test!(Event::Tag(Tag("path", _, _)));
-        test!(Event::Tag(Tag("path", _, _)));
-        test!(Event::Tag(Tag("path", _, _)));
-        test!(Event::Tag(Tag("svg", _, _)));
+        test!(Event::Tag("svg", _, _));
+        test!(Event::Tag("path", _, _));
+        test!(Event::Tag("path", _, _));
+        test!(Event::Tag("path", _, _));
+        test!(Event::Tag("path", _, _));
+        test!(Event::Tag("svg", _, _));
 
         assert!(parser.next().is_none());
     }

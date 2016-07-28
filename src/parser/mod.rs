@@ -2,13 +2,16 @@
 
 use std::borrow::Cow;
 
+use node::Attributes;
+
 mod error;
 mod reader;
 
 pub mod tag;
 
+use self::tag::{Tag, Type};
+
 pub use self::error::Error;
-pub use self::tag::Tag;
 
 #[doc(hidden)]
 pub use self::reader::Reader;
@@ -31,7 +34,7 @@ pub enum Event<'l> {
     /// An instruction.
     Instruction,
     /// A tag.
-    Tag(Tag<'l>),
+    Tag(&'l str, Type, Attributes),
 }
 
 /// A result.
@@ -79,7 +82,7 @@ impl<'l> Iterator for Parser<'l> {
             Event::Instruction
         } else {
             match Tag::parse(&content) {
-                Ok(tag) => Event::Tag(tag),
+                Ok(Tag(name, kind, attributes)) => Event::Tag(name, kind, attributes),
                 Err(error) => Event::Error(error),
             }
         })
@@ -88,7 +91,7 @@ impl<'l> Iterator for Parser<'l> {
 
 #[cfg(test)]
 mod tests {
-    use parser::{Event, Parser, Tag};
+    use parser::{Event, Parser};
 
     #[test]
     fn next() {
@@ -96,7 +99,7 @@ mod tests {
             ($content:expr, $name:expr) => ({
                 let mut parser = Parser::new($content);
                 match parser.next().unwrap() {
-                    Event::Tag(Tag(name, _, _)) => assert_eq!(&*name, $name),
+                    Event::Tag(name, _, _) => assert_eq!(&*name, $name),
                     _ => unreachable!(),
                 }
             })
