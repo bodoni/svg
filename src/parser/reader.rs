@@ -21,7 +21,7 @@ impl<'l> Reader<'l> {
         }
     }
 
-    pub fn capture<F>(&mut self, block: F) -> Option<&str> where F: Fn(&mut Reader<'l>) {
+    pub fn capture<F>(&mut self, block: F) -> Option<&'l str> where F: Fn(&mut Reader<'l>) {
         let start = self.offset;
         block(self);
         let end = self.offset;

@@ -39,16 +39,19 @@ use svg::parser::{Event, Tag};
 
 let path = "image.svg";
 for event in svg::open(path).unwrap() {
-    if let Event::Tag(Tag::Path(_, attributes)) = event {
-        let data = attributes.get("d").unwrap();
-        let data = Data::parse(data).unwrap();
-        for command in data.iter() {
-            match command {
-                &Command::Move(..) => println!("Move!"),
-                &Command::Line(..) => println!("Line!"),
-                _ => {},
+    match event {
+        Event::Tag(Tag("path", _, attributes)) => {
+            let data = attributes.get("d").unwrap();
+            let data = Data::parse(data).unwrap();
+            for command in data.iter() {
+                match command {
+                    &Command::Move(..) => println!("Move!"),
+                    &Command::Line(..) => println!("Line!"),
+                    _ => {},
+                }
             }
-        }
+        },
+        _ => {},
     }
 }
 ```

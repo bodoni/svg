@@ -1,15 +1,10 @@
-//! Tags.
+//! The tags.
 
 use node::Attributes;
 use parser::{Error, Reader, Result};
 
 /// A tag.
-pub enum Tag {
-    /// A path tag.
-    Path(Type, Attributes),
-    /// An unknown tag.
-    Unknown(Type, String, Attributes),
-}
+pub struct Tag<'l>(pub &'l str, pub Type, pub Attributes);
 
 /// A [type][1] of a tag.
 ///
@@ -28,10 +23,10 @@ struct Parser<'l> {
     reader: Reader<'l>,
 }
 
-impl Tag {
+impl<'l> Tag<'l> {
     /// Parse a tag.
     #[inline]
-    pub fn parse(content: &str) -> Result<Self> {
+    pub fn parse(content: &'l str) -> Result<Tag<'l>> {
         Parser::new(content).process()
     }
 }
@@ -48,7 +43,7 @@ impl<'l> Parser<'l> {
         Parser { reader: Reader::new(content) }
     }
 
-    fn process(&mut self) -> Result<Tag> {
+    fn process(&mut self) -> Result<Tag<'l>> {
         if self.reader.consume_char('/') {
             self.read_end_tag()
         } else {
@@ -86,46 +81,37 @@ impl<'l> Parser<'l> {
         Ok(attributes)
     }
 
-    fn read_end_tag(&mut self) -> Result<Tag> {
+    fn read_end_tag(&mut self) -> Result<Tag<'l>> {
         let name = try!(self.read_name());
         self.reader.consume_whitespace();
         if !self.reader.is_done() {
             raise!(self, "found an end tag with excessive data");
         }
-        Ok(match name.as_str() {
-            "path" => Tag::Path(Type::End, Default::default()),
-            _ => Tag::Unknown(Type::End, name, Default::default()),
-        })
+        Ok(Tag(name, Type::End, Attributes::default()))
     }
 
-    fn read_name(&mut self) -> Result<String> {
+    fn read_name(&mut self) -> Result<&'l str> {
         let name = self.reader.capture(|reader| {
             reader.consume_name();
-        }).and_then(|name| Some(String::from(name)));
+        });
         match name {
             Some(name) => Ok(name),
             _ => raise!(self, "expected a name"),
         }
     }
 
-    fn read_start_or_empty_tag(&mut self) -> Result<Tag> {
+    fn read_start_or_empty_tag(&mut self) -> Result<Tag<'l>> {
         let name = try!(self.read_name());
         let attributes = try!(self.read_attributes());
         self.reader.consume_whitespace();
         let tail = self.reader.capture(|reader| {
             reader.consume_all();
-        }).and_then(|tail| Some(String::from(tail)));
-        let kind = match tail {
-            Some(tail) => match &*tail {
-                "/" => Type::Empty,
-                _ => raise!(self, "found an unexpected ending of a tag"),
-            },
-            _ => Type::Start,
-        };
-        Ok(match name.as_str() {
-            "path" => Tag::Path(kind, attributes),
-            _ => Tag::Unknown(kind, name, attributes),
-        })
+        });
+        match tail {
+            Some("/") => Ok(Tag(name, Type::Empty, attributes)),
+            Some(_) => raise!(self, "found an unexpected ending of a tag"),
+            _ => Ok(Tag(name, Type::Start, attributes)),
+        }
     }
 }
 
@@ -139,7 +125,7 @@ mod tests {
             ($content:expr, $kind:ident) => ({
                 let mut parser = Parser::new($content);
                 match parser.process().unwrap() {
-                    Tag::Unknown(Type::$kind, _, _) => {},
+                    Tag("foo", Type::$kind, _) => {},
                     _ => unreachable!(),
                 }
             });

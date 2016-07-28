@@ -21,7 +21,7 @@ pub struct Parser<'l> {
 }
 
 /// An event.
-pub enum Event {
+pub enum Event<'l> {
     /// An error.
     Error(Error),
     /// A comment.
@@ -31,7 +31,7 @@ pub enum Event {
     /// An instruction.
     Instruction,
     /// A tag.
-    Tag(Tag),
+    Tag(Tag<'l>),
 }
 
 /// A result.
@@ -54,16 +54,16 @@ macro_rules! raise(
 );
 
 impl<'l> Iterator for Parser<'l> {
-    type Item = Event;
+    type Item = Event<'l>;
 
-    fn next(&mut self) -> Option<Event> {
+    fn next(&mut self) -> Option<Self::Item> {
         self.reader.consume_until_char('<');
         if !self.reader.consume_char('<') {
             return None;
         }
         let content = self.reader.capture(|reader| {
             reader.consume_until_char('>');
-        }).and_then(|content| Some(String::from(content)));
+        });
         if content.is_none() {
             return raise!(self, "found an empty tag");
         }
@@ -96,7 +96,7 @@ mod tests {
             ($content:expr, $name:expr) => ({
                 let mut parser = Parser::new($content);
                 match parser.next().unwrap() {
-                    Event::Tag(Tag::Unknown(_, name, _)) => assert_eq!(&*name, $name),
+                    Event::Tag(Tag(name, _, _)) => assert_eq!(&*name, $name),
                     _ => unreachable!(),
                 }
             })

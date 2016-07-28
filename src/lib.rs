@@ -42,16 +42,19 @@
 //! let path = "image.svg";
 //! # let path = "tests/fixtures/benton.svg";
 //! for event in svg::open(path).unwrap() {
-//!     if let Event::Tag(Tag::Path(_, attributes)) = event {
-//!         let data = attributes.get("d").unwrap();
-//!         let data = Data::parse(data).unwrap();
-//!         for command in data.iter() {
-//!             match command {
-//!                 &Command::Move(..) => println!("Move!"),
-//!                 &Command::Line(..) => println!("Line!"),
-//!                 _ => {},
+//!     match event {
+//!         Event::Tag(Tag("path", _, attributes)) => {
+//!             let data = attributes.get("d").unwrap();
+//!             let data = Data::parse(data).unwrap();
+//!             for command in data.iter() {
+//!                 match command {
+//!                     &Command::Move(..) => println!("Move!"),
+//!                     &Command::Line(..) => println!("Line!"),
+//!                     _ => {},
+//!                 }
 //!             }
-//!         }
+//!         },
+//!         _ => {},
 //!     }
 //! }
 //! # }
@@ -114,12 +117,12 @@ mod tests {
         test!(Event::Instruction);
         test!(Event::Comment);
         test!(Event::Declaration);
-        test!(Event::Tag(Tag::Unknown(..)));
-        test!(Event::Tag(Tag::Path(..)));
-        test!(Event::Tag(Tag::Path(..)));
-        test!(Event::Tag(Tag::Path(..)));
-        test!(Event::Tag(Tag::Path(..)));
-        test!(Event::Tag(Tag::Unknown(..)));
+        test!(Event::Tag(Tag("svg", _, _)));
+        test!(Event::Tag(Tag("path", _, _)));
+        test!(Event::Tag(Tag("path", _, _)));
+        test!(Event::Tag(Tag("path", _, _)));
+        test!(Event::Tag(Tag("path", _, _)));
+        test!(Event::Tag(Tag("svg", _, _)));
 
         assert!(parser.next().is_none());
     }
