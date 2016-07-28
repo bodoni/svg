@@ -332,11 +332,17 @@ mod tests {
 
     #[test]
     fn parser_read_number() {
-        let texts = vec!["-1", "3", "3.14"];
+        let contents = vec!["-1", "3", "3.14"];
         let numbers = vec![-1.0, 3.0, 3.14];
-        for (&content, &number) in texts.iter().zip(numbers.iter()) {
+        for (&content, &number) in contents.iter().zip(numbers.iter()) {
             let mut parser = Parser::new(content);
             assert_eq!(parser.read_number().unwrap().unwrap(), number);
         }
+    }
+
+    #[test]
+    fn parser_read_number_double() {
+        let mut parser = Parser::new("0.30000000000000004");
+        assert_eq!(parser.read_number().unwrap().unwrap(), 0.3);
     }
 }
