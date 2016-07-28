@@ -25,7 +25,15 @@ impl fmt::Display for Element {
         let mut attributes = self.attributes.iter().collect::<Vec<_>>();
         attributes.sort_by_key(|pair| pair.0.as_str());
         for (name, value) in attributes {
-            try!(write!(formatter, " {}='{}'", name, value));
+            match (value.contains("'"), value.contains('"')) {
+                (true, false) | (false, false) => {
+                    try!(write!(formatter, r#" {}="{}""#, name, value));
+                },
+                (false, true) => {
+                    try!(write!(formatter, r#" {}='{}'"#, name, value));
+                },
+                _ => {},
+            }
         }
         if self.children.is_empty() {
             return write!(formatter, "/>");
@@ -254,16 +262,25 @@ mod tests {
     #[test]
     fn element_display() {
         let mut element = Element::new("foo");
-        element.assign("x", -15);
+        element.assign("x", -10);
         element.assign("y", "10px");
-        element.assign("size", (42.5, 69.0));
-        element.assign("color", "green");
+        element.assign("s", (12.5, 13.0));
+        element.assign("c", "green");
         element.append(Element::new("bar"));
         assert_eq!(element.to_string(), "\
-            <foo color='green' size='42.5 69' x='-15' y='10px'>\n\
+            <foo c=\"green\" s=\"12.5 13\" x=\"-10\" y=\"10px\">\n\
             <bar/>\n\
             </foo>\
         ");
+    }
+
+    #[test]
+    fn element_display_qoutes() {
+        let mut element = Element::new("foo");
+        element.assign("s", "'single'");
+        element.assign("d", r#""double""#);
+        element.assign("m", r#""mixed'"#);
+        assert_eq!(element.to_string(), r#"<foo d='"double"' s="'single'"/>"#);
     }
 
     #[test]
