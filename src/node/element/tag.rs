@@ -3,9 +3,10 @@
 #![allow(non_upper_case_globals)]
 
 macro_rules! implement {
-    ($($const_name:ident: $tag_name:expr,)*) => (
-        $(pub const $const_name: &'static str = $tag_name;)*
-    );
+    ($($const_name:ident: $tag_name:expr,)*) => ($(
+        #[doc = $tag_name]
+        pub const $const_name: &'static str = $tag_name;
+    )*);
 }
 
 implement! {
