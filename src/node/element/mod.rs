@@ -4,7 +4,7 @@ use std::fmt;
 
 use node::{Attributes, Children, Node, Value};
 
-/// An element node.
+#[doc(hidden)]
 pub struct Element {
     name: String,
     attributes: Attributes,
