@@ -6,7 +6,7 @@ use super::{Command, Parameters, Position};
 
 /// A [data][1] attribute.
 ///
-/// [1]: http://www.w3.org/TR/SVG/paths.html#PathData
+/// [1]: https://www.w3.org/TR/SVG/paths.html#PathData
 #[derive(Clone, Default)]
 pub struct Data(Vec<Command>);
 

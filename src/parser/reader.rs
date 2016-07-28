@@ -42,12 +42,12 @@ impl<'l> Reader<'l> {
         self.consume_while(|c| chars.contains(c))
     }
 
-    /// http://www.w3.org/TR/REC-xml/#NT-Attribute
+    /// https://www.w3.org/TR/REC-xml/#NT-Attribute
     pub fn consume_attribute(&mut self) -> bool {
         self.consume_name() && self.consume_equality() && self.consume_attribute_value()
     }
 
-    /// http://www.w3.org/TR/REC-xml/#NT-AttValue
+    /// https://www.w3.org/TR/REC-xml/#NT-AttValue
     pub fn consume_attribute_value(&mut self) -> bool {
         if self.consume_char('\'') {
             self.consume_until_any("<&'") && self.consume_char('\'')
@@ -73,7 +73,7 @@ impl<'l> Reader<'l> {
         self.consume_while(|c| c >= '0' && c <= '9')
     }
 
-    /// http://www.w3.org/TR/REC-xml/#NT-Eq
+    /// https://www.w3.org/TR/REC-xml/#NT-Eq
     pub fn consume_equality(&mut self) -> bool {
         self.consume_whitespace();
         let consumed = self.consume_char('=');
@@ -95,7 +95,7 @@ impl<'l> Reader<'l> {
         }
     }
 
-    /// http://www.w3.org/TR/REC-xml/#NT-Name
+    /// https://www.w3.org/TR/REC-xml/#NT-Name
     pub fn consume_name(&mut self) -> bool {
         self.consume_name_start_char() && {
             while self.consume_name_char() {}
@@ -103,7 +103,7 @@ impl<'l> Reader<'l> {
         }
     }
 
-    /// http://www.w3.org/TR/REC-xml/#NT-NameChar
+    /// https://www.w3.org/TR/REC-xml/#NT-NameChar
     pub fn consume_name_char(&mut self) -> bool {
         self.consume_name_start_char() || self.consume_if(|c| {
             match c {
@@ -118,7 +118,7 @@ impl<'l> Reader<'l> {
         })
     }
 
-    /// http://www.w3.org/TR/REC-xml/#NT-NameStartChar
+    /// https://www.w3.org/TR/REC-xml/#NT-NameStartChar
     pub fn consume_name_start_char(&mut self) -> bool {
         self.consume_if(|c| {
             match c {
@@ -161,7 +161,7 @@ impl<'l> Reader<'l> {
         consumed
     }
 
-    /// http://www.w3.org/TR/REC-xml/#NT-S
+    /// https://www.w3.org/TR/REC-xml/#NT-S
     #[inline]
     pub fn consume_whitespace(&mut self) -> bool {
         self.consume_any("\x20\x09\x0D\x0A")
