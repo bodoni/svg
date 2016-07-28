@@ -81,12 +81,12 @@ pub fn open<'l, T>(path: T) -> io::Result<Parser<'l>> where T: AsRef<Path> {
     let mut content = String::new();
     let mut file = try!(File::open(path));
     try!(file.read_to_string(&mut content));
-    Ok(read(content))
+    Ok(parse(content))
 }
 
-/// Read a document.
+/// Parse a document.
 #[inline]
-pub fn read<'l, T>(content: T) -> Parser<'l> where T: Into<Cow<'l, str>> {
+pub fn parse<'l, T>(content: T) -> Parser<'l> where T: Into<Cow<'l, str>> {
     Parser::new(content)
 }
 
