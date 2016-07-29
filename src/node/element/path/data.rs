@@ -2,7 +2,7 @@ use std::ops::Deref;
 
 use node::Value;
 use parser::{Error, Reader, Result};
-use super::{Command, Parameters, Position};
+use super::{Command, Number, Parameters, Position};
 
 /// A [data][1] attribute.
 ///
@@ -210,7 +210,7 @@ impl<'l> Parser<'l> {
         }))
     }
 
-    fn read_parameters(&mut self) -> Result<Vec<f32>> {
+    fn read_parameters(&mut self) -> Result<Vec<Number>> {
         let mut parameters = Vec::new();
         loop {
             match try!(self.read_number()) {
@@ -223,7 +223,7 @@ impl<'l> Parser<'l> {
         Ok(parameters)
     }
 
-    pub fn read_number(&mut self) -> Result<Option<f32>> {
+    pub fn read_number(&mut self) -> Result<Option<Number>> {
         self.reader.consume_whitespace();
         let number = self.reader.capture(|reader| {
             reader.consume_number();

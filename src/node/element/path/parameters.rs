@@ -1,11 +1,13 @@
 use std::ops::Deref;
 
+use super::Number;
+
 /// Parameters of a command.
 #[derive(Clone)]
-pub struct Parameters(Vec<f32>);
+pub struct Parameters(Vec<Number>);
 
 impl Deref for Parameters {
-    type Target = [f32];
+    type Target = [Number];
 
     #[inline]
     fn deref(&self) -> &Self::Target {
@@ -19,14 +21,14 @@ impl From<Parameters> for String {
     }
 }
 
-impl From<Vec<f32>> for Parameters {
+impl From<Vec<Number>> for Parameters {
     #[inline]
-    fn from(inner: Vec<f32>) -> Self {
+    fn from(inner: Vec<Number>) -> Self {
         Parameters(inner)
     }
 }
 
-impl From<Parameters> for Vec<f32> {
+impl From<Parameters> for Vec<Number> {
     #[inline]
     fn from(Parameters(inner): Parameters) -> Self {
         inner
@@ -38,7 +40,7 @@ macro_rules! implement {
         $(impl From<$primitive> for Parameters {
             #[inline]
             fn from(inner: $primitive) -> Self {
-                Parameters(vec![inner as f32])
+                Parameters(vec![inner as Number])
             }
         })*
     );
