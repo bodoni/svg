@@ -11,7 +11,7 @@ pub use self::parameters::Parameters;
 /// A number.
 pub type Number = f32;
 
-/// A type of positioning.
+/// A positioning method.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum Position {
     /// Absolute.
