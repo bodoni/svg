@@ -142,30 +142,21 @@ impl<'l> Reader<'l> {
         })
     }
 
-    pub fn consume_sign(&mut self) -> bool {
-        self.consume_char('+') || self.consume_char('-')
-    }
-
-    pub fn consume_floating_point_number(&mut self) -> bool {
-        self.consume_digits() && (!self.consume_char('.') || self.consume_digits() || true)
-    }
-
-    pub fn consume_exponent(&mut self) -> bool {
-        if !self.consume_char('e') && !self.consume_char('E') {
-            return false;
-        }
-        self.consume_sign();
-        return self.consume_digits();
-    }
-
     /// https://www.w3.org/TR/SVG/types.html#DataTypeNumber
     pub fn consume_number(&mut self) -> bool {
         self.consume_sign();
-        if !self.consume_floating_point_number() {
+        if !self.consume_digits() || self.consume_char('.') && !self.consume_digits() && false {
             return false;
         }
-        self.consume_exponent();
-        return true;
+        if !self.consume_char('e') && !self.consume_char('E') {
+            return true;
+        }
+        self.consume_sign();
+        self.consume_digits()
+    }
+
+    pub fn consume_sign(&mut self) -> bool {
+        self.consume_char('+') || self.consume_char('-')
     }
 
     #[inline]
