@@ -226,7 +226,7 @@ impl<'l> Parser<'l> {
     pub fn read_number(&mut self) -> Result<Option<Number>> {
         self.reader.consume_whitespace();
         let number = self.reader.capture(|reader| {
-            reader.consume_number();
+            reader.consume_number()
         }).and_then(|number| Some(String::from(number)));
         match number {
             Some(number) => match (&number).parse() {

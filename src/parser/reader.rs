@@ -21,11 +21,14 @@ impl<'l> Reader<'l> {
         }
     }
 
-    pub fn capture<F>(&mut self, block: F) -> Option<&'l str> where F: Fn(&mut Reader<'l>) {
+    pub fn capture<F>(&mut self, block: F) -> Option<&'l str>
+        where F: Fn(&mut Reader<'l>) -> bool
+    {
         let start = self.offset;
-        block(self);
-        let end = self.offset;
-        let content = &self.content[start..end].trim();
+        if !block(self) {
+            return None;
+        }
+        let content = &self.content[start..self.offset].trim();
         if content.is_empty() { None } else { Some(content) }
     }
 
@@ -228,7 +231,7 @@ mod tests {
         let mut reader = Reader::new("abcdefg");
         reader.consume_any("ab");
         let content = reader.capture(|reader| {
-            reader.consume_any("cde");
+            reader.consume_any("cde")
         });
 
         assert_eq!(content.unwrap(), "cde");
@@ -267,7 +270,7 @@ mod tests {
             ($content:expr, $value:expr) => ({
                 let mut reader = Reader::new($content);
                 let value = reader.capture(|reader| {
-                    reader.consume_name();
+                    reader.consume_name()
                 });
                 assert_eq!(value.unwrap(), $value);
             });
@@ -298,7 +301,7 @@ mod tests {
             ($content:expr, $value:expr) => ({
                 let mut reader = Reader::new($content);
                 let value = reader.capture(|reader| {
-                    reader.consume_number();
+                    reader.consume_number()
                 });
                 assert_eq!(value.unwrap(), $value);
             });

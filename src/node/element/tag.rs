@@ -55,7 +55,7 @@ impl<'l> Parser<'l> {
 
     fn read_attribute(&mut self) -> Result<Option<(String, String)>> {
         let attribute = self.reader.capture(|reader| {
-            reader.consume_attribute();
+            reader.consume_attribute()
         }).and_then(|attribute| Some(String::from(attribute)));
         match attribute {
             Some(attribute) => {
@@ -94,7 +94,7 @@ impl<'l> Parser<'l> {
 
     fn read_name(&mut self) -> Result<&'l str> {
         let name = self.reader.capture(|reader| {
-            reader.consume_name();
+            reader.consume_name()
         });
         match name {
             Some(name) => Ok(name),
@@ -107,7 +107,7 @@ impl<'l> Parser<'l> {
         let attributes = try!(self.read_attributes());
         self.reader.consume_whitespace();
         let tail = self.reader.capture(|reader| {
-            reader.consume_all();
+            reader.consume_all()
         });
         match tail {
             Some("/") => Ok(Tag(name, Type::Empty, attributes)),
