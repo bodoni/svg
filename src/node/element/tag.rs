@@ -62,7 +62,11 @@ impl<'l> Parser<'l> {
                 let k = (&attribute).find('=').unwrap();
                 let name = (&attribute[0..k]).trim_right();
                 let value = (&attribute[(k+1)..]).trim_left();
-                let value = &value[1..(value.len()-1)];
+                let value = if value.len() > 1 {
+                    &value[1..value.len()-1]
+                } else {
+                    &""
+                };
                 Ok(Some((String::from(name), String::from(value))))
             },
             _ => Ok(None),
@@ -194,6 +198,7 @@ mod tests {
             });
         );
 
+        test!("foo=''", "foo", "");
         test!("foo='bar'", "foo", "bar");
         test!("foo =\"bar\"", "foo", "bar");
         test!("foo= \"bar\"", "foo", "bar");
