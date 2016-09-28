@@ -148,8 +148,14 @@ impl<'l> Reader<'l> {
     /// https://www.w3.org/TR/SVG/types.html#DataTypeNumber
     pub fn consume_number(&mut self) -> bool {
         self.consume_sign();
-        if !self.consume_digits() || self.consume_char('.') && !self.consume_digits() {
-            return false;
+        if self.consume_digits() {
+            if self.consume_char('.') && !self.consume_digits() {
+                return false;
+            }
+        } else {
+            if !self.consume_char('.') || !self.consume_digits() {
+                return false;
+            }
         }
         if !self.consume_char('e') && !self.consume_char('E') {
             return true;
@@ -307,15 +313,36 @@ mod tests {
             });
         );
 
-        test!("-1.20", "-1.20");
-        test!("+30.4", "+30.4");
-        test!("50az", "50");
-        test!("6  ", "6");
-        test!("1E-4", "1E-4");
-        test!("1e4", "1e4");
-        test!("-1E2", "-1E2");
-        test!("-0.1E2", "-0.1E2");
-        test!("-000.10E0200", "-000.10E0200");
+        test!("1 ", "1");
+        test!("1a", "1");
+
+        test!("1", "1");
+        test!("-1", "-1");
+        test!("+1", "+1");
+
+        test!(".1", ".1");
+        test!("-.1", "-.1");
+        test!("+.1", "+.1");
+
+        test!("1.2", "1.2");
+        test!("-1.2", "-1.2");
+        test!("+1.2", "+1.2");
+
+        test!("1E2", "1E2");
+        test!("-1e2", "-1e2");
+        test!("+1e2", "+1e2");
+
+        test!("1.2e3", "1.2e3");
+        test!("-1.2E3", "-1.2E3");
+        test!("+1.2e3", "+1.2e3");
+
+        test!("1.2e-3", "1.2e-3");
+        test!("-1.2e-3", "-1.2e-3");
+        test!("+1.2E-3", "+1.2E-3");
+
+        test!("1.2E+3", "1.2E+3");
+        test!("-1.2e+3", "-1.2e+3");
+        test!("+1.2e+3", "+1.2e+3");
 
         macro_rules! test(
             ($content:expr) => ({
