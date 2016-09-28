@@ -141,9 +141,35 @@ impl<'l> Reader<'l> {
     }
 
     /// https://www.w3.org/TR/SVG/types.html#DataTypeNumber
-    pub fn consume_number(&mut self) -> bool {
-        self.consume_char('+') || self.consume_char('-');
+    pub fn consume_basic_number(&mut self) -> bool {
+        self.consume_sign();
         self.consume_digits() && (!self.consume_char('.') || self.consume_digits())
+    }
+
+    pub fn consume_sign(&mut self) -> bool {
+        self.consume_char('+') || self.consume_char('-')
+    }
+
+    pub fn consume_floating_point_number(&mut self) -> bool {
+        self.consume_digits() && (!self.consume_char('.') || self.consume_digits() || true)
+    }
+
+    pub fn consume_exponent(&mut self) -> bool {
+        if !self.consume_char('e') && !self.consume_char('E') {
+            return false;
+        }
+        self.consume_sign();
+        return self.consume_digits();
+    }
+
+    /// Can handle more cases than consume_number. Modeled after the path specification.
+    pub fn consume_number(&mut self) -> bool {
+        self.consume_sign();
+        if !self.consume_floating_point_number() {
+            return false;
+        }
+        self.consume_exponent();
+        return true;
     }
 
     #[inline]
@@ -280,7 +306,25 @@ mod tests {
     }
 
     #[test]
-    fn consume_number() {
+    fn consume_basic_number() {
+        macro_rules! test(
+            ($content:expr, $value:expr) => ({
+                let mut reader = Reader::new($content);
+                let value = reader.capture(|reader| {
+                    reader.consume_basic_number();
+                });
+                assert_eq!(value.unwrap(), $value);
+            });
+        );
+
+        test!("-1.20", "-1.20");
+        test!("+30.4", "+30.4");
+        test!("50az", "50");
+        test!("6  ", "6");
+    }
+
+    #[test]
+    fn consume_number_with_exponent() {
         macro_rules! test(
             ($content:expr, $value:expr) => ({
                 let mut reader = Reader::new($content);
@@ -291,10 +335,11 @@ mod tests {
             });
         );
 
-        test!("-1.20", "-1.20");
-        test!("+30.4", "+30.4");
-        test!("50az", "50");
-        test!("6  ", "6");
+        test!("1E-4", "1E-4");
+        test!("1e4", "1e4");
+        test!("-1E2", "-1E2");
+        test!("-0.1E2", "-0.1E2");
+        test!("-000.10E0200", "-000.10E0200");
     }
 
     #[test]
