@@ -47,9 +47,11 @@ impl<'l> Reader<'l> {
     /// https://www.w3.org/TR/REC-xml/#NT-AttValue
     pub fn consume_attribute_value(&mut self) -> bool {
         if self.consume_char('\'') {
-            self.consume_until_any("<&'") && self.consume_char('\'')
+            self.consume_until_any("<&'");
+            self.consume_char('\'')
         } else if self.consume_char('"') {
-            self.consume_until_any("<&\"") && self.consume_char('"')
+            self.consume_until_any("<&\"");
+            self.consume_char('"')
         } else {
             false
         }

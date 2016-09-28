@@ -62,11 +62,7 @@ impl<'l> Parser<'l> {
                 let k = (&attribute).find('=').unwrap();
                 let name = (&attribute[0..k]).trim_right();
                 let value = (&attribute[(k+1)..]).trim_left();
-                let value = if value.len() > 1 {
-                    &value[1..value.len()-1]
-                } else {
-                    &""
-                };
+                let value = &value[1..(value.len()-1)];
                 Ok(Some((String::from(name), String::from(value))))
             },
             _ => Ok(None),
