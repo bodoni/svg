@@ -148,7 +148,7 @@ impl<'l> Reader<'l> {
     /// https://www.w3.org/TR/SVG/types.html#DataTypeNumber
     pub fn consume_number(&mut self) -> bool {
         self.consume_sign();
-        if !self.consume_digits() || self.consume_char('.') && !self.consume_digits() && false {
+        if !self.consume_digits() || self.consume_char('.') && !self.consume_digits() {
             return false;
         }
         if !self.consume_char('e') && !self.consume_char('E') {
@@ -316,6 +316,19 @@ mod tests {
         test!("-1E2", "-1E2");
         test!("-0.1E2", "-0.1E2");
         test!("-000.10E0200", "-000.10E0200");
+
+        macro_rules! test(
+            ($content:expr) => ({
+                let mut reader = Reader::new($content);
+                assert!(reader.capture(|reader| {
+                    reader.consume_number()
+                }).is_none());
+            });
+        );
+
+        test!("1.e2");
+        test!("-1.e2");
+        test!("+1.e2");
     }
 
     #[test]
