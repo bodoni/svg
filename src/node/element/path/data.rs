@@ -327,20 +327,17 @@ mod tests {
     }
 
     #[test]
-    fn parser_read_number_double() {
-        let mut parser = Parser::new("0.30000000000000004");
-        assert_eq!(parser.read_number().unwrap().unwrap(), 0.3);
-    }
+    fn parser_read_number() {
+        macro_rules! test(
+            ($content:expr, $value:expr) => ({
+                let mut parser = Parser::new($content);
+                assert_eq!(parser.read_number().unwrap().unwrap(), $value);
+            });
+        );
 
-    #[test]
-    fn parser_read_number_exponent() {
-        let mut parser = Parser::new("1e-4");
-        assert_eq!(parser.read_number().unwrap().unwrap(), 1e-4);
-
-        let mut parser = Parser::new("-1E2");
-        assert_eq!(parser.read_number().unwrap().unwrap(), -1E2);
-
-        let mut parser = Parser::new("-0.00100E-002");
-        assert_eq!(parser.read_number().unwrap().unwrap(), -0.00100E-002);
+        test!("0.30000000000000004", 0.3);
+        test!("1e-4", 1e-4);
+        test!("-1E2", -1e2);
+        test!("-0.00100E-002", -1e-5);
     }
 }

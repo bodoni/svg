@@ -235,9 +235,8 @@ mod tests {
     #[test]
     fn capture() {
         let mut reader = Reader::new("abcdefg");
-        reader.consume_any("ab");
+        assert!(reader.consume_any("ab"));
         let content = reader.capture(|reader| reader.consume_any("cde"));
-
         assert_eq!(content.unwrap(), "cde");
     }
 
