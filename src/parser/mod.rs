@@ -59,18 +59,14 @@ impl<'l> Iterator for Parser<'l> {
     type Item = Event<'l>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let content = self.reader.capture(|reader| {
-            reader.consume_until_char('<')
-        });
+        let content = self.reader.capture(|reader| reader.consume_until_char('<'));
         if let Some(content) = content {
             return Some(Event::Text(content));
         }
         if !self.reader.consume_char('<') {
             return None;
         }
-        let content = self.reader.capture(|reader| {
-            reader.consume_until_char('>')
-        });
+        let content = self.reader.capture(|reader| reader.consume_until_char('>'));
         if content.is_none() {
             return raise!(self, "found an empty tag");
         }

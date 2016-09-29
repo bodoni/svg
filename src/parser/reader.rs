@@ -236,9 +236,7 @@ mod tests {
     fn capture() {
         let mut reader = Reader::new("abcdefg");
         reader.consume_any("ab");
-        let content = reader.capture(|reader| {
-            reader.consume_any("cde")
-        });
+        let content = reader.capture(|reader| reader.consume_any("cde"));
 
         assert_eq!(content.unwrap(), "cde");
     }
@@ -275,9 +273,7 @@ mod tests {
         macro_rules! test(
             ($content:expr, $value:expr) => ({
                 let mut reader = Reader::new($content);
-                let value = reader.capture(|reader| {
-                    reader.consume_name()
-                });
+                let value = reader.capture(|reader| reader.consume_name());
                 assert_eq!(value.unwrap(), $value);
             });
         );
@@ -306,9 +302,7 @@ mod tests {
         macro_rules! test(
             ($content:expr, $value:expr) => ({
                 let mut reader = Reader::new($content);
-                let value = reader.capture(|reader| {
-                    reader.consume_number()
-                });
+                let value = reader.capture(|reader| reader.consume_number());
                 assert_eq!(value.unwrap(), $value);
             });
         );
@@ -347,9 +341,7 @@ mod tests {
         macro_rules! test(
             ($content:expr) => ({
                 let mut reader = Reader::new($content);
-                assert!(reader.capture(|reader| {
-                    reader.consume_number()
-                }).is_none());
+                assert!(reader.capture(|reader| reader.consume_number()).is_none());
             });
         );
 

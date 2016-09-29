@@ -54,9 +54,8 @@ impl<'l> Parser<'l> {
     }
 
     fn read_attribute(&mut self) -> Result<Option<(String, String)>> {
-        let attribute = self.reader.capture(|reader| {
-            reader.consume_attribute()
-        }).and_then(|attribute| Some(String::from(attribute)));
+        let attribute = self.reader.capture(|reader| reader.consume_attribute())
+                                   .and_then(|attribute| Some(String::from(attribute)));
         match attribute {
             Some(attribute) => {
                 let k = (&attribute).find('=').unwrap();
@@ -93,9 +92,7 @@ impl<'l> Parser<'l> {
     }
 
     fn read_name(&mut self) -> Result<&'l str> {
-        let name = self.reader.capture(|reader| {
-            reader.consume_name()
-        });
+        let name = self.reader.capture(|reader| reader.consume_name());
         match name {
             Some(name) => Ok(name),
             _ => raise!(self, "expected a name"),
@@ -106,9 +103,7 @@ impl<'l> Parser<'l> {
         let name = try!(self.read_name());
         let attributes = try!(self.read_attributes());
         self.reader.consume_whitespace();
-        let tail = self.reader.capture(|reader| {
-            reader.consume_all()
-        });
+        let tail = self.reader.capture(|reader| reader.consume_all());
         match tail {
             Some("/") => Ok(Tag(name, Type::Empty, attributes)),
             Some(_) => raise!(self, "found an unexpected ending of a tag"),
