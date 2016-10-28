@@ -1,12 +1,12 @@
 [package]
 name = "svg"
-version = "0.5.3"
+version = "0.5.4"
 license = "Apache-2.0/MIT"
 authors = [
     "Ivan Ukhov <ivan.ukhov@gmail.com>",
     "Nicolas Silva <nical@fastmail.com>",
 ]
 description = "The package provides an SVG composer and parser."
-documentation = "https://bodoni.github.io/svg"
+documentation = "https://docs.rs/svg"
 homepage = "https://github.com/bodoni/svg"
 repository = "https://github.com/bodoni/svg"

@@ -2,7 +2,7 @@
 
 The package provides an SVG composer and parser.
 
-## [Documentation][doc]
+## [Documentation][documentation]
 
 ## Example: Composing
 
@@ -63,7 +63,7 @@ Your contribution is highly appreciated. Do not hesitate to open an issue or a
 pull request. Note that any contribution submitted for inclusion in the project
 will be licensed according to the terms given in [LICENSE.md](LICENSE.md).
 
-[doc]: https://bodoni.github.io/svg
+[documentation]: https://docs.rs/svg
 [status-img]: https://travis-ci.org/bodoni/svg.svg?branch=master
 [status-url]: https://travis-ci.org/bodoni/svg
 [version-img]: https://img.shields.io/crates/v/svg.svg
