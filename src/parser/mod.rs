@@ -68,7 +68,7 @@ impl<'l> Iterator for Parser<'l> {
         }
         let content = self.reader.capture(|reader| reader.consume_until_char('>'));
         if content.is_none() {
-            return raise!(self, "found an empty tag");
+            raise!(self, "found an empty tag");
         }
         if !self.reader.consume_char('>') {
             raise!(self, "missing a closing angle bracket");
