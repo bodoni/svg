@@ -321,9 +321,15 @@ mod tests {
 
     #[test]
     fn parser_read_parameters() {
-        let mut parser = Parser::new("1,2 3,4 5 6.7");
-        let parameters = parser.read_parameters().unwrap();
-        assert_eq!(&parameters[..], &[1.0, 2.0, 3.0, 4.0, 5.0, 6.7]);
+        macro_rules! test(
+            ($content:expr, $parameters:expr) => ({
+                let mut parser = Parser::new($content);
+                let parameters = parser.read_parameters().unwrap();
+                assert_eq!(&parameters[..], $parameters);
+            });
+        );
+
+        test!("1,2 3,4 5 6.7", &[1.0, 2.0, 3.0, 4.0, 5.0, 6.7]);
     }
 
     #[test]
