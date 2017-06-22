@@ -94,7 +94,7 @@ pub fn save<'l, P, U>(path: P, document: &U) -> io::Result<()> where P: AsRef<Pa
     save_internal(&mut file, document)
 }
 
-/// Open a document from an arbitrary source
+/// Save a document to an arbitrary source
 pub fn save_to<'l, W, U>(target: W, document: &U) -> io::Result<()> where W: Write, U: Node {
     save_internal(target, document)
 }
