@@ -61,6 +61,7 @@
 //! # }
 //! ```
 
+use std::fs::File;
 use std::io::{self, Read, Write};
 use std::path::Path;
 
@@ -75,7 +76,6 @@ pub type Document = node::element::SVG;
 
 /// Open a document.
 pub fn open<'l, T>(path: T) -> io::Result<Parser<'l>> where T: AsRef<Path> {
-    use std::fs::File;
     let mut file = File::open(path)?;
     read_internal(&mut file)
 }
@@ -87,7 +87,6 @@ pub fn read<'l, T>(source: T) -> io::Result<Parser<'l>> where T: Read {
 
 /// Save a document.
 pub fn save<T, U>(path: T, document: &U) -> io::Result<()> where T: AsRef<Path>, U: Node {
-    use std::fs::File;
     let mut file = File::create(path)?;
     write_internal(&mut file, document)
 }
