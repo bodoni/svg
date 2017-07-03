@@ -35,7 +35,6 @@
 //!
 //! ```
 //! # extern crate svg;
-//! use std::fs::File;
 //! use svg::node::element::path::{Command, Data};
 //! use svg::node::element::tag::Path;
 //! use svg::parser::Event;
