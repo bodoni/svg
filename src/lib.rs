@@ -110,15 +110,23 @@ fn write_internal<T, U>(mut target: T, document: &U) -> io::Result<()> where T: 
 
 #[cfg(test)]
 mod tests {
+    use std::fs::File;
+
+    use parser::{Event, Parser};
 
     const TEST_PATH: &'static str = "tests/fixtures/benton.svg";
 
     #[test]
     fn open() {
-        use parser::Event;
+        exercise(::open(self::TEST_PATH).unwrap());
+    }
 
-        let mut parser = ::open(self::TEST_PATH).unwrap();
+    #[test]
+    fn read() {
+        exercise(::read(&mut File::open(self::TEST_PATH).unwrap()).unwrap());
+    }
 
+    fn exercise<'l>(mut parser: Parser<'l>) {
         macro_rules! test(
             ($matcher:pat) => (match parser.next().unwrap() {
                 $matcher => {},
@@ -137,11 +145,5 @@ mod tests {
         test!(Event::Tag("svg", _, _));
 
         assert!(parser.next().is_none());
-    }
-
-    #[test]
-    fn read() {
-        use std::fs::File;
-        let _ = ::read(&mut File::open(self::TEST_PATH).unwrap());
     }
 }
