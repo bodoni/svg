@@ -72,7 +72,10 @@ where
 macro_rules! implement {
     (@express $e:expr) => ($e);
     ($pattern:expr, $(($t:ident, $n:tt)),*) => (
-        impl<$($t),*> From<($($t),*)> for Value where $($t: Into<Value>),* {
+        impl<$($t),*> From<($($t),*)> for Value
+        where
+            $($t: Into<Value>),*
+        {
             fn from(inner: ($($t),*)) -> Self {
                 Value(format!($pattern, $(implement!(@express inner.$n).into()),*))
             }

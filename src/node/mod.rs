@@ -35,7 +35,10 @@ macro_rules! node(
     ($struct_name:ident::$field_name:ident) => (
         impl $struct_name {
             /// Append a node.
-            pub fn add<T>(mut self, node: T) -> Self where T: ::node::Node {
+            pub fn add<T>(mut self, node: T) -> Self
+            where
+                T: ::node::Node,
+            {
                 ::node::Node::append(&mut self, node);
                 self
             }
@@ -43,7 +46,9 @@ macro_rules! node(
             /// Assign an attribute.
             #[inline]
             pub fn set<T, U>(mut self, name: T, value: U) -> Self
-                where T: Into<String>, U: Into<::node::Value>
+            where
+                T: Into<String>,
+                U: Into<::node::Value>,
             {
                 ::node::Node::assign(&mut self, name, value);
                 self
@@ -58,7 +63,9 @@ macro_rules! node(
 
             #[inline]
             fn assign<T, U>(&mut self, name: T, value: U)
-                where T: Into<String>, U: Into<::node::Value>
+            where
+                T: Into<String>,
+                U: Into<::node::Value>,
             {
                 self.$field_name.assign(name, value);
             }

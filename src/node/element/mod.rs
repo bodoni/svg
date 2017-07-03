@@ -84,7 +84,9 @@ macro_rules! implement {
             /// Create a node.
             #[inline]
             pub fn new() -> Self {
-                $struct_name { inner: Element::new(tag::$struct_name) }
+                $struct_name {
+                    inner: Element::new(tag::$struct_name),
+                }
             }
         }
 
@@ -231,7 +233,9 @@ macro_rules! implement {
                     fn initialize<$($pn: $($pt)*),*>($inner: &mut Element $(, $an: $at)*) $body
                     let mut inner = Element::new(tag::$struct_name);
                     initialize(&mut inner $(, $an)*);
-                    $struct_name { inner: inner }
+                    $struct_name {
+                        inner: inner,
+                    }
                 }
             }
         }

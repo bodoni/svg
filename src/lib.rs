@@ -150,7 +150,7 @@ mod tests {
     fn exercise<'l>(mut parser: Parser<'l>) {
         macro_rules! test(
             ($matcher:pat) => (match parser.next().unwrap() {
-                $matcher => {},
+                $matcher => {}
                 _ => unreachable!(),
             });
         );

@@ -165,7 +165,7 @@ mod tests {
             ($content:expr, $kind:ident) => ({
                 let mut parser = Parser::new($content);
                 match parser.process().unwrap() {
-                    Tag("foo", Type::$kind, _) => {},
+                    Tag("foo", Type::$kind, _) => {}
                     _ => unreachable!(),
                 }
             });

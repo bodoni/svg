@@ -59,7 +59,10 @@ implement! {
 macro_rules! implement {
     (@express $e:expr) => ($e);
     ($(($t:ident, $n:tt)),*) => (
-        impl<$($t),*> From<($($t),*)> for Parameters where $($t: Into<Parameters>),* {
+        impl<$($t),*> From<($($t),*)> for Parameters
+        where
+            $($t: Into<Parameters>),*
+        {
             fn from(inner: ($($t),*)) -> Self {
                 let mut result = vec![];
                 $(result.append(&mut implement!(@express inner.$n).into().into());)*

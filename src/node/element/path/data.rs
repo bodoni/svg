@@ -31,7 +31,10 @@ impl Data {
 macro_rules! implement {
     (@one #[$doc:meta] fn $method:ident($command:ident, $position:ident)) => (
         #[$doc]
-        pub fn $method<T>(mut self, parameters: T) -> Self where T: Into<Parameters> {
+        pub fn $method<T>(mut self, parameters: T) -> Self
+        where
+            T: Into<Parameters>,
+        {
             self.0.push(Command::$command(Position::$position, parameters.into()));
             self
         }
@@ -297,7 +300,7 @@ mod tests {
             );
             ($content:expr, $command:ident) => (
                 match run!($content) {
-                    $command => {},
+                    $command => {}
                     _ => unreachable!(),
                 }
             );
