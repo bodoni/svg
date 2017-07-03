@@ -127,6 +127,7 @@ mod tests {
                 }
             })
         );
+
         test!("foo <bar>", "foo");
         test!("  foo<bar>", "foo");
         test!("foo> <bar>", "foo>");

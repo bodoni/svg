@@ -273,6 +273,7 @@ mod tests {
         element.assign("s", (12.5, 13.0));
         element.assign("c", "green");
         element.append(Element::new("bar"));
+
         assert_eq!(
             element.to_string(),
             "<foo c=\"green\" s=\"12.5 13\" x=\"-10\" y=\"10px\">\n\
@@ -288,12 +289,14 @@ mod tests {
         element.assign("s", "'single'");
         element.assign("d", r#""double""#);
         element.assign("m", r#""mixed'"#);
+
         assert_eq!(element.to_string(), r#"<foo d='"double"' s="'single'"/>"#);
     }
 
     #[test]
     fn style_display() {
         let element = Style::new("* { font-family: foo; }");
+
         assert_eq!(
             element.to_string(),
             "<style>\n\

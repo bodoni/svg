@@ -260,12 +260,14 @@ mod tests {
             .line_to((1, 2))
             .cubic_curve_by((1, 2.5, 3, 4, 5, 6))
             .close();
+
         assert_eq!(Value::from(data).to_string(), "L1,2 c1,2.5,3,4,5,6 z");
     }
 
     #[test]
     fn data_parse() {
         let data = Data::parse("M1,2 l3,4").unwrap();
+
         assert_eq!(data.len(), 2);
         match data[0] {
             Move(Absolute, ref parameters) => assert_eq!(&parameters[..], &[1.0, 2.0]),
