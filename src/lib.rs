@@ -35,10 +35,11 @@
 //!
 //! ```
 //! # extern crate svg;
+//! use std::fs::File;
 //! use svg::node::element::path::{Command, Data};
 //! use svg::node::element::tag::Path;
 //! use svg::parser::Event;
-//!
+//! 
 //! # fn main() {
 //! let path = "image.svg";
 //! # let path = "tests/fixtures/benton.svg";
@@ -61,7 +62,7 @@
 //! # }
 //! ```
 
-use std::io;
+use std::io::{self, Read, Write};
 use std::path::Path;
 
 pub mod node;
@@ -76,30 +77,49 @@ pub type Document = node::element::SVG;
 /// Open a document.
 pub fn open<'l, T>(path: T) -> io::Result<Parser<'l>> where T: AsRef<Path> {
     use std::fs::File;
-    use std::io::Read;
+    let mut file = File::open(path)?;
+    read_internal(&mut file)
+}
 
-    let mut content = String::new();
-    let mut file = try!(File::open(path));
-    try!(file.read_to_string(&mut content));
-    Ok(Parser::new(content))
+/// Read a document.
+pub fn read<'l, T>(source: T) -> io::Result<Parser<'l>> where T: Read {
+    read_internal(source)
 }
 
 /// Save a document.
 pub fn save<T, U>(path: T, document: &U) -> io::Result<()> where T: AsRef<Path>, U: Node {
     use std::fs::File;
-    use std::io::Write;
+    let mut file = File::create(path)?;
+    write_internal(&mut file, document)
+}
 
-    let mut file = try!(File::create(path));
-    file.write_all(&document.to_string().into_bytes())
+/// Write a document.
+pub fn write<T, U>(target: T, document: &U) -> io::Result<()> where T: Write, U: Node {
+    write_internal(target, document)
+}
+
+#[inline(always)]
+fn read_internal<'l, R>(mut source: R) -> io::Result<Parser<'l>> where R: Read {
+    let mut content = String::new();
+    source.read_to_string(&mut content)?;
+    Ok(Parser::new(content))
+}
+
+#[inline(always)]
+fn write_internal<T, U>(mut target: T, document: &U) -> io::Result<()> where T: Write, U: Node {
+    target.write_all(&document.to_string().into_bytes())
 }
 
 #[cfg(test)]
 mod tests {
+
+    const TEST_PATH: &'static str = "tests/fixtures/benton.svg";
+
     #[test]
     fn open() {
         use parser::Event;
 
-        let mut parser = ::open("tests/fixtures/benton.svg").unwrap();
+        let mut parser = ::open(self::TEST_PATH).unwrap();
 
         macro_rules! test(
             ($matcher:pat) => (match parser.next().unwrap() {
@@ -119,5 +139,11 @@ mod tests {
         test!(Event::Tag("svg", _, _));
 
         assert!(parser.next().is_none());
+    }
+
+    #[test]
+    fn read() {
+        use std::fs::File;
+        let _ = ::read(&mut File::open(self::TEST_PATH).unwrap());
     }
 }
