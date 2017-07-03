@@ -15,8 +15,15 @@ pub struct Element {
 }
 
 impl Element {
-    pub fn new<T>(name: T) -> Self where T: Into<String> {
-        Element { name: name.into(), attributes: Attributes::new(), children: Children::new() }
+    pub fn new<T>(name: T) -> Self
+    where
+        T: Into<String>,
+    {
+        Element {
+            name: name.into(),
+            attributes: Attributes::new(),
+            children: Children::new(),
+        }
     }
 }
 
@@ -29,11 +36,11 @@ impl fmt::Display for Element {
             match (value.contains("'"), value.contains('"')) {
                 (true, false) | (false, false) => {
                     try!(write!(formatter, r#" {}="{}""#, name, value));
-                },
+                }
                 (false, true) => {
                     try!(write!(formatter, r#" {}='{}'"#, name, value));
-                },
-                _ => {},
+                }
+                _ => {}
             }
         }
         if self.children.is_empty() {
@@ -49,12 +56,19 @@ impl fmt::Display for Element {
 
 impl Node for Element {
     #[inline]
-    fn append<T>(&mut self, node: T) where T: Node {
+    fn append<T>(&mut self, node: T)
+    where
+        T: Node,
+    {
         self.children.push(Box::new(node));
     }
 
     #[inline]
-    fn assign<T, U>(&mut self, name: T, value: U) where T: Into<String>, U: Into<Value> {
+    fn assign<T, U>(&mut self, name: T, value: U)
+    where
+        T: Into<String>,
+        U: Into<Value>,
+    {
         self.attributes.insert(name.into(), value.into());
     }
 }
@@ -259,11 +273,13 @@ mod tests {
         element.assign("s", (12.5, 13.0));
         element.assign("c", "green");
         element.append(Element::new("bar"));
-        assert_eq!(element.to_string(), "\
-            <foo c=\"green\" s=\"12.5 13\" x=\"-10\" y=\"10px\">\n\
-            <bar/>\n\
-            </foo>\
-        ");
+        assert_eq!(
+            element.to_string(),
+            "<foo c=\"green\" s=\"12.5 13\" x=\"-10\" y=\"10px\">\n\
+             <bar/>\n\
+             </foo>\
+             "
+        );
     }
 
     #[test]
@@ -278,10 +294,12 @@ mod tests {
     #[test]
     fn style_display() {
         let element = Style::new("* { font-family: foo; }");
-        assert_eq!(element.to_string(), "\
-            <style>\n\
-            * { font-family: foo; }\n\
-            </style>\
-        ");
+        assert_eq!(
+            element.to_string(),
+            "<style>\n\
+             * { font-family: foo; }\n\
+             </style>\
+             "
+        );
     }
 }

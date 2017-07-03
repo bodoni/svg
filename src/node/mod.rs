@@ -18,10 +18,17 @@ pub type Children = Vec<Box<Node>>;
 /// A node.
 pub trait Node: 'static + fmt::Display {
     /// Append a child node.
-    fn append<T>(&mut self, T) where Self: Sized, T: Node;
+    fn append<T>(&mut self, T)
+    where
+        Self: Sized,
+        T: Node;
 
     /// Assign an attribute.
-    fn assign<T, U>(&mut self, T, U) where Self: Sized, T: Into<String>, U: Into<Value>;
+    fn assign<T, U>(&mut self, T, U)
+    where
+        Self: Sized,
+        T: Into<String>,
+        U: Into<Value>;
 }
 
 macro_rules! node(

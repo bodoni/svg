@@ -135,7 +135,12 @@ impl From<Data> for Vec<Command> {
 impl From<Data> for Value {
     #[inline]
     fn from(Data(mut inner): Data) -> Self {
-        inner.drain(..).map(|value| String::from(value)).collect::<Vec<_>>().join(" ").into()
+        inner
+            .drain(..)
+            .map(|value| String::from(value))
+            .collect::<Vec<_>>()
+            .join(" ")
+            .into()
     }
 }
 
@@ -168,10 +173,12 @@ impl<'l> Parser<'l> {
         use super::Position::*;
 
         let name = match self.reader.next() {
-            Some(name) => match name {
-                'A'...'Z' | 'a'...'z' => name,
-                _ => raise!(self, "expected a path command"),
-            },
+            Some(name) => {
+                match name {
+                    'A'...'Z' | 'a'...'z' => name,
+                    _ => raise!(self, "expected a path command"),
+                }
+            }
             _ => return Ok(None),
         };
         self.reader.consume_whitespace();
@@ -225,13 +232,16 @@ impl<'l> Parser<'l> {
 
     pub fn read_number(&mut self) -> Result<Option<Number>> {
         self.reader.consume_whitespace();
-        let number = self.reader.capture(|reader| reader.consume_number())
-                                .and_then(|number| Some(String::from(number)));
+        let number = self.reader
+            .capture(|reader| reader.consume_number())
+            .and_then(|number| Some(String::from(number)));
         match number {
-            Some(number) => match (&number).parse() {
-                Ok(number) => Ok(Some(number)),
-                _ => raise!(self, "failed to parse a number '{}'", number),
-            },
+            Some(number) => {
+                match (&number).parse() {
+                    Ok(number) => Ok(Some(number)),
+                    _ => raise!(self, "failed to parse a number '{}'", number),
+                }
+            }
             _ => Ok(None),
         }
     }
@@ -246,7 +256,10 @@ mod tests {
 
     #[test]
     fn data_into_value() {
-        let data = Data::new().line_to((1, 2)).cubic_curve_by((1, 2.5, 3, 4, 5, 6)).close();
+        let data = Data::new()
+            .line_to((1, 2))
+            .cubic_curve_by((1, 2.5, 3, 4, 5, 6))
+            .close();
         assert_eq!(Value::from(data).to_string(), "L1,2 c1,2.5,3,4,5,6 z");
     }
 

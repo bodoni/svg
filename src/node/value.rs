@@ -54,9 +54,18 @@ impl<'l> From<&'l str> for Value {
     }
 }
 
-impl<T> From<Vec<T>> for Value where T: Into<Value> {
+impl<T> From<Vec<T>> for Value
+where
+    T: Into<Value>,
+{
     fn from(mut inner: Vec<T>) -> Self {
-        Value(inner.drain(..).map(|value| value.into().0).collect::<Vec<_>>().join(" "))
+        Value(
+            inner
+                .drain(..)
+                .map(|value| value.into().0)
+                .collect::<Vec<_>>()
+                .join(" "),
+        )
     }
 }
 

@@ -54,16 +54,17 @@ impl<'l> Parser<'l> {
     }
 
     fn read_attribute(&mut self) -> Result<Option<(String, String)>> {
-        let attribute = self.reader.capture(|reader| reader.consume_attribute())
-                                   .and_then(|attribute| Some(String::from(attribute)));
+        let attribute = self.reader
+            .capture(|reader| reader.consume_attribute())
+            .and_then(|attribute| Some(String::from(attribute)));
         match attribute {
             Some(attribute) => {
                 let k = (&attribute).find('=').unwrap();
                 let name = (&attribute[0..k]).trim_right();
-                let value = (&attribute[(k+1)..]).trim_left();
-                let value = &value[1..(value.len()-1)];
+                let value = (&attribute[(k + 1)..]).trim_left();
+                let value = &value[1..(value.len() - 1)];
                 Ok(Some((String::from(name), String::from(value))))
-            },
+            }
             _ => Ok(None),
         }
     }
@@ -75,7 +76,7 @@ impl<'l> Parser<'l> {
             match try!(self.read_attribute()) {
                 Some((name, value)) => {
                     attributes.insert(name, value.into());
-                },
+                }
                 _ => break,
             }
         }

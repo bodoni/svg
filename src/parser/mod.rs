@@ -42,10 +42,16 @@ pub type Result<T> = ::std::result::Result<T, Error>;
 impl<'l> Parser<'l> {
     /// Create a parser.
     #[inline]
-    pub fn new<T>(content: T) -> Self where T: Into<Cow<'l, str>> {
+    pub fn new<T>(content: T) -> Self
+    where
+        T: Into<Cow<'l, str>>,
+    {
         let content = content.into();
         let reader = unsafe { ::std::mem::transmute(Reader::new(&*content)) };
-        Parser { content: content, reader: reader }
+        Parser {
+            content: content,
+            reader: reader,
+        }
     }
 }
 

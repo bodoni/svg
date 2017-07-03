@@ -17,7 +17,11 @@ impl Deref for Parameters {
 
 impl From<Parameters> for String {
     fn from(Parameters(inner): Parameters) -> Self {
-        inner.iter().map(|value| value.to_string()).collect::<Vec<_>>().join(",")
+        inner
+            .iter()
+            .map(|value| value.to_string())
+            .collect::<Vec<_>>()
+            .join(",")
     }
 }
 

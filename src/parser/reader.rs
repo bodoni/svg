@@ -22,14 +22,19 @@ impl<'l> Reader<'l> {
     }
 
     pub fn capture<F>(&mut self, block: F) -> Option<&'l str>
-        where F: Fn(&mut Reader<'l>) -> bool
+    where
+        F: Fn(&mut Reader<'l>) -> bool,
     {
         let start = self.offset;
         if !block(self) {
             return None;
         }
         let content = &self.content[start..self.offset].trim();
-        if content.is_empty() { None } else { Some(content) }
+        if content.is_empty() {
+            None
+        } else {
+            Some(content)
+        }
     }
 
     #[inline]
@@ -65,7 +70,7 @@ impl<'l> Reader<'l> {
             Some(c) if c == target => {
                 self.next();
                 true
-            },
+            }
             _ => false,
         }
     }
@@ -83,7 +88,10 @@ impl<'l> Reader<'l> {
         consumed
     }
 
-    pub fn consume_if<F>(&mut self, check: F) -> bool where F: Fn(char) -> bool {
+    pub fn consume_if<F>(&mut self, check: F) -> bool
+    where
+        F: Fn(char) -> bool,
+    {
         match self.peek() {
             Some(c) => {
                 if check(c) {
@@ -92,23 +100,24 @@ impl<'l> Reader<'l> {
                 } else {
                     false
                 }
-            },
+            }
             _ => false,
         }
     }
 
     // https://www.w3.org/TR/REC-xml/#NT-Name
     pub fn consume_name(&mut self) -> bool {
-        self.consume_name_start_char() && {
-            while self.consume_name_char() {}
-            true
-        }
+        self.consume_name_start_char() &&
+            {
+                while self.consume_name_char() {}
+                true
+            }
     }
 
     // https://www.w3.org/TR/REC-xml/#NT-NameChar
     pub fn consume_name_char(&mut self) -> bool {
-        self.consume_name_start_char() || self.consume_if(|c| {
-            match c {
+        self.consume_name_start_char() ||
+            self.consume_if(|c| match c {
                 '-' |
                 '.' |
                 '0'...'9' |
@@ -116,32 +125,29 @@ impl<'l> Reader<'l> {
                 '\u{0300}'...'\u{036F}' |
                 '\u{203F}'...'\u{2040}' => true,
                 _ => false,
-            }
-        })
+            })
     }
 
     // https://www.w3.org/TR/REC-xml/#NT-NameStartChar
     pub fn consume_name_start_char(&mut self) -> bool {
-        self.consume_if(|c| {
-            match c {
-                ':' |
-                'A'...'Z' |
-                '_' |
-                'a'...'z' |
-                '\u{C0}'...'\u{D6}' |
-                '\u{D8}'...'\u{F6}' |
-                '\u{F8}'...'\u{2FF}' |
-                '\u{370}'...'\u{37D}' |
-                '\u{37F}'...'\u{1FFF}' |
-                '\u{200C}'...'\u{200D}' |
-                '\u{2070}'...'\u{218F}' |
-                '\u{2C00}'...'\u{2FEF}' |
-                '\u{3001}'...'\u{D7FF}' |
-                '\u{F900}'...'\u{FDCF}' |
-                '\u{FDF0}'...'\u{FFFD}' |
-                '\u{10000}'...'\u{EFFFF}' => true,
-                _ => false,
-            }
+        self.consume_if(|c| match c {
+            ':' |
+            'A'...'Z' |
+            '_' |
+            'a'...'z' |
+            '\u{C0}'...'\u{D6}' |
+            '\u{D8}'...'\u{F6}' |
+            '\u{F8}'...'\u{2FF}' |
+            '\u{370}'...'\u{37D}' |
+            '\u{37F}'...'\u{1FFF}' |
+            '\u{200C}'...'\u{200D}' |
+            '\u{2070}'...'\u{218F}' |
+            '\u{2C00}'...'\u{2FEF}' |
+            '\u{3001}'...'\u{D7FF}' |
+            '\u{F900}'...'\u{FDCF}' |
+            '\u{FDF0}'...'\u{FFFD}' |
+            '\u{10000}'...'\u{EFFFF}' => true,
+            _ => false,
         })
     }
 
@@ -178,7 +184,10 @@ impl<'l> Reader<'l> {
         self.consume_while(|c| c != target)
     }
 
-    pub fn consume_while<F>(&mut self, check: F) -> bool where F: Fn(char) -> bool {
+    pub fn consume_while<F>(&mut self, check: F) -> bool
+    where
+        F: Fn(char) -> bool,
+    {
         let mut consumed = false;
         while self.consume_if(|c| check(c)) {
             consumed = true;

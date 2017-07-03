@@ -75,36 +75,57 @@ pub use parser::Parser;
 pub type Document = node::element::SVG;
 
 /// Open a document.
-pub fn open<'l, T>(path: T) -> io::Result<Parser<'l>> where T: AsRef<Path> {
+pub fn open<'l, T>(path: T) -> io::Result<Parser<'l>>
+where
+    T: AsRef<Path>,
+{
     let mut file = File::open(path)?;
     read_internal(&mut file)
 }
 
 /// Read a document.
-pub fn read<'l, T>(source: T) -> io::Result<Parser<'l>> where T: Read {
+pub fn read<'l, T>(source: T) -> io::Result<Parser<'l>>
+where
+    T: Read,
+{
     read_internal(source)
 }
 
 /// Save a document.
-pub fn save<T, U>(path: T, document: &U) -> io::Result<()> where T: AsRef<Path>, U: Node {
+pub fn save<T, U>(path: T, document: &U) -> io::Result<()>
+where
+    T: AsRef<Path>,
+    U: Node,
+{
     let mut file = File::create(path)?;
     write_internal(&mut file, document)
 }
 
 /// Write a document.
-pub fn write<T, U>(target: T, document: &U) -> io::Result<()> where T: Write, U: Node {
+pub fn write<T, U>(target: T, document: &U) -> io::Result<()>
+where
+    T: Write,
+    U: Node,
+{
     write_internal(target, document)
 }
 
 #[inline(always)]
-fn read_internal<'l, R>(mut source: R) -> io::Result<Parser<'l>> where R: Read {
+fn read_internal<'l, R>(mut source: R) -> io::Result<Parser<'l>>
+where
+    R: Read,
+{
     let mut content = String::new();
     source.read_to_string(&mut content)?;
     Ok(Parser::new(content))
 }
 
 #[inline(always)]
-fn write_internal<T, U>(mut target: T, document: &U) -> io::Result<()> where T: Write, U: Node {
+fn write_internal<T, U>(mut target: T, document: &U) -> io::Result<()>
+where
+    T: Write,
+    U: Node,
+{
     target.write_all(&document.to_string().into_bytes())
 }
 

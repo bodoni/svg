@@ -10,7 +10,10 @@ pub struct Text {
 impl Text {
     /// Create a node.
     #[inline]
-    pub fn new<T>(content: T) -> Self where T: Into<String> {
+    pub fn new<T>(content: T) -> Self
+    where
+        T: Into<String>,
+    {
         Text { content: content.into() }
     }
 }
@@ -24,10 +27,17 @@ impl fmt::Display for Text {
 
 impl Node for Text {
     #[inline]
-    fn append<T>(&mut self, _: T) where T: Node {
+    fn append<T>(&mut self, _: T)
+    where
+        T: Node,
+    {
     }
 
     #[inline]
-    fn assign<T, U>(&mut self, _: T, _: U) where T: Into<String>, U: Into<Value> {
+    fn assign<T, U>(&mut self, _: T, _: U)
+    where
+        T: Into<String>,
+        U: Into<Value>,
+    {
     }
 }
