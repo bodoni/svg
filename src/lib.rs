@@ -39,7 +39,7 @@
 //! use svg::node::element::path::{Command, Data};
 //! use svg::node::element::tag::Path;
 //! use svg::parser::Event;
-//! 
+//!
 //! # fn main() {
 //! let path = "image.svg";
 //! # let path = "tests/fixtures/benton.svg";
