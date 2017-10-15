@@ -1,6 +1,6 @@
 [package]
 name = "svg"
-version = "0.5.6"
+version = "0.5.7"
 license = "Apache-2.0/MIT"
 authors = [
     "Felix Schütt <felix.schuett@maps4print.com>",
@@ -11,5 +11,6 @@ description = "The package provides an SVG composer and parser."
 documentation = "https://docs.rs/svg"
 homepage = "https://github.com/bodoni/svg"
 repository = "https://github.com/bodoni/svg"
+readme = "README.md"
 categories = ["multimedia::images", "parsing", "rendering::data-formats"]
 keywords = ["vector-graphics"]
