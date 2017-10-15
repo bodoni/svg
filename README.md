@@ -1,8 +1,6 @@
-# SVG [![Version][version-img]][version-url] [![Status][status-img]][status-url]
+# SVG [![Package][package-img]][package-url] [![Documentation][documentation-img]][documentation-url] [![Build][build-img]][build-url]
 
 The package provides an SVG composer and parser.
-
-## [Documentation][documentation]
 
 ## Example: Composing
 
@@ -63,8 +61,9 @@ Your contribution is highly appreciated. Do not hesitate to open an issue or a
 pull request. Note that any contribution submitted for inclusion in the project
 will be licensed according to the terms given in [LICENSE.md](LICENSE.md).
 
-[documentation]: https://docs.rs/svg
-[status-img]: https://travis-ci.org/bodoni/svg.svg?branch=master
-[status-url]: https://travis-ci.org/bodoni/svg
-[version-img]: https://img.shields.io/crates/v/svg.svg
-[version-url]: https://crates.io/crates/svg
+[build-img]: https://travis-ci.org/bodoni/svg.svg?branch=master
+[build-url]: https://travis-ci.org/bodoni/svg
+[documentation-img]: https://docs.rs/svg/badge.svg
+[documentation-url]: https://docs.rs/svg
+[package-img]: https://img.shields.io/crates/v/svg.svg
+[package-url]: https://crates.io/crates/svg
