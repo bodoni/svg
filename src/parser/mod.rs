@@ -15,8 +15,7 @@ pub use self::reader::Reader;
 
 /// A parser.
 pub struct Parser<'l> {
-    #[allow(dead_code)]
-    content: Cow<'l, str>,
+    #[allow(dead_code)] content: Cow<'l, str>,
     reader: Reader<'l>,
 }
 

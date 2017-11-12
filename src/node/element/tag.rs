@@ -42,7 +42,9 @@ macro_rules! raise(
 impl<'l> Parser<'l> {
     #[inline]
     fn new(content: &'l str) -> Self {
-        Parser { reader: Reader::new(content) }
+        Parser {
+            reader: Reader::new(content),
+        }
     }
 
     fn process(&mut self) -> Result<Tag<'l>> {

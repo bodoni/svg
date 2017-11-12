@@ -156,7 +156,9 @@ macro_rules! raise(
 impl<'l> Parser<'l> {
     #[inline]
     fn new(content: &'l str) -> Self {
-        Parser { reader: Reader::new(content) }
+        Parser {
+            reader: Reader::new(content),
+        }
     }
 
     fn process(&mut self) -> Result<Data> {
@@ -176,12 +178,10 @@ impl<'l> Parser<'l> {
         use super::Position::*;
 
         let name = match self.reader.next() {
-            Some(name) => {
-                match name {
-                    'A'...'Z' | 'a'...'z' => name,
-                    _ => raise!(self, "expected a path command"),
-                }
-            }
+            Some(name) => match name {
+                'A'...'Z' | 'a'...'z' => name,
+                _ => raise!(self, "expected a path command"),
+            },
             _ => return Ok(None),
         };
         self.reader.consume_whitespace();
@@ -239,12 +239,10 @@ impl<'l> Parser<'l> {
             .capture(|reader| reader.consume_number())
             .and_then(|number| Some(String::from(number)));
         match number {
-            Some(number) => {
-                match (&number).parse() {
-                    Ok(number) => Ok(Some(number)),
-                    _ => raise!(self, "failed to parse a number '{}'", number),
-                }
-            }
+            Some(number) => match (&number).parse() {
+                Ok(number) => Ok(Some(number)),
+                _ => raise!(self, "failed to parse a number '{}'", number),
+            },
             _ => Ok(None),
         }
     }

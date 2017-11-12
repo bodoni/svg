@@ -14,7 +14,9 @@ impl Text {
     where
         T: Into<String>,
     {
-        Text { content: content.into() }
+        Text {
+            content: content.into(),
+        }
     }
 }
 
