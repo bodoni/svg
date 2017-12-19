@@ -171,6 +171,10 @@ implement! {
     [1]: https://www.w3.org/TR/SVG/paths.html#PathElement"]
     struct Path
 
+    #[doc = "A [`pattern`][1] element.
+    [1]: https://www.w3.org/TR/SVG/pservers.html#PatternElement"]
+    struct Pattern
+
     #[doc = "A [`polygon`][1] element.
     [1]: https://www.w3.org/TR/SVG/shapes.html#PolygonElement"]
     struct Polygon

@@ -142,6 +142,7 @@ implement! {
     Mask: "mask",
     MotionPath: "mpath",
     Path: "path",
+    Pattern: "pattern",
     Polygon: "polygon",
     Polyline: "polyline",
     RadialGradient: "radialGradient",
