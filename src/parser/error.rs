@@ -35,9 +35,7 @@ impl fmt::Display for Error {
             write!(
                 formatter,
                 "{} (line {}, column {})",
-                self.message,
-                self.line,
-                self.column,
+                self.message, self.line, self.column,
             )
         } else if self.line > 0 {
             write!(formatter, "{} (line {})", self.message, self.line)
