@@ -72,10 +72,6 @@ impl Node for Element {
     {
         self.attributes.insert(name.into(), value.into());
     }
-
-    fn box_clone(&self) -> Box<Node> {
-        Box::new((*self).clone())
-    }
 }
 
 macro_rules! implement {

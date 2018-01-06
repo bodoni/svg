@@ -43,8 +43,4 @@ impl Node for Text {
         U: Into<Value>,
     {
     }
-
-    fn box_clone(&self) -> Box<Node> {
-        Box::new((*self).clone())
-    }
 }
