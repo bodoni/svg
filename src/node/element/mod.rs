@@ -8,6 +8,7 @@ pub mod path;
 pub mod tag;
 
 #[doc(hidden)]
+#[derive(Clone, Debug)]
 pub struct Element {
     name: String,
     attributes: Attributes,
@@ -71,11 +72,16 @@ impl Node for Element {
     {
         self.attributes.insert(name.into(), value.into());
     }
+
+    fn box_clone(&self) -> Box<Node> {
+        Box::new((*self).clone())
+    }
 }
 
 macro_rules! implement {
     ($(#[$doc:meta] struct $struct_name:ident)*) => ($(
         #[$doc]
+        #[derive(Clone, Debug)]
         pub struct $struct_name {
             inner: Element,
         }
@@ -224,6 +230,7 @@ macro_rules! implement {
         [$($pn:ident: $($pt:tt)*),*] [$inner:ident $(,$an:ident: $at:ty)*] $body:block
     )*) => ($(
         #[$doc]
+        #[derive(Clone, Debug)]
         pub struct $struct_name {
             inner: Element,
         }

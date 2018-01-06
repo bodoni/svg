@@ -6,6 +6,7 @@ use node::Attributes;
 use parser::{Error, Reader, Result};
 
 /// A tag.
+#[derive(Clone)]
 pub struct Tag<'l>(pub &'l str, pub Type, pub Attributes);
 
 /// A [type][1] of a tag.

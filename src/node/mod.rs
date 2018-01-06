@@ -16,7 +16,7 @@ pub type Attributes = HashMap<String, Value>;
 pub type Children = Vec<Box<Node>>;
 
 /// A node.
-pub trait Node: 'static + fmt::Display {
+pub trait Node: 'static + fmt::Display + fmt::Debug {
     /// Append a child node.
     fn append<T>(&mut self, T)
     where
@@ -29,7 +29,29 @@ pub trait Node: 'static + fmt::Display {
         Self: Sized,
         T: Into<String>,
         U: Into<Value>;
+
+    fn box_clone(&self) -> Box<Node>;
 }
+
+// This is a hacky way to implement Clone for the Node trait.
+// See: https://stackoverflow.com/questions/30353462/how-to-clone-a-struct-storing-a-trait-object#30353928
+
+trait NodeClone {
+    fn box_clone(&self) -> Box<Node>;
+}
+
+impl<T> NodeClone for T where T: 'static + Node + Clone {
+    fn box_clone(&self) -> Box<Node> {
+        Box::new(self.clone())
+    }
+}
+
+impl Clone for Box<Node>  {
+    fn clone(&self) -> Box<Node> {
+        self.box_clone()
+    }
+}
+
 
 macro_rules! node(
     ($struct_name:ident::$field_name:ident) => (
@@ -68,6 +90,11 @@ macro_rules! node(
                 U: Into<::node::Value>,
             {
                 self.$field_name.assign(name, value);
+            }
+
+            #[inline]
+            fn box_clone(&self) -> Box<Node> {
+                Box::new((*self).clone())
             }
         }
 
