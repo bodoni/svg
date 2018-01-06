@@ -31,17 +31,20 @@ pub trait Node: 'static + NodeClone + fmt::Display + fmt::Debug {
         U: Into<Value>;
 }
 
+#[doc(hidden)]
 pub trait NodeClone {
     fn box_clone(&self) -> Box<Node>;
 }
 
 impl<T> NodeClone for T where T: Node + Clone {
+    #[inline]
     fn box_clone(&self) -> Box<Node> {
         Box::new(self.clone())
     }
 }
 
 impl Clone for Box<Node>  {
+    #[inline]
     fn clone(&self) -> Box<Node> {
         self.box_clone()
     }
