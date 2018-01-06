@@ -3,6 +3,7 @@ use std::fmt;
 use node::{Node, Value};
 
 /// A text node.
+#[derive(Clone, Debug)]
 pub struct Text {
     content: String,
 }
