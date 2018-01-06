@@ -16,7 +16,7 @@ pub type Attributes = HashMap<String, Value>;
 pub type Children = Vec<Box<Node>>;
 
 /// A node.
-pub trait Node: 'static + NodeClone + fmt::Display + fmt::Debug {
+pub trait Node: 'static + fmt::Debug + fmt::Display + NodeClone {
     /// Append a child node.
     fn append<T>(&mut self, T)
     where
