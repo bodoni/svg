@@ -36,14 +36,17 @@ pub trait NodeClone {
     fn clone(&self) -> Box<Node>;
 }
 
-impl<T> NodeClone for T where T: Node + Clone {
+impl<T> NodeClone for T
+where
+    T: Node + Clone,
+{
     #[inline]
     fn clone(&self) -> Box<Node> {
         Box::new(Clone::clone(self))
     }
 }
 
-impl Clone for Box<Node>  {
+impl Clone for Box<Node> {
     #[inline]
     fn clone(&self) -> Self {
         NodeClone::clone(&**self)
