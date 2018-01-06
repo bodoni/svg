@@ -33,20 +33,20 @@ pub trait Node: 'static + NodeClone + fmt::Display + fmt::Debug {
 
 #[doc(hidden)]
 pub trait NodeClone {
-    fn box_clone(&self) -> Box<Node>;
+    fn clone(&self) -> Box<Node>;
 }
 
 impl<T> NodeClone for T where T: Node + Clone {
     #[inline]
-    fn box_clone(&self) -> Box<Node> {
-        Box::new(self.clone())
+    fn clone(&self) -> Box<Node> {
+        Box::new(Clone::clone(self))
     }
 }
 
 impl Clone for Box<Node>  {
     #[inline]
-    fn clone(&self) -> Box<Node> {
-        self.box_clone()
+    fn clone(&self) -> Self {
+        NodeClone::clone(&**self)
     }
 }
 
