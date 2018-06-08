@@ -3,7 +3,7 @@ use std::ops::Deref;
 use super::Number;
 
 /// Parameters of a command.
-#[derive(Debug, Clone)]
+#[derive(Clone, Debug)]
 pub struct Parameters(Vec<Number>);
 
 impl Deref for Parameters {
