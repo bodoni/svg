@@ -2,7 +2,7 @@ use super::Parameters;
 use super::Position;
 
 /// A command of a data attribute.
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub enum Command {
     /// [Establish][1] a new current point.
     ///
