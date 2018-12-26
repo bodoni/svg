@@ -63,8 +63,8 @@ impl<'l> Parser<'l> {
         match attribute {
             Some(attribute) => {
                 let k = (&attribute).find('=').unwrap();
-                let name = (&attribute[0..k]).trim_right();
-                let value = (&attribute[(k + 1)..]).trim_left();
+                let name = (&attribute[0..k]).trim_end();
+                let value = (&attribute[(k + 1)..]).trim_start();
                 let value = &value[1..(value.len() - 1)];
                 Ok(Some((String::from(name), String::from(value))))
             }
