@@ -222,11 +222,9 @@ impl<'l> Parser<'l> {
 
     fn read_parameters(&mut self) -> Result<Vec<Number>> {
         let mut parameters = Vec::new();
-        loop {
-            match r#try!(self.read_number()) {
-                Some(number) => parameters.push(number),
-                _ => break,
-            }
+
+        while let Some(number) = r#try!(self.read_number()) {
+            parameters.push(number);
             self.reader.consume_whitespace();
             self.reader.consume_char(',');
         }
