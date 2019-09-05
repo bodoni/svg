@@ -2,8 +2,8 @@
 
 use std::borrow::Cow;
 
-use node::element::tag::{Tag, Type};
-use node::Attributes;
+use crate::node::element::tag::{Tag, Type};
+use crate::node::Attributes;
 
 mod error;
 mod reader;
@@ -97,7 +97,7 @@ impl<'l> Iterator for Parser<'l> {
 
 #[cfg(test)]
 mod tests {
-    use parser::{Event, Parser};
+    use crate::parser::{Event, Parser};
 
     #[test]
     fn next_tag() {

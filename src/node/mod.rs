@@ -18,13 +18,13 @@ pub type Children = Vec<Box<dyn Node>>;
 /// A node.
 pub trait Node: 'static + fmt::Debug + fmt::Display + NodeClone {
     /// Append a child node.
-    fn append<T>(&mut self, T)
+    fn append<T>(&mut self, _: T)
     where
         Self: Sized,
         T: Node;
 
     /// Assign an attribute.
-    fn assign<T, U>(&mut self, T, U)
+    fn assign<T, U>(&mut self, _: T, _: U)
     where
         Self: Sized,
         T: Into<String>,
@@ -59,9 +59,9 @@ macro_rules! node(
             /// Append a node.
             pub fn add<T>(mut self, node: T) -> Self
             where
-                T: ::node::Node,
+                T: crate::node::Node,
             {
-                ::node::Node::append(&mut self, node);
+                crate::node::Node::append(&mut self, node);
                 self
             }
 
@@ -70,16 +70,16 @@ macro_rules! node(
             pub fn set<T, U>(mut self, name: T, value: U) -> Self
             where
                 T: Into<String>,
-                U: Into<::node::Value>,
+                U: Into<crate::node::Value>,
             {
-                ::node::Node::assign(&mut self, name, value);
+                crate::node::Node::assign(&mut self, name, value);
                 self
             }
         }
 
-        impl ::node::Node for $struct_name {
+        impl crate::node::Node for $struct_name {
             #[inline]
-            fn append<T>(&mut self, node: T) where T: ::node::Node {
+            fn append<T>(&mut self, node: T) where T: crate::node::Node {
                 self.$field_name.append(node);
             }
 
@@ -87,7 +87,7 @@ macro_rules! node(
             fn assign<T, U>(&mut self, name: T, value: U)
             where
                 T: Into<String>,
-                U: Into<::node::Value>,
+                U: Into<crate::node::Value>,
             {
                 self.$field_name.assign(name, value);
             }

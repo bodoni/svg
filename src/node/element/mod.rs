@@ -2,7 +2,7 @@
 
 use std::fmt;
 
-use node::{Attributes, Children, Node, Value};
+use crate::node::{Attributes, Children, Node, Value};
 
 pub mod path;
 pub mod tag;
@@ -30,16 +30,16 @@ impl Element {
 
 impl fmt::Display for Element {
     fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        try!(write!(formatter, "<{}", self.name));
+        r#try!(write!(formatter, "<{}", self.name));
         let mut attributes = self.attributes.iter().collect::<Vec<_>>();
         attributes.sort_by_key(|pair| pair.0.as_str());
         for (name, value) in attributes {
             match (value.contains("'"), value.contains('"')) {
                 (true, false) | (false, false) => {
-                    try!(write!(formatter, r#" {}="{}""#, name, value));
+                    r#try!(write!(formatter, r#" {}="{}""#, name, value));
                 }
                 (false, true) => {
-                    try!(write!(formatter, r#" {}='{}'"#, name, value));
+                    r#try!(write!(formatter, r#" {}='{}'"#, name, value));
                 }
                 _ => {}
             }
@@ -47,9 +47,9 @@ impl fmt::Display for Element {
         if self.children.is_empty() {
             return write!(formatter, "/>");
         }
-        try!(write!(formatter, ">"));
+        r#try!(write!(formatter, ">"));
         for child in self.children.iter() {
-            try!(write!(formatter, "\n{}", child));
+            r#try!(write!(formatter, "\n{}", child));
         }
         write!(formatter, "\n</{}>", self.name)
     }
@@ -229,19 +229,19 @@ implement! {
 
     #[doc = "A [`script`](https://www.w3.org/TR/SVG/script.html#ScriptElement) element."]
     struct Script [T: Into<String>] [inner, content: T] {
-        inner.append(::node::Text::new(content));
+        inner.append(crate::node::Text::new(content));
     }
 
     #[doc = "A [`style`](https://www.w3.org/TR/SVG/styling.html#StyleElement) element."]
     struct Style [T: Into<String>] [inner, content: T] {
-        inner.append(::node::Text::new(content));
+        inner.append(crate::node::Text::new(content));
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::{Element, Style};
-    use node::Node;
+    use crate::node::Node;
 
     #[test]
     fn element_display() {

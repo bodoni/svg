@@ -1,8 +1,8 @@
 use std::ops::Deref;
 
 use super::{Command, Number, Parameters, Position};
-use node::Value;
-use parser::{Error, Reader, Result};
+use crate::node::Value;
+use crate::parser::{Error, Reader, Result};
 
 /// A [data][1] attribute.
 ///
@@ -165,7 +165,7 @@ impl<'l> Parser<'l> {
         let mut commands = Vec::new();
         loop {
             self.reader.consume_whitespace();
-            match try!(self.read_command()) {
+            match r#try!(self.read_command()) {
                 Some(command) => commands.push(command),
                 _ => break,
             }
@@ -185,7 +185,7 @@ impl<'l> Parser<'l> {
             _ => return Ok(None),
         };
         self.reader.consume_whitespace();
-        let parameters = try!(self.read_parameters()).into();
+        let parameters = r#try!(self.read_parameters()).into();
         Ok(Some(match name {
             'M' => Move(Absolute, parameters),
             'm' => Move(Relative, parameters),
@@ -223,7 +223,7 @@ impl<'l> Parser<'l> {
     fn read_parameters(&mut self) -> Result<Vec<Number>> {
         let mut parameters = Vec::new();
         loop {
-            match try!(self.read_number()) {
+            match r#try!(self.read_number()) {
                 Some(number) => parameters.push(number),
                 _ => break,
             }
@@ -254,7 +254,7 @@ mod tests {
     use super::super::Command::*;
     use super::super::Position::*;
     use super::{Data, Parser};
-    use node::Value;
+    use crate::node::Value;
 
     #[test]
     fn data_into_value() {
