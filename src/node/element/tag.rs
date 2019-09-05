@@ -157,6 +157,7 @@ implement! {
     TextPath: "textPath",
     Title: "title",
     Use: "use",
+    ForeignObject: "foreignObject",
 }
 
 #[cfg(test)]

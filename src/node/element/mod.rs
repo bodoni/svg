@@ -186,6 +186,9 @@ implement! {
 
     #[doc = "A [`use`](https://www.w3.org/TR/SVG/struct.html#UseElement) element."]
     struct Use
+
+    #[doc = "A [`foreignObject'](https://www.w3.org/TR/SVG/embedded.html#ForeignObjectElement) element."]
+    struct ForeignObject
 }
 
 macro_rules! implement {
