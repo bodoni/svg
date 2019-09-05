@@ -16,7 +16,7 @@ impl<'l> Reader<'l> {
             line: 1,
             column: 1,
             offset: 0,
-            content: content,
+            content,
             cursor: content.chars().peekable(),
         }
     }

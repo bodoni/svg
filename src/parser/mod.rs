@@ -49,8 +49,8 @@ impl<'l> Parser<'l> {
         let content = content.into();
         let reader = unsafe { ::std::mem::transmute(Reader::new(&*content)) };
         Parser {
-            content: content,
-            reader: reader,
+            content,
+            reader,
         }
     }
 }
@@ -82,9 +82,9 @@ impl<'l> Iterator for Parser<'l> {
         let content = content.unwrap();
         Some(if content.starts_with("!--") {
             Event::Comment
-        } else if content.starts_with("!") {
+        } else if content.starts_with('!') {
             Event::Declaration
-        } else if content.starts_with("?") {
+        } else if content.starts_with('?') {
             Event::Instruction
         } else {
             match Tag::parse(&content) {

@@ -34,7 +34,7 @@ impl fmt::Display for Element {
         let mut attributes = self.attributes.iter().collect::<Vec<_>>();
         attributes.sort_by_key(|pair| pair.0.as_str());
         for (name, value) in attributes {
-            match (value.contains("'"), value.contains('"')) {
+            match (value.contains('\''), value.contains('"')) {
                 (true, false) | (false, false) => {
                     r#try!(write!(formatter, r#" {}="{}""#, name, value));
                 }

@@ -140,7 +140,7 @@ impl From<Data> for Value {
     fn from(Data(mut inner): Data) -> Self {
         inner
             .drain(..)
-            .map(|value| String::from(value))
+            .map(String::from)
             .collect::<Vec<_>>()
             .join(" ")
             .into()
