@@ -13,7 +13,7 @@ pub use self::value::Value;
 pub type Attributes = HashMap<String, Value>;
 
 /// Child nodes.
-pub type Children = Vec<Box<Node>>;
+pub type Children = Vec<Box<dyn Node>>;
 
 /// A node.
 pub trait Node: 'static + fmt::Debug + fmt::Display + NodeClone {
@@ -33,7 +33,7 @@ pub trait Node: 'static + fmt::Debug + fmt::Display + NodeClone {
 
 #[doc(hidden)]
 pub trait NodeClone {
-    fn clone(&self) -> Box<Node>;
+    fn clone(&self) -> Box<dyn Node>;
 }
 
 impl<T> NodeClone for T
@@ -41,12 +41,12 @@ where
     T: Node + Clone,
 {
     #[inline]
-    fn clone(&self) -> Box<Node> {
+    fn clone(&self) -> Box<dyn Node> {
         Box::new(Clone::clone(self))
     }
 }
 
-impl Clone for Box<Node> {
+impl Clone for Box<dyn Node> {
     #[inline]
     fn clone(&self) -> Self {
         NodeClone::clone(&**self)

@@ -179,7 +179,7 @@ impl<'l> Parser<'l> {
 
         let name = match self.reader.next() {
             Some(name) => match name {
-                'A'...'Z' | 'a'...'z' => name,
+                'A'..='Z' | 'a'..='z' => name,
                 _ => raise!(self, "expected a path command"),
             },
             _ => return Ok(None),
