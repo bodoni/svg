@@ -1,5 +1,10 @@
 //! The element nodes.
 
+// SVG, Script, Style element has no Default.
+#![allow(clippy::new_without_default)]
+// Clippy doesn't like the `.add()` method on elements.
+#![allow(clippy::should_implement_trait)]
+
 use std::fmt;
 
 use crate::node::{Attributes, Children, Node, Value};
@@ -89,6 +94,12 @@ macro_rules! implement {
                 $struct_name {
                     inner: Element::new(tag::$struct_name),
                 }
+            }
+        }
+
+        impl Default for $struct_name {
+            fn default() -> Self {
+                Self::new()
             }
         }
 
