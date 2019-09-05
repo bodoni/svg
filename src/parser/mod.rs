@@ -48,10 +48,7 @@ impl<'l> Parser<'l> {
     {
         let content = content.into();
         let reader = unsafe { ::std::mem::transmute(Reader::new(&*content)) };
-        Parser {
-            content,
-            reader,
-        }
+        Parser { content, reader }
     }
 }
 
