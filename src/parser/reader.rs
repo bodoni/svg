@@ -157,10 +157,8 @@ impl<'l> Reader<'l> {
             if self.consume_char('.') && !self.consume_digits() {
                 return false;
             }
-        } else {
-            if !self.consume_char('.') || !self.consume_digits() {
-                return false;
-            }
+        } else if !self.consume_char('.') || !self.consume_digits() {
+            return false;
         }
         if !self.consume_char('e') && !self.consume_char('E') {
             return true;
