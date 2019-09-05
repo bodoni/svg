@@ -165,7 +165,7 @@ impl<'l> Parser<'l> {
         let mut commands = Vec::new();
         loop {
             self.reader.consume_whitespace();
-            match r#try!(self.read_command()) {
+            match self.read_command()? {
                 Some(command) => commands.push(command),
                 _ => break,
             }
@@ -185,7 +185,7 @@ impl<'l> Parser<'l> {
             _ => return Ok(None),
         };
         self.reader.consume_whitespace();
-        let parameters = r#try!(self.read_parameters()).into();
+        let parameters = self.read_parameters()?.into();
         Ok(Some(match name {
             'M' => Move(Absolute, parameters),
             'm' => Move(Relative, parameters),
@@ -223,7 +223,7 @@ impl<'l> Parser<'l> {
     fn read_parameters(&mut self) -> Result<Vec<Number>> {
         let mut parameters = Vec::new();
 
-        while let Some(number) = r#try!(self.read_number()) {
+        while let Some(number) = self.read_number()? {
             parameters.push(number);
             self.reader.consume_whitespace();
             self.reader.consume_char(',');

@@ -35,16 +35,16 @@ impl Element {
 
 impl fmt::Display for Element {
     fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        r#try!(write!(formatter, "<{}", self.name));
+        write!(formatter, "<{}", self.name)?;
         let mut attributes = self.attributes.iter().collect::<Vec<_>>();
         attributes.sort_by_key(|pair| pair.0.as_str());
         for (name, value) in attributes {
             match (value.contains('\''), value.contains('"')) {
                 (true, false) | (false, false) => {
-                    r#try!(write!(formatter, r#" {}="{}""#, name, value));
+                    write!(formatter, r#" {}="{}""#, name, value)?;
                 }
                 (false, true) => {
-                    r#try!(write!(formatter, r#" {}='{}'"#, name, value));
+                    write!(formatter, r#" {}='{}'"#, name, value)?;
                 }
                 _ => {}
             }
@@ -52,9 +52,9 @@ impl fmt::Display for Element {
         if self.children.is_empty() {
             return write!(formatter, "/>");
         }
-        r#try!(write!(formatter, ">"));
+        write!(formatter, ">")?;
         for child in self.children.iter() {
-            r#try!(write!(formatter, "\n{}", child));
+            write!(formatter, "\n{}", child)?;
         }
         write!(formatter, "\n</{}>", self.name)
     }

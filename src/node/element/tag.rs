@@ -77,7 +77,7 @@ impl<'l> Parser<'l> {
         let mut attributes = Attributes::new();
         loop {
             self.reader.consume_whitespace();
-            match r#try!(self.read_attribute()) {
+            match self.read_attribute()? {
                 Some((name, value)) => {
                     attributes.insert(name, value.into());
                 }
@@ -88,7 +88,7 @@ impl<'l> Parser<'l> {
     }
 
     fn read_end_tag(&mut self) -> Result<Tag<'l>> {
-        let name = r#try!(self.read_name());
+        let name = self.read_name()?;
         self.reader.consume_whitespace();
         if !self.reader.is_done() {
             raise!(self, "found an end tag with excessive data");
@@ -105,8 +105,8 @@ impl<'l> Parser<'l> {
     }
 
     fn read_start_or_empty_tag(&mut self) -> Result<Tag<'l>> {
-        let name = r#try!(self.read_name());
-        let attributes = r#try!(self.read_attributes());
+        let name = self.read_name()?;
+        let attributes = self.read_attributes()?;
         self.reader.consume_whitespace();
         let tail = self.reader.capture(|reader| reader.consume_all());
         match tail {
