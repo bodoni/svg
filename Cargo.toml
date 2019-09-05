@@ -15,3 +15,4 @@ repository = "https://github.com/bodoni/svg"
 readme = "README.md"
 categories = ["multimedia::images", "parsing", "rendering::data-formats"]
 keywords = ["vector-graphics"]
+edition = "2018"
