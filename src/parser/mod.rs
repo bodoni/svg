@@ -2,8 +2,8 @@
 
 use std::borrow::Cow;
 
-use node::Attributes;
 use node::element::tag::{Tag, Type};
+use node::Attributes;
 
 mod error;
 mod reader;
@@ -15,7 +15,8 @@ pub use self::reader::Reader;
 
 /// A parser.
 pub struct Parser<'l> {
-    #[allow(dead_code)] content: Cow<'l, str>,
+    #[allow(dead_code)]
+    content: Cow<'l, str>,
     reader: Reader<'l>,
 }
 

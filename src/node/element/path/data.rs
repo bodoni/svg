@@ -1,8 +1,8 @@
 use std::ops::Deref;
 
+use super::{Command, Number, Parameters, Position};
 use node::Value;
 use parser::{Error, Reader, Result};
-use super::{Command, Number, Parameters, Position};
 
 /// A [data][1] attribute.
 ///
@@ -235,7 +235,8 @@ impl<'l> Parser<'l> {
 
     pub fn read_number(&mut self) -> Result<Option<Number>> {
         self.reader.consume_whitespace();
-        let number = self.reader
+        let number = self
+            .reader
             .capture(|reader| reader.consume_number())
             .and_then(|number| Some(String::from(number)));
         match number {
@@ -250,10 +251,10 @@ impl<'l> Parser<'l> {
 
 #[cfg(test)]
 mod tests {
-    use node::Value;
-    use super::{Data, Parser};
     use super::super::Command::*;
     use super::super::Position::*;
+    use super::{Data, Parser};
+    use node::Value;
 
     #[test]
     fn data_into_value() {

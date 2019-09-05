@@ -93,12 +93,14 @@ impl<'l> Reader<'l> {
         F: Fn(char) -> bool,
     {
         match self.peek() {
-            Some(c) => if check(c) {
-                self.next();
-                true
-            } else {
-                false
-            },
+            Some(c) => {
+                if check(c) {
+                    self.next();
+                    true
+                } else {
+                    false
+                }
+            }
             _ => false,
         }
     }
@@ -113,15 +115,16 @@ impl<'l> Reader<'l> {
 
     // https://www.w3.org/TR/REC-xml/#NT-NameChar
     pub fn consume_name_char(&mut self) -> bool {
-        self.consume_name_start_char() || self.consume_if(|c| match c {
-            '-'
-            | '.'
-            | '0'...'9'
-            | '\u{B7}'
-            | '\u{0300}'...'\u{036F}'
-            | '\u{203F}'...'\u{2040}' => true,
-            _ => false,
-        })
+        self.consume_name_start_char()
+            || self.consume_if(|c| match c {
+                '-'
+                | '.'
+                | '0'...'9'
+                | '\u{B7}'
+                | '\u{0300}'...'\u{036F}'
+                | '\u{203F}'...'\u{2040}' => true,
+                _ => false,
+            })
     }
 
     // https://www.w3.org/TR/REC-xml/#NT-NameStartChar

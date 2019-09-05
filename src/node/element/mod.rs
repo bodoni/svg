@@ -240,8 +240,8 @@ implement! {
 
 #[cfg(test)]
 mod tests {
-    use node::Node;
     use super::{Element, Style};
+    use node::Node;
 
     #[test]
     fn element_display() {

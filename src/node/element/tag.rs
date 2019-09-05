@@ -57,7 +57,8 @@ impl<'l> Parser<'l> {
     }
 
     fn read_attribute(&mut self) -> Result<Option<(String, String)>> {
-        let attribute = self.reader
+        let attribute = self
+            .reader
             .capture(|reader| reader.consume_attribute())
             .and_then(|attribute| Some(String::from(attribute)));
         match attribute {
