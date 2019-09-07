@@ -1,8 +1,6 @@
 //! The element nodes.
 
-// SVG, Script, Style element has no Default.
 #![allow(clippy::new_without_default)]
-// Clippy doesn't like the `.add()` method on elements.
 #![allow(clippy::should_implement_trait)]
 
 use std::fmt;
