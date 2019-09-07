@@ -44,3 +44,14 @@ impl Node for Comment {
     {
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::Comment;
+
+    #[test]
+    fn comment() {
+        let comment = Comment::new("a comment.");
+        assert_eq!(comment.to_string(), "<!-- a comment. -->");
+    }
+}
