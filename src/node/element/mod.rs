@@ -1,8 +1,11 @@
 //! The element nodes.
 
+#![allow(clippy::new_without_default)]
+#![allow(clippy::should_implement_trait)]
+
 use std::fmt;
 
-use node::{Attributes, Children, Node, Value};
+use crate::node::{Attributes, Children, Node, Value};
 
 pub mod path;
 pub mod tag;
@@ -30,16 +33,16 @@ impl Element {
 
 impl fmt::Display for Element {
     fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        try!(write!(formatter, "<{}", self.name));
+        write!(formatter, "<{}", self.name)?;
         let mut attributes = self.attributes.iter().collect::<Vec<_>>();
         attributes.sort_by_key(|pair| pair.0.as_str());
         for (name, value) in attributes {
-            match (value.contains("'"), value.contains('"')) {
+            match (value.contains('\''), value.contains('"')) {
                 (true, false) | (false, false) => {
-                    try!(write!(formatter, r#" {}="{}""#, name, value));
+                    write!(formatter, r#" {}="{}""#, name, value)?;
                 }
                 (false, true) => {
-                    try!(write!(formatter, r#" {}='{}'"#, name, value));
+                    write!(formatter, r#" {}='{}'"#, name, value)?;
                 }
                 _ => {}
             }
@@ -47,9 +50,9 @@ impl fmt::Display for Element {
         if self.children.is_empty() {
             return write!(formatter, "/>");
         }
-        try!(write!(formatter, ">"));
+        write!(formatter, ">")?;
         for child in self.children.iter() {
-            try!(write!(formatter, "\n{}", child));
+            write!(formatter, "\n{}", child)?;
         }
         write!(formatter, "\n</{}>", self.name)
     }
@@ -89,6 +92,12 @@ macro_rules! implement {
                 $struct_name {
                     inner: Element::new(tag::$struct_name),
                 }
+            }
+        }
+
+        impl Default for $struct_name {
+            fn default() -> Self {
+                Self::new()
             }
         }
 
@@ -232,19 +241,19 @@ implement! {
 
     #[doc = "A [`script`](https://www.w3.org/TR/SVG/script.html#ScriptElement) element."]
     struct Script [T: Into<String>] [inner, content: T] {
-        inner.append(::node::Text::new(content));
+        inner.append(crate::node::Text::new(content));
     }
 
     #[doc = "A [`style`](https://www.w3.org/TR/SVG/styling.html#StyleElement) element."]
     struct Style [T: Into<String>] [inner, content: T] {
-        inner.append(::node::Text::new(content));
+        inner.append(crate::node::Text::new(content));
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use node::Node;
     use super::{Element, Style};
+    use crate::node::Node;
 
     #[test]
     fn element_display() {

@@ -1,6 +1,6 @@
 use std::fmt;
 
-use node::{Node, Value};
+use crate::node::{Node, Value};
 
 /// A text node.
 #[derive(Clone, Debug)]

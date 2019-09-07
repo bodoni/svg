@@ -1,8 +1,8 @@
 use std::ops::Deref;
 
-use node::Value;
-use parser::{Error, Reader, Result};
 use super::{Command, Number, Parameters, Position};
+use crate::node::Value;
+use crate::parser::{Error, Reader, Result};
 
 /// A [data][1] attribute.
 ///
@@ -140,7 +140,7 @@ impl From<Data> for Value {
     fn from(Data(mut inner): Data) -> Self {
         inner
             .drain(..)
-            .map(|value| String::from(value))
+            .map(String::from)
             .collect::<Vec<_>>()
             .join(" ")
             .into()
@@ -165,7 +165,7 @@ impl<'l> Parser<'l> {
         let mut commands = Vec::new();
         loop {
             self.reader.consume_whitespace();
-            match try!(self.read_command()) {
+            match self.read_command()? {
                 Some(command) => commands.push(command),
                 _ => break,
             }
@@ -179,13 +179,13 @@ impl<'l> Parser<'l> {
 
         let name = match self.reader.next() {
             Some(name) => match name {
-                'A'...'Z' | 'a'...'z' => name,
+                'A'..='Z' | 'a'..='z' => name,
                 _ => raise!(self, "expected a path command"),
             },
             _ => return Ok(None),
         };
         self.reader.consume_whitespace();
-        let parameters = try!(self.read_parameters()).into();
+        let parameters = self.read_parameters()?.into();
         Ok(Some(match name {
             'M' => Move(Absolute, parameters),
             'm' => Move(Relative, parameters),
@@ -222,11 +222,9 @@ impl<'l> Parser<'l> {
 
     fn read_parameters(&mut self) -> Result<Vec<Number>> {
         let mut parameters = Vec::new();
-        loop {
-            match try!(self.read_number()) {
-                Some(number) => parameters.push(number),
-                _ => break,
-            }
+
+        while let Some(number) = self.read_number()? {
+            parameters.push(number);
             self.reader.consume_whitespace();
             self.reader.consume_char(',');
         }
@@ -235,7 +233,8 @@ impl<'l> Parser<'l> {
 
     pub fn read_number(&mut self) -> Result<Option<Number>> {
         self.reader.consume_whitespace();
-        let number = self.reader
+        let number = self
+            .reader
             .capture(|reader| reader.consume_number())
             .and_then(|number| Some(String::from(number)));
         match number {
@@ -250,10 +249,10 @@ impl<'l> Parser<'l> {
 
 #[cfg(test)]
 mod tests {
-    use node::Value;
-    use super::{Data, Parser};
     use super::super::Command::*;
     use super::super::Position::*;
+    use super::{Data, Parser};
+    use crate::node::Value;
 
     #[test]
     fn data_into_value() {

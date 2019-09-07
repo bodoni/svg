@@ -15,8 +15,8 @@ impl Error {
     #[inline]
     pub fn new<T: Into<String>>((line, column): (usize, usize), message: T) -> Self {
         Error {
-            line: line,
-            column: column,
+            line,
+            column,
             message: message.into(),
         }
     }

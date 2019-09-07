@@ -68,8 +68,8 @@ use std::path::Path;
 pub mod node;
 pub mod parser;
 
-pub use node::Node;
-pub use parser::Parser;
+pub use crate::node::Node;
+pub use crate::parser::Parser;
 
 /// A document.
 pub type Document = node::element::SVG;
@@ -133,18 +133,18 @@ where
 mod tests {
     use std::fs::File;
 
-    use parser::{Event, Parser};
+    use crate::parser::{Event, Parser};
 
     const TEST_PATH: &'static str = "tests/fixtures/benton.svg";
 
     #[test]
     fn open() {
-        exercise(::open(self::TEST_PATH).unwrap());
+        exercise(crate::open(self::TEST_PATH).unwrap());
     }
 
     #[test]
     fn read() {
-        exercise(::read(&mut File::open(self::TEST_PATH).unwrap()).unwrap());
+        exercise(crate::read(&mut File::open(self::TEST_PATH).unwrap()).unwrap());
     }
 
     fn exercise<'l>(mut parser: Parser<'l>) {
