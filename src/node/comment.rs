@@ -9,7 +9,7 @@ pub struct Comment {
 }
 
 impl Comment {
-    /// Create a comment.
+    /// Create a node.
     #[inline]
     pub fn new<T>(content: T) -> Self
     where
