@@ -6,6 +6,7 @@ authors = [
     "Felix Schütt <felix.schuett@maps4print.com>",
     "Ivan Ukhov <ivan.ukhov@gmail.com>",
     "Nicolas Silva <nical@fastmail.com>",
+    "OCTronics <octronics@riseup.net>",
     "e-matteson <e.r.matteson@gmail.com>",
 ]
 description = "The package provides an SVG composer and parser."
