@@ -3,9 +3,11 @@
 use std::collections::HashMap;
 use std::fmt;
 
+mod comment;
 mod text;
 mod value;
 
+pub use self::comment::Comment;
 pub use self::text::Text;
 pub use self::value::Value;
 
