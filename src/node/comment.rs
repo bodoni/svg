@@ -50,8 +50,11 @@ mod tests {
     use super::Comment;
 
     #[test]
-    fn comment() {
-        let comment = Comment::new("a comment.");
-        assert_eq!(comment.to_string(), "<!-- a comment. -->");
+    fn comment_display() {
+        let comment = Comment::new("valid");
+        assert_eq!(comment.to_string(), "<!-- valid -->");
+
+        let comment = Comment::new("invalid -->");
+        assert_eq!(comment.to_string(), "<!-- invalid --> -->");
     }
 }
