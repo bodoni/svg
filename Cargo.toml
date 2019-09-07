@@ -1,6 +1,7 @@
 [package]
 name = "svg"
 version = "0.6.0"
+edition = "2018"
 license = "Apache-2.0/MIT"
 authors = [
     "Felix Schütt <felix.schuett@maps4print.com>",
@@ -16,4 +17,3 @@ repository = "https://github.com/bodoni/svg"
 readme = "README.md"
 categories = ["multimedia::images", "parsing", "rendering::data-formats"]
 keywords = ["vector-graphics"]
-edition = "2018"
