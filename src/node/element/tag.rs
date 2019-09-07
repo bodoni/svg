@@ -134,6 +134,7 @@ implement! {
     Description: "desc",
     Ellipse: "ellipse",
     Filter: "filter",
+    ForeignObject: "foreignObject",
     Group: "g",
     Image: "image",
     Line: "line",

@@ -127,6 +127,9 @@ implement! {
     #[doc = "A [`filter`](https://www.w3.org/TR/SVG/filters.html#FilterElement) element."]
     struct Filter
 
+    #[doc = "A [`foreignObject'](https://www.w3.org/TR/SVG/embedded.html#ForeignObjectElement) element."]
+    struct ForeignObject
+
     #[doc = "A [`g`](https://www.w3.org/TR/SVG/struct.html#GElement) element."]
     struct Group
 
