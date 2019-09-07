@@ -2,8 +2,8 @@
 
 use std::borrow::Cow;
 
-use node::Attributes;
-use node::element::tag::{Tag, Type};
+use crate::node::element::tag::{Tag, Type};
+use crate::node::Attributes;
 
 mod error;
 mod reader;
@@ -15,7 +15,8 @@ pub use self::reader::Reader;
 
 /// A parser.
 pub struct Parser<'l> {
-    #[allow(dead_code)] content: Cow<'l, str>,
+    #[allow(dead_code)]
+    content: Cow<'l, str>,
     reader: Reader<'l>,
 }
 
@@ -47,10 +48,7 @@ impl<'l> Parser<'l> {
     {
         let content = content.into();
         let reader = unsafe { ::std::mem::transmute(Reader::new(&*content)) };
-        Parser {
-            content: content,
-            reader: reader,
-        }
+        Parser { content, reader }
     }
 }
 
@@ -81,9 +79,9 @@ impl<'l> Iterator for Parser<'l> {
         let content = content.unwrap();
         Some(if content.starts_with("!--") {
             Event::Comment
-        } else if content.starts_with("!") {
+        } else if content.starts_with('!') {
             Event::Declaration
-        } else if content.starts_with("?") {
+        } else if content.starts_with('?') {
             Event::Instruction
         } else {
             match Tag::parse(&content) {
@@ -96,7 +94,7 @@ impl<'l> Iterator for Parser<'l> {
 
 #[cfg(test)]
 mod tests {
-    use parser::{Event, Parser};
+    use crate::parser::{Event, Parser};
 
     #[test]
     fn next_tag() {

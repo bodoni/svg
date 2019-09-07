@@ -16,7 +16,7 @@ impl<'l> Reader<'l> {
             line: 1,
             column: 1,
             offset: 0,
-            content: content,
+            content,
             cursor: content.chars().peekable(),
         }
     }
@@ -93,12 +93,14 @@ impl<'l> Reader<'l> {
         F: Fn(char) -> bool,
     {
         match self.peek() {
-            Some(c) => if check(c) {
-                self.next();
-                true
-            } else {
-                false
-            },
+            Some(c) => {
+                if check(c) {
+                    self.next();
+                    true
+                } else {
+                    false
+                }
+            }
             _ => false,
         }
     }
@@ -113,36 +115,37 @@ impl<'l> Reader<'l> {
 
     // https://www.w3.org/TR/REC-xml/#NT-NameChar
     pub fn consume_name_char(&mut self) -> bool {
-        self.consume_name_start_char() || self.consume_if(|c| match c {
-            '-'
-            | '.'
-            | '0'...'9'
-            | '\u{B7}'
-            | '\u{0300}'...'\u{036F}'
-            | '\u{203F}'...'\u{2040}' => true,
-            _ => false,
-        })
+        self.consume_name_start_char()
+            || self.consume_if(|c| match c {
+                '-'
+                | '.'
+                | '0'..='9'
+                | '\u{B7}'
+                | '\u{0300}'..='\u{036F}'
+                | '\u{203F}'..='\u{2040}' => true,
+                _ => false,
+            })
     }
 
     // https://www.w3.org/TR/REC-xml/#NT-NameStartChar
     pub fn consume_name_start_char(&mut self) -> bool {
         self.consume_if(|c| match c {
             ':'
-            | 'A'...'Z'
+            | 'A'..='Z'
             | '_'
-            | 'a'...'z'
-            | '\u{C0}'...'\u{D6}'
-            | '\u{D8}'...'\u{F6}'
-            | '\u{F8}'...'\u{2FF}'
-            | '\u{370}'...'\u{37D}'
-            | '\u{37F}'...'\u{1FFF}'
-            | '\u{200C}'...'\u{200D}'
-            | '\u{2070}'...'\u{218F}'
-            | '\u{2C00}'...'\u{2FEF}'
-            | '\u{3001}'...'\u{D7FF}'
-            | '\u{F900}'...'\u{FDCF}'
-            | '\u{FDF0}'...'\u{FFFD}'
-            | '\u{10000}'...'\u{EFFFF}' => true,
+            | 'a'..='z'
+            | '\u{C0}'..='\u{D6}'
+            | '\u{D8}'..='\u{F6}'
+            | '\u{F8}'..='\u{2FF}'
+            | '\u{370}'..='\u{37D}'
+            | '\u{37F}'..='\u{1FFF}'
+            | '\u{200C}'..='\u{200D}'
+            | '\u{2070}'..='\u{218F}'
+            | '\u{2C00}'..='\u{2FEF}'
+            | '\u{3001}'..='\u{D7FF}'
+            | '\u{F900}'..='\u{FDCF}'
+            | '\u{FDF0}'..='\u{FFFD}'
+            | '\u{10000}'..='\u{EFFFF}' => true,
             _ => false,
         })
     }
@@ -154,10 +157,8 @@ impl<'l> Reader<'l> {
             if self.consume_char('.') && !self.consume_digits() {
                 return false;
             }
-        } else {
-            if !self.consume_char('.') || !self.consume_digits() {
-                return false;
-            }
+        } else if !self.consume_char('.') || !self.consume_digits() {
+            return false;
         }
         if !self.consume_char('e') && !self.consume_char('E') {
             return true;
