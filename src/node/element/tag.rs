@@ -134,6 +134,7 @@ implement! {
     Description: "desc",
     Ellipse: "ellipse",
     Filter: "filter",
+    ForeignObject: "foreignObject",
     Group: "g",
     Image: "image",
     Line: "line",
@@ -157,7 +158,6 @@ implement! {
     TextPath: "textPath",
     Title: "title",
     Use: "use",
-    ForeignObject: "foreignObject",
 }
 
 #[cfg(test)]
