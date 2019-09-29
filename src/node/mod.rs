@@ -81,7 +81,10 @@ macro_rules! node(
 
         impl crate::node::Node for $struct_name {
             #[inline]
-            fn append<T>(&mut self, node: T) where T: crate::node::Node {
+            fn append<T>(&mut self, node: T)
+            where
+                T: crate::node::Node
+            {
                 self.$field_name.append(node);
             }
 
