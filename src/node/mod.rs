@@ -59,22 +59,22 @@ macro_rules! node(
     ($struct_name:ident::$field_name:ident) => (
         impl $struct_name {
             /// Append a node.
-            pub fn add<T>(mut self, node: T) -> Self
+            pub fn add<T>(&mut self, node: T) -> &mut Self
             where
                 T: crate::node::Node,
             {
-                crate::node::Node::append(&mut self, node);
+                crate::node::Node::append(self, node);
                 self
             }
 
             /// Assign an attribute.
             #[inline]
-            pub fn set<T, U>(mut self, name: T, value: U) -> Self
+            pub fn set<T, U>(&mut self, name: T, value: U) -> &mut Self
             where
                 T: Into<String>,
                 U: Into<crate::node::Value>,
             {
-                crate::node::Node::assign(&mut self, name, value);
+                crate::node::Node::assign(self, name, value);
                 self
             }
         }
