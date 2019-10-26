@@ -20,10 +20,7 @@ pub type Children = Vec<Box<dyn Node>>;
 /// A node.
 pub trait Node: 'static + fmt::Debug + fmt::Display + NodeClone {
     /// Append a child node.
-    fn append<T>(&mut self, _: T)
-    where
-        Self: Sized,
-        T: Node;
+    fn append(&mut self, _: Box<dyn Node>);
 
     /// Assign an attribute.
     fn assign<T, U>(&mut self, _: T, _: U)
@@ -59,11 +56,9 @@ macro_rules! node(
     ($struct_name:ident::$field_name:ident) => (
         impl $struct_name {
             /// Append a node.
-            pub fn add<T>(&mut self, node: T) -> &mut Self
-            where
-                T: crate::node::Node,
+            pub fn add<T: AsRef<dyn Node>>(&mut self, node: T) -> &mut Self
             {
-                crate::node::Node::append(self, node);
+                crate::node::Node::append(self, crate::node::NodeClone::clone(node.as_ref()));
                 self
             }
 
@@ -81,9 +76,7 @@ macro_rules! node(
 
         impl crate::node::Node for $struct_name {
             #[inline]
-            fn append<T>(&mut self, node: T)
-            where
-                T: crate::node::Node,
+            fn append(&mut self, node: Box<dyn Node>)
             {
                 self.$field_name.append(node);
             }
@@ -95,6 +88,12 @@ macro_rules! node(
                 U: Into<crate::node::Value>,
             {
                 self.$field_name.assign(name, value);
+            }
+        }
+
+        impl ::std::convert::AsRef<dyn crate::node::Node> for $struct_name {
+            fn as_ref(&self) -> &dyn Node {
+                self
             }
         }
 

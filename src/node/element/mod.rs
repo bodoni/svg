@@ -60,11 +60,8 @@ impl fmt::Display for Element {
 
 impl Node for Element {
     #[inline]
-    fn append<T>(&mut self, node: T)
-    where
-        T: Node,
-    {
-        self.children.push(Box::new(node));
+    fn append(&mut self, node: Box<dyn Node>) {
+        self.children.push(node);
     }
 
     #[inline]
@@ -241,12 +238,12 @@ implement! {
 
     #[doc = "A [`script`](https://www.w3.org/TR/SVG/script.html#ScriptElement) element."]
     struct Script [T: Into<String>] [inner, content: T] {
-        inner.append(crate::node::Text::new(content));
+        inner.append(Box::new(crate::node::Text::new(content)));
     }
 
     #[doc = "A [`style`](https://www.w3.org/TR/SVG/styling.html#StyleElement) element."]
     struct Style [T: Into<String>] [inner, content: T] {
-        inner.append(crate::node::Text::new(content));
+        inner.append(Box::new(crate::node::Text::new(content)));
     }
 }
 
@@ -262,7 +259,7 @@ mod tests {
         element.assign("y", "10px");
         element.assign("s", (12.5, 13.0));
         element.assign("c", "green");
-        element.append(Element::new("bar"));
+        element.append(Box::new(Element::new("bar")));
 
         assert_eq!(
             element.to_string(),

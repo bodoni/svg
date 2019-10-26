@@ -30,11 +30,7 @@ impl fmt::Display for Comment {
 
 impl Node for Comment {
     #[inline]
-    fn append<T>(&mut self, _: T)
-    where
-        T: Node,
-    {
-    }
+    fn append(&mut self, _: Box<dyn Node>) {}
 
     #[inline]
     fn assign<T, U>(&mut self, _: T, _: U)

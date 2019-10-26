@@ -26,7 +26,7 @@ let document = Document::new()
     .set("viewBox", (0, 0, 70, 70))
     .add(path);
 
-svg::save("image.svg", &document).unwrap();
+svg::save("image.svg", document).unwrap();
 ```
 
 ## Example: Parsing
