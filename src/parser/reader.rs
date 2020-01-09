@@ -29,7 +29,9 @@ impl<'l> Reader<'l> {
         if !block(self) {
             return None;
         }
-        let content = &self.content[start..self.offset].trim();
+        let start = self.content.char_indices().nth(start).unwrap().0;
+        let offset = self.content.char_indices().nth(self.offset - 1).unwrap().0;
+        let content = &self.content[start..offset + 1].trim();
         if content.is_empty() {
             None
         } else {
@@ -261,6 +263,7 @@ mod tests {
         test!("foo='bar'");
         test!("foo = \t 'bar'");
         test!("foo= \"bar\"");
+        test!("標籤='數值'");
 
         macro_rules! test(
             ($content:expr) => ({

@@ -201,5 +201,6 @@ mod tests {
         test!("foo =\"bar\"", "foo", "bar");
         test!("foo= \"bar\"", "foo", "bar");
         test!("foo\t=\n'bar'  ", "foo", "bar");
+        test!("標籤='數值'", "標籤", "數值");
     }
 }
