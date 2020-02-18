@@ -1,4 +1,6 @@
+use std::collections::hash_map::DefaultHasher;
 use std::fmt;
+use std::hash::Hash;
 
 use crate::node::{Node, Value};
 
@@ -25,6 +27,12 @@ impl fmt::Display for Comment {
     #[inline]
     fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
         write!(formatter, "<!-- {} -->", self.content)
+    }
+}
+
+impl super::NodeDefaultHash for Comment {
+    fn default_hash(&self, state: &mut DefaultHasher) {
+        self.content.hash(state);
     }
 }
 

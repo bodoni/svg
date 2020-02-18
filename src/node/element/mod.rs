@@ -3,7 +3,9 @@
 #![allow(clippy::new_without_default)]
 #![allow(clippy::should_implement_trait)]
 
+use std::collections::hash_map::DefaultHasher;
 use std::fmt;
+use std::hash::Hash;
 
 use crate::node::{Attributes, Children, Node, Value};
 
@@ -28,6 +30,18 @@ impl Element {
             attributes: Attributes::new(),
             children: Children::new(),
         }
+    }
+
+    pub fn get_name(&self) -> &String {
+        &self.name
+    }
+
+    pub fn get_attributes(&self) -> &Attributes {
+        &self.attributes
+    }
+
+    pub fn get_children(&self) -> &Children {
+        &self.children
     }
 }
 
@@ -101,8 +115,30 @@ macro_rules! implement {
             }
         }
 
+        impl super::NodeDefaultHash for $struct_name {
+            fn default_hash(&self, state: &mut DefaultHasher) {
+                self.inner.default_hash(state);
+            }
+        }
+
         node! { $struct_name::inner }
     )*);
+}
+
+// Implement Hash for def duplicate recognization
+impl super::NodeDefaultHash for Element {
+    fn default_hash(&self, state: &mut DefaultHasher) {
+        self.name.hash(state);
+
+        self.attributes.iter().for_each(|(key, value)| {
+            key.hash(state);
+            value.hash(state)
+        });
+
+        self.children
+            .iter()
+            .for_each(|child| child.default_hash(state));
+    }
 }
 
 implement! {
@@ -226,6 +262,12 @@ macro_rules! implement {
                         inner: inner,
                     }
                 }
+            }
+        }
+
+        impl super::NodeDefaultHash for $struct_name {
+            fn default_hash(&self, state: &mut DefaultHasher) {
+                self.inner.default_hash(state);
             }
         }
 
