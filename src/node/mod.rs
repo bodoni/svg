@@ -90,6 +90,10 @@ macro_rules! node(
                 crate::node::Node::assign(&mut self, name, value);
                 self
             }
+
+            pub fn get_inner(&self) -> &Element {
+                &self.inner
+            }
         }
 
         impl crate::node::Node for $struct_name {
