@@ -31,6 +31,7 @@ impl fmt::Display for Text {
 }
 
 impl super::NodeDefaultHash for Text {
+    #[inline]
     fn default_hash(&self, state: &mut DefaultHasher) {
         self.content.hash(state);
     }

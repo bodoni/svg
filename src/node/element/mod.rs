@@ -119,6 +119,7 @@ macro_rules! implement {
         }
 
         impl super::NodeDefaultHash for $struct_name {
+            #[inline]
             fn default_hash(&self, state: &mut DefaultHasher) {
                 self.inner.default_hash(state);
             }
@@ -132,12 +133,10 @@ macro_rules! implement {
 impl super::NodeDefaultHash for Element {
     fn default_hash(&self, state: &mut DefaultHasher) {
         self.name.hash(state);
-
         self.attributes.iter().for_each(|(key, value)| {
             key.hash(state);
             value.hash(state)
         });
-
         self.children
             .iter()
             .for_each(|child| child.default_hash(state));

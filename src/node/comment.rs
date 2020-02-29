@@ -31,6 +31,7 @@ impl fmt::Display for Comment {
 }
 
 impl super::NodeDefaultHash for Comment {
+    #[inline]
     fn default_hash(&self, state: &mut DefaultHasher) {
         self.content.hash(state);
     }
