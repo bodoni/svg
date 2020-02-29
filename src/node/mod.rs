@@ -1,5 +1,6 @@
 //! The nodes.
 
+use std::collections::hash_map::DefaultHasher;
 use std::collections::HashMap;
 use std::fmt;
 
@@ -18,7 +19,7 @@ pub type Attributes = HashMap<String, Value>;
 pub type Children = Vec<Box<dyn Node>>;
 
 /// A node.
-pub trait Node: 'static + fmt::Debug + fmt::Display + NodeClone {
+pub trait Node: 'static + fmt::Debug + fmt::Display + NodeClone + NodeDefaultHash {
     /// Append a child node.
     fn append<T>(&mut self, _: T)
     where
@@ -38,6 +39,11 @@ pub trait NodeClone {
     fn clone(&self) -> Box<dyn Node>;
 }
 
+#[doc(hidden)]
+pub trait NodeDefaultHash {
+    fn default_hash(&self, state: &mut DefaultHasher);
+}
+
 impl<T> NodeClone for T
 where
     T: Node + Clone,
@@ -45,6 +51,13 @@ where
     #[inline]
     fn clone(&self) -> Box<dyn Node> {
         Box::new(Clone::clone(self))
+    }
+}
+
+impl NodeDefaultHash for Box<dyn Node> {
+    #[inline]
+    fn default_hash(&self, state: &mut DefaultHasher) {
+        NodeDefaultHash::default_hash(&**self, state)
     }
 }
 
@@ -76,6 +89,12 @@ macro_rules! node(
             {
                 crate::node::Node::assign(&mut self, name, value);
                 self
+            }
+
+            #[doc(hidden)]
+            #[inline]
+            pub fn get_inner(&self) -> &Element {
+                &self.inner
             }
         }
 

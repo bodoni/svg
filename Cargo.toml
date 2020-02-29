@@ -1,10 +1,11 @@
 [package]
 name = "svg"
-version = "0.6.0"
+version = "0.7.0"
 edition = "2018"
 license = "Apache-2.0/MIT"
 authors = [
     "Felix Schütt <felix.schuett@maps4print.com>",
+    "Gijs Burghoorn <g.burghoorn@gmail.com>",
     "Ivan Ukhov <ivan.ukhov@gmail.com>",
     "Nicolas Silva <nical@fastmail.com>",
     "OCTronics <octronics@riseup.net>",

@@ -1,4 +1,6 @@
+use std::collections::hash_map::DefaultHasher;
 use std::fmt;
+use std::hash::Hash;
 
 use crate::node::{Node, Value};
 
@@ -42,5 +44,12 @@ impl Node for Text {
         T: Into<String>,
         U: Into<Value>,
     {
+    }
+}
+
+impl super::NodeDefaultHash for Text {
+    #[inline]
+    fn default_hash(&self, state: &mut DefaultHasher) {
+        self.content.hash(state);
     }
 }
