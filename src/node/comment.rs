@@ -30,13 +30,6 @@ impl fmt::Display for Comment {
     }
 }
 
-impl super::NodeDefaultHash for Comment {
-    #[inline]
-    fn default_hash(&self, state: &mut DefaultHasher) {
-        self.content.hash(state);
-    }
-}
-
 impl Node for Comment {
     #[inline]
     fn append<T>(&mut self, _: T)
@@ -51,6 +44,13 @@ impl Node for Comment {
         T: Into<String>,
         U: Into<Value>,
     {
+    }
+}
+
+impl super::NodeDefaultHash for Comment {
+    #[inline]
+    fn default_hash(&self, state: &mut DefaultHasher) {
+        self.content.hash(state);
     }
 }
 

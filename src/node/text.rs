@@ -30,13 +30,6 @@ impl fmt::Display for Text {
     }
 }
 
-impl super::NodeDefaultHash for Text {
-    #[inline]
-    fn default_hash(&self, state: &mut DefaultHasher) {
-        self.content.hash(state);
-    }
-}
-
 impl Node for Text {
     #[inline]
     fn append<T>(&mut self, _: T)
@@ -51,5 +44,12 @@ impl Node for Text {
         T: Into<String>,
         U: Into<Value>,
     {
+    }
+}
+
+impl super::NodeDefaultHash for Text {
+    #[inline]
+    fn default_hash(&self, state: &mut DefaultHasher) {
+        self.content.hash(state);
     }
 }
