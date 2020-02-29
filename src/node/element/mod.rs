@@ -32,14 +32,17 @@ impl Element {
         }
     }
 
+    #[inline]
     pub fn get_name(&self) -> &String {
         &self.name
     }
 
+    #[inline]
     pub fn get_attributes(&self) -> &Attributes {
         &self.attributes
     }
 
+    #[inline]
     pub fn get_children(&self) -> &Children {
         &self.children
     }
