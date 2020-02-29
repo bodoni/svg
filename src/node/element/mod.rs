@@ -129,7 +129,6 @@ macro_rules! implement {
     )*);
 }
 
-// Implement Hash for def duplicate recognization
 impl super::NodeDefaultHash for Element {
     fn default_hash(&self, state: &mut DefaultHasher) {
         self.name.hash(state);
