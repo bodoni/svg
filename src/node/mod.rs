@@ -91,6 +91,7 @@ macro_rules! node(
                 self
             }
 
+            #[doc(hidden)]
             #[inline]
             pub fn get_inner(&self) -> &Element {
                 &self.inner
