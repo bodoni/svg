@@ -31,7 +31,7 @@ impl<'l> Reader<'l> {
         }
         let start = self.content.char_indices().nth(start).unwrap().0;
         let offset = self.content.char_indices().nth(self.offset - 1).unwrap().0;
-        let content = &self.content[start..offset + 1].trim();
+        let content = &self.content[start..=offset].trim();
         if content.is_empty() {
             None
         } else {
