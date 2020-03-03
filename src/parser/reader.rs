@@ -226,7 +226,7 @@ impl<'l> Iterator for Reader<'l> {
                 } else {
                     self.column += 1;
                 }
-                self.offset += 1;
+                self.offset += c.len_utf8();
                 Some(c)
             }
             _ => None,
@@ -261,6 +261,7 @@ mod tests {
         test!("foo='bar'");
         test!("foo = \t 'bar'");
         test!("foo= \"bar\"");
+        test!("標籤='數值'");
 
         macro_rules! test(
             ($content:expr) => ({
