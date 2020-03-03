@@ -5,6 +5,7 @@ edition = "2018"
 license = "Apache-2.0/MIT"
 authors = [
     "Felix Schütt <felix.schuett@maps4print.com>",
+    "GeoffreyY <yeungchingho123@gmail.com>",
     "Gijs Burghoorn <g.burghoorn@gmail.com>",
     "Ivan Ukhov <ivan.ukhov@gmail.com>",
     "Nicolas Silva <nical@fastmail.com>",
