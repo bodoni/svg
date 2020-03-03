@@ -29,9 +29,7 @@ impl<'l> Reader<'l> {
         if !block(self) {
             return None;
         }
-        let start = self.content.char_indices().nth(start).unwrap().0;
-        let offset = self.content.char_indices().nth(self.offset - 1).unwrap().0;
-        let content = &self.content[start..=offset].trim();
+        let content = &self.content[start..self.offset].trim();
         if content.is_empty() {
             None
         } else {
@@ -228,7 +226,7 @@ impl<'l> Iterator for Reader<'l> {
                 } else {
                     self.column += 1;
                 }
-                self.offset += 1;
+                self.offset += c.len_utf8();
                 Some(c)
             }
             _ => None,
