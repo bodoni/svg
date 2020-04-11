@@ -11,6 +11,7 @@ authors = [
     "Nicolas Silva <nical@fastmail.com>",
     "OCTronics <octronics@riseup.net>",
     "e-matteson <e.r.matteson@gmail.com>",
+    "kmkzt <info.pscreator@gmail.com>",
 ]
 description = "The package provides an SVG composer and parser."
 documentation = "https://docs.rs/svg"
