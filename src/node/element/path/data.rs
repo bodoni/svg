@@ -7,7 +7,7 @@ use crate::parser::{Error, Reader, Result};
 /// A [data][1] attribute.
 ///
 /// [1]: https://www.w3.org/TR/SVG/paths.html#PathData
-#[derive(Clone, Default)]
+#[derive(Clone, Debug, Default)]
 pub struct Data(Vec<Command>);
 
 struct Parser<'l> {
