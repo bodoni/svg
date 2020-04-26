@@ -39,6 +39,12 @@ pub enum Event<'l> {
 /// A result.
 pub type Result<T> = ::std::result::Result<T, Error>;
 
+macro_rules! raise(
+    ($parser:expr, $($argument:tt)*) => (
+        return Some(Event::Error(Error::new($parser.reader.position(), format!($($argument)*))));
+    );
+);
+
 impl<'l> Parser<'l> {
     /// Create a parser.
     #[inline]
@@ -50,45 +56,67 @@ impl<'l> Parser<'l> {
         let reader = unsafe { ::std::mem::transmute(Reader::new(&*content)) };
         Parser { content, reader }
     }
-}
 
-macro_rules! raise(
-    ($parser:expr, $($argument:tt)*) => (
-        return Some(Event::Error(Error::new($parser.reader.position(), format!($($argument)*))));
-    );
-);
+    fn next_angle(&mut self) -> Option<Event<'l>> {
+        let content: String = self.reader.peek_many().take(4).collect();
+        if content.is_empty() {
+            return None;
+        } else if content.starts_with("<!--") {
+            self.read_comment()
+        } else if content.starts_with("<!") {
+            self.read_declaration()
+        } else if content.starts_with("<?") {
+            self.read_instruction()
+        } else if content.starts_with("<") {
+            self.read_tag()
+        } else {
+            raise!(self, "found an unknown sequence");
+        }
+    }
+
+    fn next_text(&mut self) -> Option<Event<'l>> {
+        self.reader
+            .capture(|reader| reader.consume_until_char('<'))
+            .map(|content| Event::Text(content))
+    }
+
+    fn read_comment(&mut self) -> Option<Event<'l>> {
+        if !self.reader.consume_comment() {
+            raise!(self, "found a malformed comment");
+        }
+        Some(Event::Comment)
+    }
+
+    fn read_declaration(&mut self) -> Option<Event<'l>> {
+        if !self.reader.consume_declaration() {
+            raise!(self, "found a malformed declaration");
+        }
+        Some(Event::Declaration)
+    }
+
+    fn read_instruction(&mut self) -> Option<Event<'l>> {
+        if !self.reader.consume_instruction() {
+            raise!(self, "found a malformed instruction");
+        }
+        Some(Event::Instruction)
+    }
+
+    fn read_tag(&mut self) -> Option<Event<'l>> {
+        match self.reader.capture(|reader| reader.consume_tag()) {
+            None => raise!(self, "found a malformed tag"),
+            Some(content) => Some(match Tag::parse(&content[1..content.len() - 1]) {
+                Ok(Tag(name, kind, attributes)) => Event::Tag(name, kind, attributes),
+                Err(error) => Event::Error(error),
+            }),
+        }
+    }
+}
 
 impl<'l> Iterator for Parser<'l> {
     type Item = Event<'l>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let content = self.reader.capture(|reader| reader.consume_until_char('<'));
-        if let Some(content) = content {
-            return Some(Event::Text(content));
-        }
-        if !self.reader.consume_char('<') {
-            return None;
-        }
-        let content = self.reader.capture(|reader| reader.consume_until_char('>'));
-        if content.is_none() {
-            raise!(self, "found an empty tag");
-        }
-        if !self.reader.consume_char('>') {
-            raise!(self, "missing a closing angle bracket");
-        }
-        let content = content.unwrap();
-        Some(if content.starts_with("!--") {
-            Event::Comment
-        } else if content.starts_with('!') {
-            Event::Declaration
-        } else if content.starts_with('?') {
-            Event::Instruction
-        } else {
-            match Tag::parse(&content) {
-                Ok(Tag(name, kind, attributes)) => Event::Tag(name, kind, attributes),
-                Err(error) => Event::Error(error),
-            }
-        })
+        self.next_text().or_else(|| self.next_angle())
     }
 }
 

@@ -43,8 +43,8 @@ impl<'l> Reader<'l> {
     }
 
     #[inline]
-    pub fn consume_any(&mut self, chars: &str) -> bool {
-        self.consume_while(|c| chars.contains(c))
+    pub fn consume_any(&mut self, targets: &str) -> bool {
+        self.consume_while(|c| targets.contains(c))
     }
 
     // https://www.w3.org/TR/REC-xml/#NT-Attribute
@@ -73,6 +73,58 @@ impl<'l> Reader<'l> {
             }
             _ => false,
         }
+    }
+
+    pub fn consume_character(&mut self) -> bool {
+        self.consume_if(Reader::check_character)
+    }
+
+    // https://www.w3.org/TR/REC-xml/#sec-comments
+    pub fn consume_comment(&mut self) -> bool {
+        self.consume_char('<')
+            && self.consume_char('!')
+            && self.consume_char('-')
+            && self.consume_char('-')
+            && {
+                self.consume_comment_body();
+                true
+            }
+            && self.consume_char('-')
+            && self.consume_char('-')
+            && self.consume_char('>')
+    }
+
+    pub fn consume_comment_body(&mut self) -> bool {
+        let mut consumed = true;
+        while let Some(c) = self.peek() {
+            if c == '-' {
+                let mut iterator = self
+                    .peek_many()
+                    .take(2)
+                    .map(|c| c != '-' && Reader::check_character(c));
+                match (iterator.next(), iterator.next()) {
+                    (Some(false), Some(false)) => break,
+                    (Some(false), Some(true)) => {
+                        assert!(self.consume_char('-'));
+                        consumed = true;
+                    }
+                    (Some(false), None) => break,
+                    _ => unreachable!(),
+                }
+            } else if self.consume_character() {
+                consumed = true;
+            } else {
+                break;
+            }
+        }
+        consumed
+    }
+
+    pub fn consume_declaration(&mut self) -> bool {
+        self.consume_char('<')
+            && self.consume_char('!')
+            && self.consume_until_char('>')
+            && self.consume_char('>')
     }
 
     #[inline]
@@ -105,49 +157,27 @@ impl<'l> Reader<'l> {
         }
     }
 
+    pub fn consume_instruction(&mut self) -> bool {
+        self.consume_char('<')
+            && self.consume_char('?')
+            && self.consume_until_char('>')
+            && self.consume_char('>')
+    }
+
     // https://www.w3.org/TR/REC-xml/#NT-Name
     pub fn consume_name(&mut self) -> bool {
-        self.consume_name_start_char() && {
-            while self.consume_name_char() {}
+        self.consume_name_start_character() && {
+            while self.consume_name_character() {}
             true
         }
     }
 
-    // https://www.w3.org/TR/REC-xml/#NT-NameChar
-    pub fn consume_name_char(&mut self) -> bool {
-        self.consume_name_start_char()
-            || self.consume_if(|c| match c {
-                '-'
-                | '.'
-                | '0'..='9'
-                | '\u{B7}'
-                | '\u{0300}'..='\u{036F}'
-                | '\u{203F}'..='\u{2040}' => true,
-                _ => false,
-            })
+    pub fn consume_name_character(&mut self) -> bool {
+        self.consume_if(Reader::check_name_character)
     }
 
-    // https://www.w3.org/TR/REC-xml/#NT-NameStartChar
-    pub fn consume_name_start_char(&mut self) -> bool {
-        self.consume_if(|c| match c {
-            ':'
-            | 'A'..='Z'
-            | '_'
-            | 'a'..='z'
-            | '\u{C0}'..='\u{D6}'
-            | '\u{D8}'..='\u{F6}'
-            | '\u{F8}'..='\u{2FF}'
-            | '\u{370}'..='\u{37D}'
-            | '\u{37F}'..='\u{1FFF}'
-            | '\u{200C}'..='\u{200D}'
-            | '\u{2070}'..='\u{218F}'
-            | '\u{2C00}'..='\u{2FEF}'
-            | '\u{3001}'..='\u{D7FF}'
-            | '\u{F900}'..='\u{FDCF}'
-            | '\u{FDF0}'..='\u{FFFD}'
-            | '\u{10000}'..='\u{EFFFF}' => true,
-            _ => false,
-        })
+    pub fn consume_name_start_character(&mut self) -> bool {
+        self.consume_if(Reader::check_name_start_character)
     }
 
     // https://www.w3.org/TR/SVG/types.html#DataTypeNumber
@@ -171,9 +201,13 @@ impl<'l> Reader<'l> {
         self.consume_char('+') || self.consume_char('-')
     }
 
+    pub fn consume_tag(&mut self) -> bool {
+        self.consume_char('<') && self.consume_until_char('>') && self.consume_char('>')
+    }
+
     #[inline]
-    pub fn consume_until_any(&mut self, chars: &str) -> bool {
-        self.consume_while(|c| !chars.contains(c))
+    pub fn consume_until_any(&mut self, targets: &str) -> bool {
+        self.consume_while(|c| !targets.contains(c))
     }
 
     #[inline]
@@ -209,8 +243,65 @@ impl<'l> Reader<'l> {
     }
 
     #[inline]
+    pub fn peek_many(&self) -> Chars<'l> {
+        self.content[self.offset..].chars()
+    }
+
+    #[inline]
     pub fn position(&self) -> (usize, usize) {
         (self.line, self.column)
+    }
+
+    // https://www.w3.org/TR/REC-xml/#NT-Char
+    fn check_character(target: char) -> bool {
+        match target {
+            '\u{9}'
+            | '\u{A}'
+            | '\u{D}'
+            | '\u{20}'..='\u{D7FF}'
+            | '\u{E000}'..='\u{FFFD}'
+            | '\u{10000}'..='\u{10FFFF}' => true,
+            _ => false,
+        }
+    }
+
+    // https://www.w3.org/TR/REC-xml/#NT-NameChar
+    fn check_name_character(target: char) -> bool {
+        if Reader::check_name_start_character(target) {
+            return true;
+        }
+        match target {
+            '-'
+            | '.'
+            | '0'..='9'
+            | '\u{B7}'
+            | '\u{0300}'..='\u{036F}'
+            | '\u{203F}'..='\u{2040}' => true,
+            _ => false,
+        }
+    }
+
+    // https://www.w3.org/TR/REC-xml/#NT-NameStartChar
+    fn check_name_start_character(target: char) -> bool {
+        match target {
+            ':'
+            | 'A'..='Z'
+            | '_'
+            | 'a'..='z'
+            | '\u{C0}'..='\u{D6}'
+            | '\u{D8}'..='\u{F6}'
+            | '\u{F8}'..='\u{2FF}'
+            | '\u{370}'..='\u{37D}'
+            | '\u{37F}'..='\u{1FFF}'
+            | '\u{200C}'..='\u{200D}'
+            | '\u{2070}'..='\u{218F}'
+            | '\u{2C00}'..='\u{2FEF}'
+            | '\u{3001}'..='\u{D7FF}'
+            | '\u{F900}'..='\u{FDCF}'
+            | '\u{FDF0}'..='\u{FFFD}'
+            | '\u{10000}'..='\u{EFFFF}' => true,
+            _ => false,
+        }
     }
 }
 
@@ -275,6 +366,30 @@ mod tests {
         test!("foo=bar");
         test!("foo='bar");
         test!("foo=\"bar");
+    }
+
+    #[test]
+    fn consume_comment() {
+        macro_rules! test(
+            ($content:expr, $value:expr) => ({
+                let mut reader = Reader::new($content);
+                let value = reader.capture(|reader| reader.consume_comment());
+                assert_eq!(value.unwrap(), $value);
+            });
+        );
+
+        test!("<!-- foo --> bar", "<!-- foo -->");
+        test!("<!-- foo > --> bar", "<!-- foo > -->");
+
+        macro_rules! test(
+            ($content:expr) => ({
+                let mut reader = Reader::new($content);
+                assert!(!reader.consume_comment());
+            });
+        );
+
+        // https://www.w3.org/TR/REC-xml/#sec-comments
+        test!("<!-- B+, B, or B--->");
     }
 
     #[test]
