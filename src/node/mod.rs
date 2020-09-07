@@ -123,6 +123,13 @@ macro_rules! node(
                 self.$field_name.fmt(formatter)
             }
         }
+
+        impl Into<Element> for $struct_name {
+            #[inline]
+            fn into(self) -> Element {
+                self.inner
+            }
+        }
     );
 );
 
