@@ -329,7 +329,8 @@ mod tests {
 
         test!("A2.6,0 -7", EllipticalArc, Absolute, &[2.6, 0.0, -7.0]);
         test!("a 2.6 ,0 -7", EllipticalArc, Relative, &[2.6, 0.0, -7.0]);
-
+        test!("a32 32 0 00.03-45.22", EllipticalArc, Relative, &[32.0, 32.0, 0.0, 0.0, 0.0, 0.03, -45.22]);
+        
         test!("Z", Close);
         test!("z", Close);
     }
