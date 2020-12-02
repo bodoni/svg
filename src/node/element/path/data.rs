@@ -185,34 +185,33 @@ impl<'l> Parser<'l> {
             _ => return Ok(None),
         };
         self.reader.consume_whitespace();
-        let parameters = self.read_parameters()?.into();
         Ok(Some(match name {
-            'M' => Move(Absolute, parameters),
-            'm' => Move(Relative, parameters),
+            'M' => Move(Absolute, self.read_parameters(false)?.into()),
+            'm' => Move(Relative, self.read_parameters(false)?.into()),
 
-            'L' => Line(Absolute, parameters),
-            'l' => Line(Relative, parameters),
+            'L' => Line(Absolute, self.read_parameters(false)?.into()),
+            'l' => Line(Relative, self.read_parameters(false)?.into()),
 
-            'H' => HorizontalLine(Absolute, parameters),
-            'h' => HorizontalLine(Relative, parameters),
+            'H' => HorizontalLine(Absolute, self.read_parameters(false)?.into()),
+            'h' => HorizontalLine(Relative, self.read_parameters(false)?.into()),
 
-            'V' => VerticalLine(Absolute, parameters),
-            'v' => VerticalLine(Relative, parameters),
+            'V' => VerticalLine(Absolute, self.read_parameters(false)?.into()),
+            'v' => VerticalLine(Relative, self.read_parameters(false)?.into()),
 
-            'Q' => QuadraticCurve(Absolute, parameters),
-            'q' => QuadraticCurve(Relative, parameters),
+            'Q' => QuadraticCurve(Absolute, self.read_parameters(false)?.into()),
+            'q' => QuadraticCurve(Relative, self.read_parameters(false)?.into()),
 
-            'T' => SmoothQuadraticCurve(Absolute, parameters),
-            't' => SmoothQuadraticCurve(Relative, parameters),
+            'T' => SmoothQuadraticCurve(Absolute, self.read_parameters(false)?.into()),
+            't' => SmoothQuadraticCurve(Relative, self.read_parameters(false)?.into()),
 
-            'C' => CubicCurve(Absolute, parameters),
-            'c' => CubicCurve(Relative, parameters),
+            'C' => CubicCurve(Absolute, self.read_parameters(false)?.into()),
+            'c' => CubicCurve(Relative, self.read_parameters(false)?.into()),
 
-            'S' => SmoothCubicCurve(Absolute, parameters),
-            's' => SmoothCubicCurve(Relative, parameters),
+            'S' => SmoothCubicCurve(Absolute, self.read_parameters(false)?.into()),
+            's' => SmoothCubicCurve(Relative, self.read_parameters(false)?.into()),
 
-            'A' => EllipticalArc(Absolute, fixup_arc_params(parameters)),
-            'a' => EllipticalArc(Relative, fixup_arc_params(parameters)),
+            'A' => EllipticalArc(Absolute, self.read_parameters(true)?.into()),
+            'a' => EllipticalArc(Relative, self.read_parameters(true)?.into()),
 
             'Z' | 'z' => Close,
 
@@ -220,7 +219,7 @@ impl<'l> Parser<'l> {
         }))
     }
 
-    fn read_parameters(&mut self) -> Result<Vec<Number>> {
+    fn read_parameters(&mut self, _is_arc: bool) -> Result<Vec<Number>> {
         let mut parameters = Vec::new();
 
         while let Some(number) = self.read_number()? {
@@ -245,10 +244,6 @@ impl<'l> Parser<'l> {
             _ => Ok(None),
         }
     }
-}
-
-fn fixup_arc_params(params: Parameters) -> Parameters {
-    params
 }
 
 #[cfg(test)]
@@ -342,15 +337,15 @@ mod tests {
     #[test]
     fn parser_read_parameters() {
         macro_rules! test(
-            ($content:expr, $parameters:expr) => ({
+            ($content:expr, $is_arc:expr, $parameters:expr) => ({
                 let mut parser = Parser::new($content);
-                let parameters = parser.read_parameters().unwrap();
+                let parameters = parser.read_parameters($is_arc).unwrap();
                 assert_eq!(&parameters[..], $parameters);
             });
         );
 
-        test!("1,2 3,4 5 6.7", &[1.0, 2.0, 3.0, 4.0, 5.0, 6.7]);
-        test!("4-3.1.3e2.4", &[4.0, -3.1, 0.3e2, 0.4]);
+        test!("1,2 3,4 5 6.7", false, &[1.0, 2.0, 3.0, 4.0, 5.0, 6.7]);
+        test!("4-3.1.3e2.4", false, &[4.0, -3.1, 0.3e2, 0.4]);
     }
 
     #[test]
@@ -366,18 +361,5 @@ mod tests {
         test!("1e-4", 1e-4);
         test!("-1E2", -1e2);
         test!("-0.00100E-002", -1e-5);
-    }
-
-    #[test]
-    fn fixup_arc_params() {
-        macro_rules! test(
-            ($content:expr, $parameters:expr) => ({
-                let mut parser = Parser::new($content);
-                let parameters = super::fixup_arc_params(parser.read_parameters().unwrap().into());
-                assert_eq!(&parameters[..], $parameters);
-            });
-        );
-
-        test!("32 32 0 00.03-45.22", &[32.0, 32.0, 0.0, 0.0, 0.0, 0.03, -45.22]);
     }
 }
