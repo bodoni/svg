@@ -367,4 +367,17 @@ mod tests {
         test!("-1E2", -1e2);
         test!("-0.00100E-002", -1e-5);
     }
+
+    #[test]
+    fn fixup_arc_params() {
+        macro_rules! test(
+            ($content:expr, $parameters:expr) => ({
+                let mut parser = Parser::new($content);
+                let parameters = super::fixup_arc_params(parser.read_parameters().unwrap().into());
+                assert_eq!(&parameters[..], $parameters);
+            });
+        );
+
+        test!("32 32 0 00.03-45.22", &[32.0, 32.0, 0.0, 0.0, 0.0, 0.03, -45.22]);
+    }
 }
