@@ -223,7 +223,7 @@ impl<'l> Parser<'l> {
         let mut parameters = Vec::new();
         let mut cmd_index: usize = 0;
 
-        while let Some(number) = self.read_number_or_flag(is_arc, cmd_index % 7)? {
+        while let Some(number) = self.read_number_or_flag(if is_arc { Some(cmd_index % 7) } else { None })? {
             cmd_index = cmd_index + 1;
             parameters.push(number);
             self.reader.consume_whitespace();
@@ -233,11 +233,10 @@ impl<'l> Parser<'l> {
         Ok(parameters)
     }
 
-    fn read_number_or_flag(&mut self, is_arc: bool, relative_index: usize) -> Result<Option<Number>> {
-        if is_arc && (relative_index == 3 || relative_index == 4) {
-            self.read_flag()
-        } else {
-            self.read_number()
+    fn read_number_or_flag(&mut self, arc_relative_index: Option<usize>) -> Result<Option<Number>> {
+        match arc_relative_index {
+            Some(x) if x == 3 || x == 4 => self.read_flag(),
+            _ => self.read_number()
         }
     }
 
@@ -247,8 +246,7 @@ impl<'l> Parser<'l> {
         match val {
             Some('0') => Ok(Some(0.0)),
             Some('1') => Ok(Some(1.0)),
-            Some(x) => raise!(self, "failed to parse flag param in arc '{}'", x),
-            None => raise!(self, "failed to parse flag param in arc: None")
+            _ => raise!(self, "failed to parse flag param in arc")
         }
     }
 
