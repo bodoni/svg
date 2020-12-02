@@ -348,8 +348,14 @@ mod tests {
 
         test!("A1 1 2.6,0 0 0 -7", EllipticalArc, Absolute, &[1.0, 1.0, 2.6, 0.0, 0.0, 0.0, -7.0]);
         test!("a1 1 2.6,0 0 0 -7", EllipticalArc, Relative, &[1.0, 1.0, 2.6, 0.0, 0.0, 0.0, -7.0]);
+
+        // "a" commands without optional whitespace around the flag params
         test!("a32 32 0 00.03-45.22", EllipticalArc, Relative, &[32.0, 32.0, 0.0, 0.0, 0.0, 0.03, -45.22]);
-        
+        test!("a48 48 0 1148-48", EllipticalArc, Relative, &[48.0, 48.0, 0.0, 1.0, 1.0, 48.0, -48.0]);
+        test!("a82.6 82.6 0 0033.48-20.25", EllipticalArc, Relative, &[82.6, 82.6, 0.0, 0.0, 0.0, 33.48, -20.25]);
+        test!("a82.45 82.45 0 00-20.24 33.47", EllipticalArc, Relative, &[82.45, 82.45, 0.0, 0.0, 0.0, -20.24, 33.47]);
+        test!("a48 48 0 1148-48 48 48 0 01-48 48", EllipticalArc, Relative, &[48.0, 48.0, 0.0, 1.0, 1.0, 48.0, -48.0, 48.0, 48.0, 0.0, 0.0, 1.0, -48.0, 48.0]);
+
         test!("Z", Close);
         test!("z", Close);
     }
