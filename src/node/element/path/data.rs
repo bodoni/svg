@@ -211,8 +211,8 @@ impl<'l> Parser<'l> {
             'S' => SmoothCubicCurve(Absolute, parameters),
             's' => SmoothCubicCurve(Relative, parameters),
 
-            'A' => EllipticalArc(Absolute, parameters),
-            'a' => EllipticalArc(Relative, parameters),
+            'A' => EllipticalArc(Absolute, fixup_arc_params(parameters)),
+            'a' => EllipticalArc(Relative, fixup_arc_params(parameters)),
 
             'Z' | 'z' => Close,
 
@@ -245,6 +245,10 @@ impl<'l> Parser<'l> {
             _ => Ok(None),
         }
     }
+}
+
+fn fixup_arc_params(params: Parameters) -> Parameters {
+    params
 }
 
 #[cfg(test)]
