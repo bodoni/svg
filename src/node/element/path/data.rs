@@ -219,15 +219,37 @@ impl<'l> Parser<'l> {
         }))
     }
 
-    fn read_parameters(&mut self, _is_arc: bool) -> Result<Vec<Number>> {
+    fn read_parameters(&mut self, is_arc: bool) -> Result<Vec<Number>> {
         let mut parameters = Vec::new();
+        let mut cmd_index: usize = 0;
 
-        while let Some(number) = self.read_number()? {
+        while let Some(number) = self.read_number_or_flag(is_arc, cmd_index % 7)? {
+            cmd_index = cmd_index + 1;
             parameters.push(number);
             self.reader.consume_whitespace();
             self.reader.consume_char(',');
         }
+
         Ok(parameters)
+    }
+
+    fn read_number_or_flag(&mut self, is_arc: bool, relative_index: usize) -> Result<Option<Number>> {
+        if is_arc && (relative_index == 3 || relative_index == 4) {
+            self.read_flag()
+        } else {
+            self.read_number()
+        }
+    }
+
+    fn read_flag(&mut self) -> Result<Option<Number>> {
+        self.reader.consume_whitespace();
+        let val = self.reader.next();
+        match val {
+            Some('0') => Ok(Some(0.0)),
+            Some('1') => Ok(Some(1.0)),
+            Some(x) => raise!(self, "failed to parse flag param in arc '{}'", x),
+            None => raise!(self, "failed to parse flag param in arc: None")
+        }
     }
 
     pub fn read_number(&mut self) -> Result<Option<Number>> {
@@ -326,8 +348,8 @@ mod tests {
         test!("S42,0", SmoothCubicCurve, Absolute, &[42.0, 0.0]);
         test!("s \t 42,0", SmoothCubicCurve, Relative, &[42.0, 0.0]);
 
-        test!("A2.6,0 -7", EllipticalArc, Absolute, &[2.6, 0.0, -7.0]);
-        test!("a 2.6 ,0 -7", EllipticalArc, Relative, &[2.6, 0.0, -7.0]);
+        test!("A1 1 2.6,0 0 0 -7", EllipticalArc, Absolute, &[1.0, 1.0, 2.6, 0.0, 0.0, 0.0, -7.0]);
+        test!("a1 1 2.6,0 0 0 -7", EllipticalArc, Relative, &[1.0, 1.0, 2.6, 0.0, 0.0, 0.0, -7.0]);
         test!("a32 32 0 00.03-45.22", EllipticalArc, Relative, &[32.0, 32.0, 0.0, 0.0, 0.0, 0.03, -45.22]);
         
         test!("Z", Close);
