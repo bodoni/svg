@@ -21,6 +21,7 @@ pub struct Parser<'l> {
 }
 
 /// An event.
+#[derive(Debug)]
 pub enum Event<'l> {
     /// An error.
     Error(Error),
