@@ -186,32 +186,32 @@ impl<'l> Parser<'l> {
         };
         self.reader.consume_whitespace();
         Ok(Some(match name {
-            'M' => Move(Absolute, self.read_parameters(false)?.into()),
-            'm' => Move(Relative, self.read_parameters(false)?.into()),
+            'M' => Move(Absolute, self.read_parameters()?.into()),
+            'm' => Move(Relative, self.read_parameters()?.into()),
 
-            'L' => Line(Absolute, self.read_parameters(false)?.into()),
-            'l' => Line(Relative, self.read_parameters(false)?.into()),
+            'L' => Line(Absolute, self.read_parameters()?.into()),
+            'l' => Line(Relative, self.read_parameters()?.into()),
 
-            'H' => HorizontalLine(Absolute, self.read_parameters(false)?.into()),
-            'h' => HorizontalLine(Relative, self.read_parameters(false)?.into()),
+            'H' => HorizontalLine(Absolute, self.read_parameters()?.into()),
+            'h' => HorizontalLine(Relative, self.read_parameters()?.into()),
 
-            'V' => VerticalLine(Absolute, self.read_parameters(false)?.into()),
-            'v' => VerticalLine(Relative, self.read_parameters(false)?.into()),
+            'V' => VerticalLine(Absolute, self.read_parameters()?.into()),
+            'v' => VerticalLine(Relative, self.read_parameters()?.into()),
 
-            'Q' => QuadraticCurve(Absolute, self.read_parameters(false)?.into()),
-            'q' => QuadraticCurve(Relative, self.read_parameters(false)?.into()),
+            'Q' => QuadraticCurve(Absolute, self.read_parameters()?.into()),
+            'q' => QuadraticCurve(Relative, self.read_parameters()?.into()),
 
-            'T' => SmoothQuadraticCurve(Absolute, self.read_parameters(false)?.into()),
-            't' => SmoothQuadraticCurve(Relative, self.read_parameters(false)?.into()),
+            'T' => SmoothQuadraticCurve(Absolute, self.read_parameters()?.into()),
+            't' => SmoothQuadraticCurve(Relative, self.read_parameters()?.into()),
 
-            'C' => CubicCurve(Absolute, self.read_parameters(false)?.into()),
-            'c' => CubicCurve(Relative, self.read_parameters(false)?.into()),
+            'C' => CubicCurve(Absolute, self.read_parameters()?.into()),
+            'c' => CubicCurve(Relative, self.read_parameters()?.into()),
 
-            'S' => SmoothCubicCurve(Absolute, self.read_parameters(false)?.into()),
-            's' => SmoothCubicCurve(Relative, self.read_parameters(false)?.into()),
+            'S' => SmoothCubicCurve(Absolute, self.read_parameters()?.into()),
+            's' => SmoothCubicCurve(Relative, self.read_parameters()?.into()),
 
-            'A' => EllipticalArc(Absolute, self.read_parameters(true)?.into()),
-            'a' => EllipticalArc(Relative, self.read_parameters(true)?.into()),
+            'A' => EllipticalArc(Absolute, self.read_parameters_elliptical_arc()?.into()),
+            'a' => EllipticalArc(Relative, self.read_parameters_elliptical_arc()?.into()),
 
             'Z' | 'z' => Close,
 
@@ -219,34 +219,40 @@ impl<'l> Parser<'l> {
         }))
     }
 
-    fn read_parameters(&mut self, is_arc: bool) -> Result<Vec<Number>> {
+    fn read_parameters(&mut self) -> Result<Vec<Number>> {
         let mut parameters = Vec::new();
-        let mut cmd_index: usize = 0;
 
-        while let Some(number) = self.read_number_or_flag(if is_arc { Some(cmd_index % 7) } else { None })? {
-            cmd_index = cmd_index + 1;
+        while let Some(number) = self.read_number()? {
             parameters.push(number);
             self.reader.consume_whitespace();
             self.reader.consume_char(',');
         }
-
         Ok(parameters)
     }
 
-    fn read_number_or_flag(&mut self, arc_relative_index: Option<usize>) -> Result<Option<Number>> {
-        match arc_relative_index {
-            Some(x) if x == 3 || x == 4 => self.read_flag(),
-            _ => self.read_number()
+    fn read_parameters_elliptical_arc(&mut self) -> Result<Vec<Number>> {
+        let mut parameters = Vec::new();
+        let mut index: usize = 0;
+
+        while let Some(number) = match index % 7 {
+            i if i == 3 || i == 4 => self.read_flag()?,
+            _ => self.read_number()?
+        } {
+            index = index + 1;
+            parameters.push(number);
+            self.reader.consume_whitespace();
+            self.reader.consume_char(',');
         }
+        Ok(parameters)
     }
 
     fn read_flag(&mut self) -> Result<Option<Number>> {
         self.reader.consume_whitespace();
-        let val = self.reader.next();
-        match val {
+
+        match self.reader.next() {
             Some('0') => Ok(Some(0.0)),
             Some('1') => Ok(Some(1.0)),
-            _ => raise!(self, "failed to parse flag param in arc")
+            _ => raise!(self, "failed to parse a flag in an elliptical arc")
         }
     }
 
@@ -366,15 +372,29 @@ mod tests {
     #[test]
     fn parser_read_parameters() {
         macro_rules! test(
-            ($content:expr, $is_arc:expr, $parameters:expr) => ({
+            ($content:expr, $parameters:expr) => ({
                 let mut parser = Parser::new($content);
-                let parameters = parser.read_parameters($is_arc).unwrap();
+                let parameters = parser.read_parameters().unwrap();
                 assert_eq!(&parameters[..], $parameters);
             });
         );
 
-        test!("1,2 3,4 5 6.7", false, &[1.0, 2.0, 3.0, 4.0, 5.0, 6.7]);
-        test!("4-3.1.3e2.4", false, &[4.0, -3.1, 0.3e2, 0.4]);
+        test!("1,2 3,4 5 6.7", &[1.0, 2.0, 3.0, 4.0, 5.0, 6.7]);
+        test!("4-3.1.3e2.4", &[4.0, -3.1, 0.3e2, 0.4]);
+    }
+
+    #[test]
+    fn parser_read_parameters_elliptical_arc() {
+        macro_rules! test(
+            ($content:expr, $parameters:expr) => ({
+                let mut parser = Parser::new($content);
+                let parameters = parser.read_parameters_elliptical_arc().unwrap();
+                assert_eq!(&parameters[..], $parameters);
+            });
+        );
+
+        test!("32 32 0 00.03-45.22", &[32.0, 32.0, 0.0, 0.0, 0.0, 0.03, -45.22]);
+        test!("48 48 0 1148-48", &[48.0, 48.0, 0.0, 1.0, 1.0, 48.0, -48.0]);
     }
 
     #[test]
