@@ -232,10 +232,10 @@ impl<'l> Parser<'l> {
 
     fn read_parameters_elliptical_arc(&mut self) -> Result<Vec<Number>> {
         let mut parameters = Vec::new();
-        let mut index: usize = 0;
+        let mut index: usize = 1;
 
         while let Some(number) = match index % 7 {
-            i if i == 3 || i == 4 => self.read_flag()?,
+            i if i == 4 || i == 5 => self.read_flag()?,
             _ => self.read_number()?
         } {
             index = index + 1;
