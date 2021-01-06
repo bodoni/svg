@@ -1,17 +1,18 @@
 use std::iter::Peekable;
 use std::str::Chars;
+use std::sync::Arc;
 
 pub struct Reader<'l> {
     line: usize,
     column: usize,
     offset: usize,
-    content: &'l str,
+    content: Arc<&'l str>,
     cursor: Peekable<Chars<'l>>,
 }
 
 impl<'l> Reader<'l> {
     #[inline]
-    pub fn new(content: &'l str) -> Self {
+    pub fn new(content: Arc<&'l str>) -> Self {
         Reader {
             line: 1,
             column: 1,
@@ -21,7 +22,7 @@ impl<'l> Reader<'l> {
         }
     }
 
-    pub fn capture<F>(&mut self, block: F) -> Option<&'l str>
+    pub fn capture<F>(&'l mut self, block: F) -> Option<&'l str>
     where
         F: Fn(&mut Reader<'l>) -> bool,
     {
@@ -80,7 +81,7 @@ impl<'l> Reader<'l> {
     }
 
     // https://www.w3.org/TR/REC-xml/#sec-comments
-    pub fn consume_comment(&mut self) -> bool {
+    pub fn consume_comment(&'l mut self) -> bool {
         self.consume_char('<')
             && self.consume_char('!')
             && self.consume_char('-')
@@ -94,7 +95,7 @@ impl<'l> Reader<'l> {
             && self.consume_char('>')
     }
 
-    pub fn consume_comment_body(&mut self) -> bool {
+    pub fn consume_comment_body(&'l mut self) -> bool {
         let mut consumed = true;
         while let Some(c) = self.peek() {
             if c == '-' {
@@ -243,7 +244,7 @@ impl<'l> Reader<'l> {
     }
 
     #[inline]
-    pub fn peek_many(&self) -> Chars<'l> {
+    pub fn peek_many(&'l self) -> Chars<'l> {
         self.content[self.offset..].chars()
     }
 
@@ -328,10 +329,11 @@ impl<'l> Iterator for Reader<'l> {
 #[cfg(test)]
 mod tests {
     use super::Reader;
+    use std::sync::Arc;
 
     #[test]
     fn capture() {
-        let mut reader = Reader::new("abcdefg");
+        let mut reader = Reader::new(Arc::new("abcdefg"));
 
         assert!(reader.consume_any("ab"));
 
@@ -349,10 +351,10 @@ mod tests {
             });
         );
 
-        test!("foo='bar'");
-        test!("foo = \t 'bar'");
-        test!("foo= \"bar\"");
-        test!("標籤='數值'");
+        test!(Arc::new("foo='bar'"));
+        test!(Arc::new("foo = \t 'bar'"));
+        test!(Arc::new("foo= \"bar\""));
+        test!(Arc::new("標籤='數值'"));
 
         macro_rules! test(
             ($content:expr) => ({
@@ -361,11 +363,11 @@ mod tests {
             });
         );
 
-        test!("foo");
-        test!("foo bar");
-        test!("foo=bar");
-        test!("foo='bar");
-        test!("foo=\"bar");
+        test!(Arc::new("foo"));
+        test!(Arc::new("foo bar"));
+        test!(Arc::new("foo=bar"));
+        test!(Arc::new("foo='bar"));
+        test!(Arc::new("foo=\"bar"));
     }
 
     #[test]
@@ -378,8 +380,8 @@ mod tests {
             });
         );
 
-        test!("<!-- foo --> bar", "<!-- foo -->");
-        test!("<!-- foo > --> bar", "<!-- foo > -->");
+        test!(Arc::new("<!-- foo --> bar"), "<!-- foo -->");
+        test!(Arc::new("<!-- foo > --> bar"), "<!-- foo > -->");
 
         macro_rules! test(
             ($content:expr) => ({
@@ -389,7 +391,7 @@ mod tests {
         );
 
         // https://www.w3.org/TR/REC-xml/#sec-comments
-        test!("<!-- B+, B, or B--->");
+        test!(Arc::new("<!-- B+, B, or B--->"));
     }
 
     #[test]
@@ -402,11 +404,11 @@ mod tests {
             });
         );
 
-        test!("foo", "foo");
-        test!("foo bar", "foo");
-        test!("foo42 bar", "foo42");
-        test!("foo-bar baz", "foo-bar");
-        test!("foo/", "foo");
+        test!(Arc::new("foo"), "foo");
+        test!(Arc::new("foo bar"), "foo");
+        test!(Arc::new("foo42 bar"), "foo42");
+        test!(Arc::new("foo-bar baz"), "foo-bar");
+        test!(Arc::new("foo/"), "foo");
 
         macro_rules! test(
             ($content:expr) => ({
@@ -415,10 +417,10 @@ mod tests {
             });
         );
 
-        test!(" foo");
-        test!("!foo");
-        test!("<foo");
-        test!("?foo");
+        test!(Arc::new(" foo"));
+        test!(Arc::new("!foo"));
+        test!(Arc::new("<foo"));
+        test!(Arc::new("?foo"));
     }
 
     #[test]
@@ -431,36 +433,36 @@ mod tests {
             });
         );
 
-        test!("1 ", "1");
-        test!("1a", "1");
+        test!(Arc::new("1 "), "1");
+        test!(Arc::new("1a"), "1");
 
-        test!("1", "1");
-        test!("-1", "-1");
-        test!("+1", "+1");
+        test!(Arc::new("1"), "1");
+        test!(Arc::new("-1"), "-1");
+        test!(Arc::new("+1"), "+1");
 
-        test!(".1", ".1");
-        test!("-.1", "-.1");
-        test!("+.1", "+.1");
+        test!(Arc::new(".1"), ".1");
+        test!(Arc::new("-.1"), "-.1");
+        test!(Arc::new("+.1"), "+.1");
 
-        test!("1.2", "1.2");
-        test!("-1.2", "-1.2");
-        test!("+1.2", "+1.2");
+        test!(Arc::new("1.2"), "1.2");
+        test!(Arc::new("-1.2"), "-1.2");
+        test!(Arc::new("+1.2"), "+1.2");
 
-        test!("1E2", "1E2");
-        test!("-1e2", "-1e2");
-        test!("+1e2", "+1e2");
+        test!(Arc::new("1E2"), "1E2");
+        test!(Arc::new("-1e2"), "-1e2");
+        test!(Arc::new("+1e2"), "+1e2");
 
-        test!("1.2e3", "1.2e3");
-        test!("-1.2E3", "-1.2E3");
-        test!("+1.2e3", "+1.2e3");
+        test!(Arc::new("1.2e3"), "1.2e3");
+        test!(Arc::new("-1.2E3"), "-1.2E3");
+        test!(Arc::new("+1.2e3"), "+1.2e3");
 
-        test!("1.2e-3", "1.2e-3");
-        test!("-1.2e-3", "-1.2e-3");
-        test!("+1.2E-3", "+1.2E-3");
+        test!(Arc::new("1.2e-3"), "1.2e-3");
+        test!(Arc::new("-1.2e-3"), "-1.2e-3");
+        test!(Arc::new("+1.2E-3"), "+1.2E-3");
 
-        test!("1.2E+3", "1.2E+3");
-        test!("-1.2e+3", "-1.2e+3");
-        test!("+1.2e+3", "+1.2e+3");
+        test!(Arc::new("1.2E+3"), "1.2E+3");
+        test!(Arc::new("-1.2e+3"), "-1.2e+3");
+        test!(Arc::new("+1.2e+3"), "+1.2e+3");
 
         macro_rules! test(
             ($content:expr) => ({
@@ -469,14 +471,14 @@ mod tests {
             });
         );
 
-        test!("1.e2");
-        test!("-1.e2");
-        test!("+1.e2");
+        test!(Arc::new("1.e2"));
+        test!(Arc::new("-1.e2"));
+        test!(Arc::new("+1.e2"));
     }
 
     #[test]
     fn consume_whitespace() {
-        let mut reader = Reader::new(" \t  \n\n  \tm ");
+        let mut reader = Reader::new(Arc::new(" \t  \n\n  \tm "));
         reader.consume_whitespace();
 
         assert_eq!(reader.line, 3);

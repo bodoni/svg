@@ -1,4 +1,5 @@
 use std::ops::Deref;
+use std::sync::Arc;
 
 use super::{Command, Number, Parameters, Position};
 use crate::node::Value;
@@ -23,7 +24,7 @@ impl Data {
 
     /// Parse a data attribute.
     #[inline]
-    pub fn parse(content: &str) -> Result<Self> {
+    pub fn parse(content: Arc<&str>) -> Result<Self> {
         Parser::new(content).process()
     }
 }
@@ -155,13 +156,13 @@ macro_rules! raise(
 
 impl<'l> Parser<'l> {
     #[inline]
-    fn new(content: &'l str) -> Self {
+    fn new(content: Arc<&'l str>) -> Self {
         Parser {
             reader: Reader::new(content),
         }
     }
 
-    fn process(&mut self) -> Result<Data> {
+    fn process(&'l mut self) -> Result<Data> {
         let mut commands = Vec::new();
         loop {
             self.reader.consume_whitespace();
@@ -173,7 +174,7 @@ impl<'l> Parser<'l> {
         Ok(Data(commands))
     }
 
-    fn read_command(&mut self) -> Result<Option<Command>> {
+    fn read_command(&'l mut self) -> Result<Option<Command>> {
         use super::Command::*;
         use super::Position::*;
 
@@ -220,7 +221,7 @@ impl<'l> Parser<'l> {
         }))
     }
 
-    fn read_parameters(&mut self) -> Result<Vec<Number>> {
+    fn read_parameters(&'l mut self) -> Result<Vec<Number>> {
         let mut parameters = Vec::new();
 
         while let Some(number) = self.read_number()? {
@@ -231,7 +232,7 @@ impl<'l> Parser<'l> {
         Ok(parameters)
     }
 
-    pub fn read_number(&mut self) -> Result<Option<Number>> {
+    pub fn read_number(&'l mut self) -> Result<Option<Number>> {
         self.reader.consume_whitespace();
         let number = self
             .reader
@@ -253,6 +254,7 @@ mod tests {
     use super::super::Position::*;
     use super::{Data, Parser};
     use crate::node::Value;
+    use std::sync::Arc;
 
     #[test]
     fn data_into_value() {
@@ -266,7 +268,7 @@ mod tests {
 
     #[test]
     fn data_parse() {
-        let data = Data::parse("M1,2 l3,4").unwrap();
+        let data = Data::parse(Arc::new("M1,2 l3,4")).unwrap();
 
         assert_eq!(data.len(), 2);
         match data[0] {
@@ -303,35 +305,35 @@ mod tests {
             );
         );
 
-        test!("M4,2", Move, Absolute, &[4.0, 2.0]);
-        test!("m4,\n2", Move, Relative, &[4.0, 2.0]);
+        test!(Arc::new("M4,2"), Move, Absolute, &[4.0, 2.0]);
+        test!(Arc::new("m4,\n2"), Move, Relative, &[4.0, 2.0]);
 
-        test!("L7, 8  9", Line, Absolute, &[7.0, 8.0, 9.0]);
-        test!("l 7,8 \n9", Line, Relative, &[7.0, 8.0, 9.0]);
+        test!(Arc::new("L7, 8  9"), Line, Absolute, &[7.0, 8.0, 9.0]);
+        test!(Arc::new("l 7,8 \n9"), Line, Relative, &[7.0, 8.0, 9.0]);
 
-        test!("H\t6,9", HorizontalLine, Absolute, &[6.0, 9.0]);
-        test!("h6,  \t9", HorizontalLine, Relative, &[6.0, 9.0]);
+        test!(Arc::new("H\t6,9"), HorizontalLine, Absolute, &[6.0, 9.0]);
+        test!(Arc::new("h6,  \t9"), HorizontalLine, Relative, &[6.0, 9.0]);
 
-        test!("V2.1,-3", VerticalLine, Absolute, &[2.1, -3.0]);
-        test!("v\n2.1 -3", VerticalLine, Relative, &[2.1, -3.0]);
+        test!(Arc::new("V2.1,-3"), VerticalLine, Absolute, &[2.1, -3.0]);
+        test!(Arc::new("v\n2.1 -3"), VerticalLine, Relative, &[2.1, -3.0]);
 
-        test!("Q90.5 0", QuadraticCurve, Absolute, &[90.5, 0.0]);
-        test!("q90.5\n, 0", QuadraticCurve, Relative, &[90.5, 0.0]);
+        test!(Arc::new("Q90.5 0"), QuadraticCurve, Absolute, &[90.5, 0.0]);
+        test!(Arc::new("q90.5\n, 0"), QuadraticCurve, Relative, &[90.5, 0.0]);
 
-        test!("T-1", SmoothQuadraticCurve, Absolute, &[-1.0]);
-        test!("t -1", SmoothQuadraticCurve, Relative, &[-1.0]);
+        test!(Arc::new("T-1"), SmoothQuadraticCurve, Absolute, &[-1.0]);
+        test!(Arc::new("t -1"), SmoothQuadraticCurve, Relative, &[-1.0]);
 
-        test!("C0,1 0,2", CubicCurve, Absolute, &[0.0, 1.0, 0.0, 2.0]);
-        test!("c0 ,1 0,  2", CubicCurve, Relative, &[0.0, 1.0, 0.0, 2.0]);
+        test!(Arc::new("C0,1 0,2"), CubicCurve, Absolute, &[0.0, 1.0, 0.0, 2.0]);
+        test!(Arc::new("c0 ,1 0,  2"), CubicCurve, Relative, &[0.0, 1.0, 0.0, 2.0]);
 
-        test!("S42,0", SmoothCubicCurve, Absolute, &[42.0, 0.0]);
-        test!("s \t 42,0", SmoothCubicCurve, Relative, &[42.0, 0.0]);
+        test!(Arc::new("S42,0"), SmoothCubicCurve, Absolute, &[42.0, 0.0]);
+        test!(Arc::new("s \t 42,0"), SmoothCubicCurve, Relative, &[42.0, 0.0]);
 
-        test!("A2.6,0 -7", EllipticalArc, Absolute, &[2.6, 0.0, -7.0]);
-        test!("a 2.6 ,0 -7", EllipticalArc, Relative, &[2.6, 0.0, -7.0]);
+        test!(Arc::new("A2.6,0 -7"), EllipticalArc, Absolute, &[2.6, 0.0, -7.0]);
+        test!(Arc::new("a 2.6 ,0 -7"), EllipticalArc, Relative, &[2.6, 0.0, -7.0]);
 
-        test!("Z", Close);
-        test!("z", Close);
+        test!(Arc::new("Z"), Close);
+        test!(Arc::new("z"), Close);
     }
 
     #[test]
@@ -344,8 +346,8 @@ mod tests {
             });
         );
 
-        test!("1,2 3,4 5 6.7", &[1.0, 2.0, 3.0, 4.0, 5.0, 6.7]);
-        test!("4-3.1.3e2.4", &[4.0, -3.1, 0.3e2, 0.4]);
+        test!(Arc::new("1,2 3,4 5 6.7"), &[1.0, 2.0, 3.0, 4.0, 5.0, 6.7]);
+        test!(Arc::new("4-3.1.3e2.4"), &[4.0, -3.1, 0.3e2, 0.4]);
     }
 
     #[test]
@@ -357,9 +359,9 @@ mod tests {
             });
         );
 
-        test!("0.30000000000000004", 0.3);
-        test!("1e-4", 1e-4);
-        test!("-1E2", -1e2);
-        test!("-0.00100E-002", -1e-5);
+        test!(Arc::new("0.30000000000000004"), 0.3);
+        test!(Arc::new("1e-4"), 1e-4);
+        test!(Arc::new("-1E2"), -1e2);
+        test!(Arc::new("-0.00100E-002"), -1e-5);
     }
 }

@@ -4,10 +4,11 @@
 
 use crate::node::Attributes;
 use crate::parser::{Error, Reader, Result};
+use std::sync::Arc;
 
 /// A tag.
 #[derive(Clone, Debug)]
-pub struct Tag<'l>(pub &'l str, pub Type, pub Attributes);
+pub struct Tag<'l>(pub Arc<&'l str>, pub Type, pub Attributes);
 
 /// A [type][1] of a tag.
 ///
@@ -29,7 +30,7 @@ struct Parser<'l> {
 impl<'l> Tag<'l> {
     /// Parse a tag.
     #[inline]
-    pub fn parse(content: &'l str) -> Result<Tag<'l>> {
+    pub fn parse(content: Arc<&'l str>) -> Result<Tag<'l>> {
         Parser::new(content).process()
     }
 }
@@ -42,13 +43,13 @@ macro_rules! raise(
 
 impl<'l> Parser<'l> {
     #[inline]
-    fn new(content: &'l str) -> Self {
+    fn new(content: Arc<&'l str>) -> Self {
         Parser {
             reader: Reader::new(content),
         }
     }
 
-    fn process(&mut self) -> Result<Tag<'l>> {
+    fn process(&'l mut self) -> Result<Tag<'l>> {
         if self.reader.consume_char('/') {
             self.read_end_tag()
         } else {
@@ -56,7 +57,7 @@ impl<'l> Parser<'l> {
         }
     }
 
-    fn read_attribute(&mut self) -> Result<Option<(String, String)>> {
+    fn read_attribute(&'l mut self) -> Result<Option<(String, String)>> {
         let attribute = self
             .reader
             .capture(|reader| reader.consume_attribute())
@@ -73,7 +74,7 @@ impl<'l> Parser<'l> {
         }
     }
 
-    fn read_attributes(&mut self) -> Result<Attributes> {
+    fn read_attributes(&'l mut self) -> Result<Attributes> {
         let mut attributes = Attributes::new();
         loop {
             self.reader.consume_whitespace();
@@ -87,7 +88,7 @@ impl<'l> Parser<'l> {
         Ok(attributes)
     }
 
-    fn read_end_tag(&mut self) -> Result<Tag<'l>> {
+    fn read_end_tag(&'l mut self) -> Result<Tag<'l>> {
         let name = self.read_name()?;
         self.reader.consume_whitespace();
         if !self.reader.is_done() {
@@ -96,15 +97,15 @@ impl<'l> Parser<'l> {
         Ok(Tag(name, Type::End, Attributes::default()))
     }
 
-    fn read_name(&mut self) -> Result<&'l str> {
+    fn read_name(&'l mut self) -> Result<Arc<&'l str>> {
         let name = self.reader.capture(|reader| reader.consume_name());
         match name {
-            Some(name) => Ok(name),
+            Some(name) => Ok(Arc::new(name)),
             _ => raise!(self, "expected a name"),
         }
     }
 
-    fn read_start_or_empty_tag(&mut self) -> Result<Tag<'l>> {
+    fn read_start_or_empty_tag(&'l mut self) -> Result<Tag<'l>> {
         let name = self.read_name()?;
         let attributes = self.read_attributes()?;
         self.reader.consume_whitespace();
@@ -164,6 +165,7 @@ implement! {
 #[cfg(test)]
 mod tests {
     use super::{Parser, Tag, Type};
+    use std::sync::Arc;
 
     #[test]
     fn parser_process() {
@@ -171,18 +173,18 @@ mod tests {
             ($content:expr, $kind:ident) => ({
                 let mut parser = Parser::new($content);
                 match parser.process().unwrap() {
-                    Tag("foo", Type::$kind, _) => {}
+                    Tag(arc, Type::$kind, _) if *arc == "foo" => {}
                     _ => unreachable!(),
                 }
             });
         );
 
-        test!("foo", Start);
-        test!("foo ", Start);
-        test!("/foo", End);
-        test!("/foo ", End);
-        test!("foo/", Empty);
-        test!("foo /", Empty);
+        test!(Arc::new("foo"), Start);
+        test!(Arc::new("foo "), Start);
+        test!(Arc::new("/foo"), End);
+        test!(Arc::new("/foo "), End);
+        test!(Arc::new("foo/"), Empty);
+        test!(Arc::new("foo /"), Empty);
     }
 
     #[test]
@@ -196,11 +198,11 @@ mod tests {
             });
         );
 
-        test!("foo=''", "foo", "");
-        test!("foo='bar'", "foo", "bar");
-        test!("foo =\"bar\"", "foo", "bar");
-        test!("foo= \"bar\"", "foo", "bar");
-        test!("foo\t=\n'bar'  ", "foo", "bar");
-        test!("標籤='數值'", "標籤", "數值");
+        test!(Arc::new("foo=''"), "foo", "");
+        test!(Arc::new("foo='bar'"), "foo", "bar");
+        test!(Arc::new("foo =\"bar\""), "foo", "bar");
+        test!(Arc::new("foo= \"bar\""), "foo", "bar");
+        test!(Arc::new("foo\t=\n'bar'  "), "foo", "bar");
+        test!(Arc::new("標籤='數值'"), "標籤", "數值");
     }
 }

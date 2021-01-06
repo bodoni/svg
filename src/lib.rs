@@ -149,6 +149,10 @@ mod tests {
 
     fn exercise<'l>(mut parser: Parser<'l>) {
         macro_rules! test(
+            (Event::Tag, $str:expr) => (match parser.next().unwrap() {
+                Event::Tag(arc, _, _) if *arc == $str => {}
+                _ => unreachable!(),
+            });
             ($matcher:pat) => (match parser.next().unwrap() {
                 $matcher => {}
                 _ => unreachable!(),
@@ -158,12 +162,12 @@ mod tests {
         test!(Event::Instruction);
         test!(Event::Comment);
         test!(Event::Declaration);
-        test!(Event::Tag("svg", _, _));
-        test!(Event::Tag("path", _, _));
-        test!(Event::Tag("path", _, _));
-        test!(Event::Tag("path", _, _));
-        test!(Event::Tag("path", _, _));
-        test!(Event::Tag("svg", _, _));
+        test!(Event::Tag, "svg");
+        test!(Event::Tag, "path");
+        test!(Event::Tag, "path");
+        test!(Event::Tag, "path");
+        test!(Event::Tag, "path");
+        test!(Event::Tag, "svg");
 
         assert!(parser.next().is_none());
     }
