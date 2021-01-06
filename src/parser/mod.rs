@@ -16,7 +16,7 @@ pub use self::reader::Reader;
 /// A parser.
 pub struct Parser<'l> {
     #[allow(dead_code)]
-    content: Cow<'l, str>,
+    content: &'l str,
     reader: Reader<'l>,
 }
 
@@ -48,12 +48,10 @@ macro_rules! raise(
 impl<'l> Parser<'l> {
     /// Create a parser.
     #[inline]
-    pub fn new<T>(content: T) -> Self
+    pub fn new(content: &'l str) -> Self
     where
-        T: Into<Cow<'l, str>>,
     {
-        let content = content.into();
-        let reader = unsafe { ::std::mem::transmute(Reader::new(&*content)) };
+        let reader = Reader::new(content);
         Parser { content, reader }
     }
 
