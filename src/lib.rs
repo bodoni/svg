@@ -76,20 +76,19 @@ pub use crate::parser::Parser;
 pub type Document = node::element::SVG;
 
 /// Open a document.
-pub fn open<'l, T>(path: T, content: &'l mut String) -> io::Result<Parser<'l>>
+pub fn open<'l, T>(path: T, mut content: &'l mut String) -> io::Result<Parser<'l>>
 where
     T: AsRef<Path>,
 {
     let mut file = File::open(path)?;
-    read_internal(&mut file, content)
+    file.read_to_string(&mut content)?;
+    read(content)
 }
 
 /// Read a document.
-pub fn read<'l, T>(source: T, content: &'l mut String) -> io::Result<Parser<'l>>
-where
-    T: Read,
+pub fn read<'l>(content: &'l str) -> io::Result<Parser<'l>>
 {
-    read_internal(source, content)
+    Ok(Parser::new(content))
 }
 
 /// Save a document.
@@ -112,15 +111,6 @@ where
 }
 
 #[inline(always)]
-fn read_internal<'l, R>(mut source: R, content: &'l mut String) -> io::Result<Parser<'l>>
-where
-    R: Read,
-{
-    source.read_to_string(content)?;
-    Ok(Parser::new(content))
-}
-
-#[inline(always)]
 fn write_internal<T, U>(mut target: T, document: &U) -> io::Result<()>
 where
     T: Write,
@@ -132,6 +122,7 @@ where
 #[cfg(test)]
 mod tests {
     use std::fs::File;
+    use std::io::Read;
 
     use crate::parser::{Event, Parser};
 
@@ -146,7 +137,10 @@ mod tests {
     #[test]
     fn read() {
         let mut content = String::new();
-        exercise(crate::read(&mut File::open(self::TEST_PATH).unwrap(), &mut content).unwrap());
+        let mut file = File::open(self::TEST_PATH).unwrap();
+        file.read_to_string(&mut content).unwrap();
+
+        exercise(crate::read(&content).unwrap());
     }
 
     fn exercise<'l>(mut parser: Parser<'l>) {
