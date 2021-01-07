@@ -42,7 +42,8 @@
 //! # fn main() {
 //! let path = "image.svg";
 //! # let path = "tests/fixtures/benton.svg";
-//! for event in svg::open(path).unwrap() {
+//! let mut content = String::new();
+//! for event in svg::open(path, &mut content).unwrap() {
 //!     match event {
 //!         Event::Tag(Path, _, attributes) => {
 //!             let data = attributes.get("d").unwrap();
@@ -75,20 +76,20 @@ pub use crate::parser::Parser;
 pub type Document = node::element::SVG;
 
 /// Open a document.
-pub fn open<'l, T>(path: T) -> io::Result<Parser<'l>>
+pub fn open<'l, T>(path: T, content: &'l mut String) -> io::Result<Parser<'l>>
 where
     T: AsRef<Path>,
 {
     let mut file = File::open(path)?;
-    read_internal(&mut file)
+    read_internal(&mut file, content)
 }
 
 /// Read a document.
-pub fn read<'l, T>(source: T) -> io::Result<Parser<'l>>
+pub fn read<'l, T>(source: T, content: &'l mut String) -> io::Result<Parser<'l>>
 where
     T: Read,
 {
-    read_internal(source)
+    read_internal(source, content)
 }
 
 /// Save a document.
@@ -111,12 +112,11 @@ where
 }
 
 #[inline(always)]
-fn read_internal<'l, R>(mut source: R) -> io::Result<Parser<'l>>
+fn read_internal<'l, R>(mut source: R, content: &'l mut String) -> io::Result<Parser<'l>>
 where
     R: Read,
 {
-    let mut content = String::new();
-    source.read_to_string(&mut content)?;
+    source.read_to_string(content)?;
     Ok(Parser::new(content))
 }
 
@@ -139,12 +139,14 @@ mod tests {
 
     #[test]
     fn open() {
-        exercise(crate::open(self::TEST_PATH).unwrap());
+        let mut content = String::new();
+        exercise(crate::open(self::TEST_PATH, &mut content).unwrap());
     }
 
     #[test]
     fn read() {
-        exercise(crate::read(&mut File::open(self::TEST_PATH).unwrap()).unwrap());
+        let mut content = String::new();
+        exercise(crate::read(&mut File::open(self::TEST_PATH).unwrap(), &mut content).unwrap());
     }
 
     fn exercise<'l>(mut parser: Parser<'l>) {
