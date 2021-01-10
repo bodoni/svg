@@ -364,8 +364,6 @@ mod tests {
             Relative,
             &[1.0, 1.0, 2.6, 0.0, 0.0, 0.0, -7.0]
         );
-
-        // "a" commands without optional whitespace around the flag params
         test!(
             "a32 32 0 00.03-45.22",
             EllipticalArc,
