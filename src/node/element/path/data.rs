@@ -236,7 +236,7 @@ impl<'l> Parser<'l> {
 
         while let Some(number) = match index % 7 {
             i if i == 4 || i == 5 => self.read_flag()?,
-            _ => self.read_number()?
+            _ => self.read_number()?,
         } {
             index = index + 1;
             parameters.push(number);
@@ -252,7 +252,7 @@ impl<'l> Parser<'l> {
         match self.reader.next() {
             Some('0') => Ok(Some(0.0)),
             Some('1') => Ok(Some(1.0)),
-            _ => raise!(self, "failed to parse a flag in an elliptical arc")
+            _ => raise!(self, "failed to parse a flag in an elliptical arc"),
         }
     }
 
@@ -352,19 +352,77 @@ mod tests {
         test!("S42,0", SmoothCubicCurve, Absolute, &[42.0, 0.0]);
         test!("s \t 42,0", SmoothCubicCurve, Relative, &[42.0, 0.0]);
 
-        test!("A1 1 2.6,0 0 0 -7", EllipticalArc, Absolute, &[1.0, 1.0, 2.6, 0.0, 0.0, 0.0, -7.0]);
-        test!("a1 1 2.6,0 0 0 -7", EllipticalArc, Relative, &[1.0, 1.0, 2.6, 0.0, 0.0, 0.0, -7.0]);
+        test!(
+            "A1 1 2.6,0 0 0 -7",
+            EllipticalArc,
+            Absolute,
+            &[1.0, 1.0, 2.6, 0.0, 0.0, 0.0, -7.0]
+        );
+        test!(
+            "a1 1 2.6,0 0 0 -7",
+            EllipticalArc,
+            Relative,
+            &[1.0, 1.0, 2.6, 0.0, 0.0, 0.0, -7.0]
+        );
 
         // "a" commands without optional whitespace around the flag params
-        test!("a32 32 0 00.03-45.22", EllipticalArc, Relative, &[32.0, 32.0, 0.0, 0.0, 0.0, 0.03, -45.22]);
-        test!("a48 48 0 1148-48", EllipticalArc, Relative, &[48.0, 48.0, 0.0, 1.0, 1.0, 48.0, -48.0]);
-        test!("a82.6 82.6 0 0033.48-20.25", EllipticalArc, Relative, &[82.6, 82.6, 0.0, 0.0, 0.0, 33.48, -20.25]);
-        test!("a82.45 82.45 0 00-20.24 33.47", EllipticalArc, Relative, &[82.45, 82.45, 0.0, 0.0, 0.0, -20.24, 33.47]);
-        test!("a48 48 0 1148-48 48 48 0 01-48 48", EllipticalArc, Relative, &[48.0, 48.0, 0.0, 1.0, 1.0, 48.0, -48.0, 48.0, 48.0, 0.0, 0.0, 1.0, -48.0, 48.0]);
-        test!("a48 48 0 1148-48 48 48 0 01-48 48 32 32 0 11.03-45.22", EllipticalArc, Relative, &[48.0, 48.0, 0.0, 1.0, 1.0, 48.0, -48.0, 48.0, 48.0, 0.0, 0.0, 1.0, -48.0, 48.0, 32.0, 32.0, 0.0, 1.0, 1.0, 0.03, -45.22]);
-        test!("a2.51 2.51 0 01.25.32", EllipticalArc, Relative, &[2.51, 2.51, 0.0, 0.0, 1.0, 0.25, 0.32]);
-        test!("a1 1 0 00.25.32", EllipticalArc, Relative, &[1., 1., 0.0, 0.0, 0.0, 0.25, 0.32]);
-        test!("a1 1 0 000.25.32", EllipticalArc, Relative, &[1., 1., 0.0, 0.0, 0.0, 0.25, 0.32]);
+        test!(
+            "a32 32 0 00.03-45.22",
+            EllipticalArc,
+            Relative,
+            &[32.0, 32.0, 0.0, 0.0, 0.0, 0.03, -45.22]
+        );
+        test!(
+            "a48 48 0 1148-48",
+            EllipticalArc,
+            Relative,
+            &[48.0, 48.0, 0.0, 1.0, 1.0, 48.0, -48.0]
+        );
+        test!(
+            "a82.6 82.6 0 0033.48-20.25",
+            EllipticalArc,
+            Relative,
+            &[82.6, 82.6, 0.0, 0.0, 0.0, 33.48, -20.25]
+        );
+        test!(
+            "a82.45 82.45 0 00-20.24 33.47",
+            EllipticalArc,
+            Relative,
+            &[82.45, 82.45, 0.0, 0.0, 0.0, -20.24, 33.47]
+        );
+        test!(
+            "a48 48 0 1148-48 48 48 0 01-48 48",
+            EllipticalArc,
+            Relative,
+            &[48.0, 48.0, 0.0, 1.0, 1.0, 48.0, -48.0, 48.0, 48.0, 0.0, 0.0, 1.0, -48.0, 48.0]
+        );
+        test!(
+            "a48 48 0 1148-48 48 48 0 01-48 48 32 32 0 11.03-45.22",
+            EllipticalArc,
+            Relative,
+            &[
+                48.0, 48.0, 0.0, 1.0, 1.0, 48.0, -48.0, 48.0, 48.0, 0.0, 0.0, 1.0, -48.0, 48.0,
+                32.0, 32.0, 0.0, 1.0, 1.0, 0.03, -45.22
+            ]
+        );
+        test!(
+            "a2.51 2.51 0 01.25.32",
+            EllipticalArc,
+            Relative,
+            &[2.51, 2.51, 0.0, 0.0, 1.0, 0.25, 0.32]
+        );
+        test!(
+            "a1 1 0 00.25.32",
+            EllipticalArc,
+            Relative,
+            &[1., 1., 0.0, 0.0, 0.0, 0.25, 0.32]
+        );
+        test!(
+            "a1 1 0 000.25.32",
+            EllipticalArc,
+            Relative,
+            &[1., 1., 0.0, 0.0, 0.0, 0.25, 0.32]
+        );
 
         test!("Z", Close);
         test!("z", Close);
@@ -394,7 +452,10 @@ mod tests {
             });
         );
 
-        test!("32 32 0 00.03-45.22", &[32.0, 32.0, 0.0, 0.0, 0.0, 0.03, -45.22]);
+        test!(
+            "32 32 0 00.03-45.22",
+            &[32.0, 32.0, 0.0, 0.0, 0.0, 0.03, -45.22]
+        );
         test!("48 48 0 1148-48", &[48.0, 48.0, 0.0, 1.0, 1.0, 48.0, -48.0]);
     }
 
