@@ -4,6 +4,7 @@ version = "0.8.2"
 edition = "2018"
 license = "Apache-2.0/MIT"
 authors = [
+    "Adam Bryant <adam.w.bryant@outlook.com>",
     "Felix Schütt <felix.schuett@maps4print.com>",
     "GeoffreyY <yeungchingho123@gmail.com>",
     "Gijs Burghoorn <g.burghoorn@gmail.com>",
