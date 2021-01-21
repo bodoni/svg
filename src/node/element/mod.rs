@@ -12,7 +12,7 @@ use crate::node::{Attributes, Children, Node, Value};
 pub mod path;
 pub mod tag;
 
-#[doc(hidden)]
+/// An element.
 #[derive(Clone, Debug)]
 pub struct Element {
     name: String,
