@@ -97,20 +97,11 @@ where
     U: Node,
 {
     let mut file = File::create(path)?;
-    write_internal(&mut file, document)
+    file.write_all(&document.to_string().into_bytes())
 }
 
 /// Write a document.
-pub fn write<T, U>(target: T, document: &U) -> io::Result<()>
-where
-    T: Write,
-    U: Node,
-{
-    write_internal(target, document)
-}
-
-#[inline(always)]
-fn write_internal<T, U>(mut target: T, document: &U) -> io::Result<()>
+pub fn write<T, U>(mut target: T, document: &U) -> io::Result<()>
 where
     T: Write,
     U: Node,
