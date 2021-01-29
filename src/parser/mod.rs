@@ -1,7 +1,5 @@
 //! The parser.
 
-use std::borrow::Cow;
-
 use crate::node::element::tag::{Tag, Type};
 use crate::node::Attributes;
 
@@ -15,9 +13,7 @@ pub use self::reader::Reader;
 
 /// A parser.
 pub struct Parser<'l> {
-    #[allow(dead_code)]
-    content: Cow<'l, str>,
-    reader: Reader<'l>,
+    reader: Reader<'l>
 }
 
 /// An event.
@@ -49,13 +45,9 @@ macro_rules! raise(
 impl<'l> Parser<'l> {
     /// Create a parser.
     #[inline]
-    pub fn new<T>(content: T) -> Self
-    where
-        T: Into<Cow<'l, str>>,
+    pub fn new(content: &'l str) -> Self
     {
-        let content = content.into();
-        let reader = unsafe { ::std::mem::transmute(Reader::new(&*content)) };
-        Parser { content, reader }
+        Parser { reader: Reader::new(content) }
     }
 
     fn next_angle(&mut self) -> Option<Event<'l>> {
