@@ -86,8 +86,7 @@ where
 }
 
 /// Read a document.
-pub fn read<'l>(content: &'l str) -> io::Result<Parser<'l>>
-{
+pub fn read<'l>(content: &'l str) -> io::Result<Parser<'l>> {
     Ok(Parser::new(content))
 }
 

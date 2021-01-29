@@ -13,7 +13,7 @@ pub use self::reader::Reader;
 
 /// A parser.
 pub struct Parser<'l> {
-    reader: Reader<'l>
+    reader: Reader<'l>,
 }
 
 /// An event.
@@ -45,9 +45,10 @@ macro_rules! raise(
 impl<'l> Parser<'l> {
     /// Create a parser.
     #[inline]
-    pub fn new(content: &'l str) -> Self
-    {
-        Parser { reader: Reader::new(content) }
+    pub fn new(content: &'l str) -> Self {
+        Parser {
+            reader: Reader::new(content),
+        }
     }
 
     fn next_angle(&mut self) -> Option<Event<'l>> {
