@@ -37,7 +37,8 @@ use svg::node::element::tag::Path;
 use svg::parser::Event;
 
 let path = "image.svg";
-for event in svg::open(path).unwrap() {
+let mut content = String::new();
+for event in svg::open(path, &mut content).unwrap() {
     match event {
         Event::Tag(Path, _, attributes) => {
             let data = attributes.get("d").unwrap();
