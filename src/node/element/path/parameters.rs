@@ -39,9 +39,9 @@ impl From<Parameters> for Vec<Number> {
     }
 }
 
-impl<'a> From<&'a mut Parameters> for &'a mut Vec<Number> {
+impl<'l> From<&'l mut Parameters> for &'l mut Vec<Number> {
     #[inline]
-    fn from(Parameters(inner): &'a mut Parameters) -> Self {
+    fn from(Parameters(inner): &'l mut Parameters) -> Self {
         inner
     }
 }
