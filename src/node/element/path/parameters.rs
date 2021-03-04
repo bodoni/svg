@@ -39,6 +39,13 @@ impl From<Parameters> for Vec<Number> {
     }
 }
 
+impl<'l> From<&'l mut Parameters> for &'l mut Vec<Number> {
+    #[inline]
+    fn from(Parameters(inner): &'l mut Parameters) -> Self {
+        inner
+    }
+}
+
 macro_rules! implement {
     ($($primitive:ty,)*) => (
         $(impl From<$primitive> for Parameters {
