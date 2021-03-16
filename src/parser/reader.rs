@@ -129,7 +129,7 @@ impl<'l> Reader<'l> {
 
     #[inline]
     pub fn consume_digits(&mut self) -> bool {
-        self.consume_while(|c| c >= '0' && c <= '9')
+        self.consume_while(|c| ('0'..='9').contains(&c))
     }
 
     // https://www.w3.org/TR/REC-xml/#NT-Eq
@@ -239,7 +239,7 @@ impl<'l> Reader<'l> {
 
     #[inline]
     pub fn peek(&mut self) -> Option<char> {
-        self.cursor.peek().and_then(|&c| Some(c))
+        self.cursor.peek().copied()
     }
 
     #[inline]
