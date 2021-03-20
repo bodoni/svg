@@ -260,7 +260,7 @@ macro_rules! implement {
                     let mut inner = Element::new(tag::$struct_name);
                     initialize(&mut inner $(, $an)*);
                     $struct_name {
-                        inner: inner,
+                        inner,
                     }
                 }
             }

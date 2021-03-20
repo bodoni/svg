@@ -238,7 +238,7 @@ impl<'l> Parser<'l> {
             i if i == 4 || i == 5 => self.read_flag()?,
             _ => self.read_number()?,
         } {
-            index = index + 1;
+            index += 1;
             parameters.push(number);
             self.reader.consume_whitespace();
             self.reader.consume_char(',');

@@ -54,14 +54,14 @@ impl<'l> Parser<'l> {
     fn next_angle(&mut self) -> Option<Event<'l>> {
         let content: String = self.reader.peek_many().take(4).collect();
         if content.is_empty() {
-            return None;
+            None
         } else if content.starts_with("<!--") {
             self.read_comment()
         } else if content.starts_with("<!") {
             self.read_declaration()
         } else if content.starts_with("<?") {
             self.read_instruction()
-        } else if content.starts_with("<") {
+        } else if content.starts_with('<') {
             self.read_tag()
         } else {
             raise!(self, "found an unknown sequence");
