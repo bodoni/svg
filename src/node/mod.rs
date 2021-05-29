@@ -19,7 +19,7 @@ pub type Attributes = HashMap<String, Value>;
 pub type Children = Vec<Box<dyn Node>>;
 
 /// A node.
-pub trait Node: 'static + fmt::Debug + fmt::Display + NodeClone + NodeDefaultHash {
+pub trait Node: 'static + fmt::Debug + fmt::Display + NodeClone + NodeDefaultHash + Send + Sync {
     /// Append a child node.
     fn append<T>(&mut self, _: T)
     where
