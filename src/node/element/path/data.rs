@@ -26,6 +26,13 @@ impl Data {
     pub fn parse(content: &str) -> Result<Self> {
         Parser::new(content).process()
     }
+
+    /// Add a command.
+    #[inline]
+    pub fn add(mut self, command: Command) -> Self {
+        self.0.push(command);
+        self
+    }
 }
 
 macro_rules! implement {
