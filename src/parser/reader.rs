@@ -54,15 +54,26 @@ impl<'l> Reader<'l> {
 
     // https://www.w3.org/TR/REC-xml/#NT-AttValue
     pub fn consume_attribute_value(&mut self) -> bool {
+        let single;
         if self.consume_char('\'') {
-            self.consume_until_any("<&'");
-            self.consume_char('\'')
+            single = true;
         } else if self.consume_char('"') {
-            self.consume_until_any("<&\"");
-            self.consume_char('"')
+            single = false;
         } else {
-            false
+            return false;
         }
+        loop {
+            self.consume_until_any(if single { "<&'" } else { "<&\"" });
+            match self.peek() {
+                Some('&') => {
+                    if !self.consume_reference() {
+                        return false;
+                    }
+                }
+                _ => break,
+            }
+        }
+        self.consume_char(if single { '\'' } else { '"' })
     }
 
     pub fn consume_char(&mut self, target: char) -> bool {
@@ -132,6 +143,13 @@ impl<'l> Reader<'l> {
         self.consume_while(|c| ('0'..='9').contains(&c))
     }
 
+    #[inline]
+    pub fn consume_digits_hex(&mut self) -> bool {
+        self.consume_while(|c| {
+            ('0'..='9').contains(&c) || ('a'..='f').contains(&c) || ('A'..='F').contains(&c)
+        })
+    }
+
     // https://www.w3.org/TR/REC-xml/#NT-Eq
     pub fn consume_equality(&mut self) -> bool {
         self.consume_whitespace();
@@ -195,6 +213,21 @@ impl<'l> Reader<'l> {
         }
         self.consume_sign();
         self.consume_digits()
+    }
+
+    // https://www.w3.org/TR/REC-xml/#NT-Reference
+    pub fn consume_reference(&mut self) -> bool {
+        self.consume_char('&')
+            && if self.consume_char('#') {
+                if self.consume_char('x') {
+                    self.consume_digits_hex()
+                } else {
+                    self.consume_digits()
+                }
+            } else {
+                self.consume_name()
+            }
+            && self.consume_char(';')
     }
 
     pub fn consume_sign(&mut self) -> bool {
@@ -353,6 +386,9 @@ mod tests {
         test!("foo = \t 'bar'");
         test!("foo= \"bar\"");
         test!("標籤='數值'");
+        test!("foo='&bar;'");
+        test!("foo='bar &buz;'");
+        test!("foo='bar &buz; qux'");
 
         macro_rules! test(
             ($content:expr) => ({
@@ -366,6 +402,9 @@ mod tests {
         test!("foo=bar");
         test!("foo='bar");
         test!("foo=\"bar");
+        test!("foo='&bar'");
+        test!("foo='bar &bar'");
+        test!("foo='bar &bar qux'");
     }
 
     #[test]
@@ -472,6 +511,36 @@ mod tests {
         test!("1.e2");
         test!("-1.e2");
         test!("+1.e2");
+    }
+
+    #[test]
+    fn consume_reference() {
+        macro_rules! test(
+            ($content:expr, $value:expr) => ({
+                let mut reader = Reader::new($content);
+                let value = reader.capture(|reader| reader.consume_reference());
+                assert_eq!(value.unwrap(), $value);
+            });
+        );
+
+        test!("&#42; foo", "&#42;");
+        test!("&#x42aB; foo", "&#x42aB;");
+        test!("&foo; bar", "&foo;");
+
+        macro_rules! test(
+            ($content:expr) => ({
+                let mut reader = Reader::new($content);
+                assert!(!reader.consume_reference());
+            });
+        );
+
+        test!(" &#42; foo");
+        test!("#42; foo");
+        test!("&42; foo");
+        test!("&#42 foo");
+        test!("&#x42z; foo");
+        test!("&foo bar");
+        test!("foo; bar");
     }
 
     #[test]
