@@ -1,0 +1,32 @@
+name: Test
+
+on: [push, pull_request]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  check:
+    name: Main
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        rust:
+          - stable
+          - beta
+          - nightly
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v2
+
+      - name: Configure Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.rust }}
+          profile: minimal
+          override: true
+
+      - name: Run the test suite
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
