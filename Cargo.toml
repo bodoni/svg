@@ -25,4 +25,4 @@ homepage = "https://github.com/bodoni/svg"
 repository = "https://github.com/bodoni/svg"
 readme = "README.md"
 categories = ["multimedia::images", "parsing", "rendering::data-formats"]
-keywords = ["vector-graphics"]
+keywords = ["vector-graphics", "svg", "parser", "dom"]
