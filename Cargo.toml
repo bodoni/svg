@@ -26,3 +26,6 @@ repository = "https://github.com/bodoni/svg"
 readme = "README.md"
 categories = ["multimedia::images", "parsing", "rendering::data-formats"]
 keywords = ["vector-graphics"]
+
+[dependencies]
+euclid = { version = "0.22.0", optional = true }
