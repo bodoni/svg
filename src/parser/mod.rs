@@ -28,7 +28,7 @@ pub enum Event<'l> {
     /// A comment.
     Comment,
     /// A declaration.
-    Declaration,
+    Declaration(&'l str),
     /// An instruction.
     Instruction,
 }
@@ -82,10 +82,10 @@ impl<'l> Parser<'l> {
     }
 
     fn read_declaration(&mut self) -> Option<Event<'l>> {
-        if !self.reader.consume_declaration() {
-            raise!(self, "found a malformed declaration");
+        match self.reader.capture(|reader| reader.consume_declaration()) {
+            None => raise!(self, "found a malformed declaration"),
+            Some(content) => Some(Event::Declaration(content)),
         }
-        Some(Event::Declaration)
     }
 
     fn read_instruction(&mut self) -> Option<Event<'l>> {

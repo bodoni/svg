@@ -143,7 +143,7 @@ mod tests {
 
         test!(Event::Instruction);
         test!(Event::Comment);
-        test!(Event::Declaration);
+        test!(Event::Declaration(_));
         test!(Event::Tag("svg", _, _));
         test!(Event::Tag("path", _, _));
         test!(Event::Tag("path", _, _));
