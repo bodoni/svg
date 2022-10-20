@@ -7,7 +7,6 @@ env:
 
 jobs:
   main:
-    name: Main
     runs-on: ubuntu-latest
     strategy:
       matrix:
