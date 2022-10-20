@@ -26,11 +26,11 @@ pub enum Event<'l> {
     /// A text.
     Text(&'l str),
     /// A comment.
-    Comment,
+    Comment(&'l str),
     /// A declaration.
     Declaration(&'l str),
     /// An instruction.
-    Instruction,
+    Instruction(&'l str),
 }
 
 /// A result.
@@ -75,10 +75,10 @@ impl<'l> Parser<'l> {
     }
 
     fn read_comment(&mut self) -> Option<Event<'l>> {
-        if !self.reader.consume_comment() {
-            raise!(self, "found a malformed comment");
+        match self.reader.capture(|reader| reader.consume_comment()) {
+            None => raise!(self, "found a malformed comment"),
+            Some(content) => Some(Event::Comment(content)),
         }
-        Some(Event::Comment)
     }
 
     fn read_declaration(&mut self) -> Option<Event<'l>> {
@@ -89,10 +89,10 @@ impl<'l> Parser<'l> {
     }
 
     fn read_instruction(&mut self) -> Option<Event<'l>> {
-        if !self.reader.consume_instruction() {
-            raise!(self, "found a malformed instruction");
+        match self.reader.capture(|reader| reader.consume_instruction()) {
+            None => raise!(self, "found a malformed instruction"),
+            Some(content) => Some(Event::Instruction(content)),
         }
-        Some(Event::Instruction)
     }
 
     fn read_tag(&mut self) -> Option<Event<'l>> {

@@ -141,8 +141,8 @@ mod tests {
             });
         );
 
-        test!(Event::Instruction);
-        test!(Event::Comment);
+        test!(Event::Instruction(_));
+        test!(Event::Comment(_));
         test!(Event::Declaration(_));
         test!(Event::Tag("svg", _, _));
         test!(Event::Tag("path", _, _));
