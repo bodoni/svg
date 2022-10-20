@@ -38,7 +38,7 @@ pub type Result<T> = ::std::result::Result<T, Error>;
 
 macro_rules! raise(
     ($parser:expr, $($argument:tt)*) => (
-        return Some(Event::Error(Error::new($parser.reader.position(), format!($($argument)*))));
+        return Some(Event::Error(Error::new($parser.reader.position(), format!($($argument)*))))
     );
 );
 

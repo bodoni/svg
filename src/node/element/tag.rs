@@ -36,7 +36,7 @@ impl<'l> Tag<'l> {
 
 macro_rules! raise(
     ($parser:expr, $($argument:tt)*) => (
-        return Err(Error::new($parser.reader.position(), format!($($argument)*)));
+        return Err(Error::new($parser.reader.position(), format!($($argument)*)))
     );
 );
 
