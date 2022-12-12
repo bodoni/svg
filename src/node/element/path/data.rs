@@ -30,8 +30,14 @@ impl Data {
     /// Add a command.
     #[inline]
     pub fn add(mut self, command: Command) -> Self {
-        self.0.push(command);
+        self.append(command);
         self
+    }
+
+    /// Append a command.
+    #[inline]
+    pub fn append(&mut self, command: Command) {
+        self.0.push(command);
     }
 }
 
@@ -281,10 +287,17 @@ impl<'l> Parser<'l> {
 
 #[cfg(test)]
 mod tests {
-    use super::super::Command::*;
-    use super::super::Position::*;
-    use super::{Data, Parser};
+    use crate::node::element::path::data::Parser;
+    use crate::node::element::path::{Command, Data, Position};
     use crate::node::Value;
+
+    #[test]
+    fn append() {
+        let mut data = Data::new();
+        data.append(Command::Line(Position::Absolute, (1, 2).into()));
+        data.append(Command::Close);
+        assert_eq!(Value::from(data).to_string(), "L1,2 z");
+    }
 
     #[test]
     fn data_into_value() {
@@ -302,11 +315,15 @@ mod tests {
 
         assert_eq!(data.len(), 2);
         match data[0] {
-            Move(Absolute, ref parameters) => assert_eq!(&parameters[..], &[1.0, 2.0]),
+            Command::Move(Position::Absolute, ref parameters) => {
+                assert_eq!(&parameters[..], &[1.0, 2.0])
+            }
             _ => unreachable!(),
         }
         match data[1] {
-            Line(Relative, ref parameters) => assert_eq!(&parameters[..], &[3.0, 4.0]),
+            Command::Line(Position::Relative, ref parameters) => {
+                assert_eq!(&parameters[..], &[3.0, 4.0])
+            }
             _ => unreachable!(),
         }
     }
@@ -323,13 +340,13 @@ mod tests {
         macro_rules! test(
             ($content:expr, $command:ident, $position:ident, $parameters:expr) => (
                 match run!($content) {
-                    $command($position, parameters) => assert_eq!(&parameters[..], $parameters),
+                    Command::$command(Position::$position, parameters) => assert_eq!(&parameters[..], $parameters),
                     _ => unreachable!(),
                 }
             );
             ($content:expr, $command:ident) => (
                 match run!($content) {
-                    $command => {}
+                    Command::$command => {}
                     _ => unreachable!(),
                 }
             );
