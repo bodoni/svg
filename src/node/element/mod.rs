@@ -89,9 +89,9 @@ impl Node for Element {
     #[inline]
     fn append<T>(&mut self, node: T)
     where
-        T: Node,
+        T: Into<Box<dyn Node>>,
     {
-        self.children.push(Box::new(node));
+        self.children.push(node.into());
     }
 
     #[inline]
@@ -317,10 +317,18 @@ mod tests {
             .add(element::Text::new().add(node::Text::new("foo")))
             .add(element::Text::new().add(node::Text::new("bar")))
             .add(element::Text::new().add(node::Text::new("buz")));
-
-        let mut another = element::Group::new()
+        let two = element::Group::new()
             .add(one.get_children()[0].clone())
             .add(one.get_children_mut().pop().unwrap());
+
+        assert_eq!(
+            one.to_string(),
+            "<g>\n<text>\nfoo\n</text>\n<text>\nbar\n</text>\n</g>",
+        );
+        assert_eq!(
+            two.to_string(),
+            "<g>\n<text>\nfoo\n</text>\n<text>\nbuz\n</text>\n</g>",
+        );
     }
 
     #[test]

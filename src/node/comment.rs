@@ -34,7 +34,7 @@ impl Node for Comment {
     #[inline]
     fn append<T>(&mut self, _: T)
     where
-        T: Node,
+        T: Into<Box<dyn Node>>,
     {
     }
 
