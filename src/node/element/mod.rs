@@ -43,8 +43,18 @@ impl Element {
     }
 
     #[inline]
+    pub fn get_attributes_mut(&mut self) -> &mut Attributes {
+        &mut self.attributes
+    }
+
+    #[inline]
     pub fn get_children(&self) -> &Children {
         &self.children
+    }
+
+    #[inline]
+    pub fn get_children_mut(&mut self) -> &mut Children {
+        &mut self.children
     }
 }
 
@@ -299,7 +309,19 @@ implement! {
 #[cfg(test)]
 mod tests {
     use super::{Element, Style};
-    use crate::node::Node;
+    use crate::node::{self, element, Node};
+
+    #[test]
+    fn element_children() {
+        let mut one = element::Group::new()
+            .add(element::Text::new().add(node::Text::new("foo")))
+            .add(element::Text::new().add(node::Text::new("bar")))
+            .add(element::Text::new().add(node::Text::new("buz")));
+
+        let mut another = element::Group::new()
+            .add(one.get_children()[0].clone())
+            .add(one.get_children_mut().pop().unwrap());
+    }
 
     #[test]
     fn element_display() {
