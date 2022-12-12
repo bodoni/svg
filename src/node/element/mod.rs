@@ -21,6 +21,7 @@ pub struct Element {
 }
 
 impl Element {
+    /// Create an element.
     pub fn new<T>(name: T) -> Self
     where
         T: Into<String>,
@@ -32,26 +33,31 @@ impl Element {
         }
     }
 
+    /// Return the name.
     #[inline]
     pub fn get_name(&self) -> &String {
         &self.name
     }
 
+    /// Return the attributes.
     #[inline]
     pub fn get_attributes(&self) -> &Attributes {
         &self.attributes
     }
 
+    /// Return the attributes as mutable.
     #[inline]
     pub fn get_attributes_mut(&mut self) -> &mut Attributes {
         &mut self.attributes
     }
 
+    /// Return the children.
     #[inline]
     pub fn get_children(&self) -> &Children {
         &self.children
     }
 
+    /// Return the children as mutable.
     #[inline]
     pub fn get_children_mut(&mut self) -> &mut Children {
         &mut self.children
