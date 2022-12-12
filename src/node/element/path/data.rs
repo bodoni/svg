@@ -292,7 +292,7 @@ mod tests {
     use crate::node::Value;
 
     #[test]
-    fn append() {
+    fn data_append() {
         let mut data = Data::new();
         data.append(Command::Line(Position::Absolute, (1, 2).into()));
         data.append(Command::Close);
