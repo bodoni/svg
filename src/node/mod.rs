@@ -128,14 +128,14 @@ macro_rules! node(
 
             #[inline]
             fn deref(&self) -> &Self::Target {
-                &self.inner
+                &self.$field_name
             }
         }
 
         impl ::std::ops::DerefMut for $struct_name {
             #[inline]
             fn deref_mut(&mut self) -> &mut Self::Target {
-                &mut self.inner
+                &mut self.$field_name
             }
         }
 
@@ -149,7 +149,7 @@ macro_rules! node(
         impl Into<Element> for $struct_name {
             #[inline]
             fn into(self) -> Element {
-                self.inner
+                self.$field_name
             }
         }
     );
