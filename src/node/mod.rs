@@ -93,10 +93,10 @@ macro_rules! node(
                 self
             }
 
-            /// Return the inner element.
-            #[inline]
+            #[doc(hidden)]
+            #[deprecated(since = "0.13.0", note = "Please use Deref or DerefMut.")]
             pub fn get_inner(&self) -> &Element {
-                &self.inner
+                &*self
             }
         }
 
@@ -116,6 +116,22 @@ macro_rules! node(
                 U: Into<crate::node::Value>,
             {
                 self.$field_name.assign(name, value);
+            }
+        }
+
+        impl ::std::ops::Deref for $struct_name {
+            type Target = Element;
+
+            #[inline]
+            fn deref(&self) -> &Self::Target {
+                &self.inner
+            }
+        }
+
+        impl ::std::ops::DerefMut for $struct_name {
+            #[inline]
+            fn deref_mut(&mut self) -> &mut Self::Target {
+                &mut self.inner
             }
         }
 
