@@ -21,6 +21,7 @@ pub struct Element {
 }
 
 impl Element {
+    /// Create an element.
     pub fn new<T>(name: T) -> Self
     where
         T: Into<String>,
@@ -32,19 +33,34 @@ impl Element {
         }
     }
 
+    /// Return the name.
     #[inline]
     pub fn get_name(&self) -> &String {
         &self.name
     }
 
+    /// Return the attributes.
     #[inline]
     pub fn get_attributes(&self) -> &Attributes {
         &self.attributes
     }
 
+    /// Return the attributes as mutable.
+    #[inline]
+    pub fn get_attributes_mut(&mut self) -> &mut Attributes {
+        &mut self.attributes
+    }
+
+    /// Return the children.
     #[inline]
     pub fn get_children(&self) -> &Children {
         &self.children
+    }
+
+    /// Return the children as mutable.
+    #[inline]
+    pub fn get_children_mut(&mut self) -> &mut Children {
+        &mut self.children
     }
 }
 
@@ -79,9 +95,9 @@ impl Node for Element {
     #[inline]
     fn append<T>(&mut self, node: T)
     where
-        T: Node,
+        T: Into<Box<dyn Node>>,
     {
-        self.children.push(Box::new(node));
+        self.children.push(node.into());
     }
 
     #[inline]
@@ -299,7 +315,27 @@ implement! {
 #[cfg(test)]
 mod tests {
     use super::{Element, Style};
-    use crate::node::Node;
+    use crate::node::{self, element, Node};
+
+    #[test]
+    fn element_children() {
+        let mut one = element::Group::new()
+            .add(element::Text::new().add(node::Text::new("foo")))
+            .add(element::Text::new().add(node::Text::new("bar")))
+            .add(element::Text::new().add(node::Text::new("buz")));
+        let two = element::Group::new()
+            .add(one.get_children()[0].clone())
+            .add(one.get_children_mut().pop().unwrap());
+
+        assert_eq!(
+            one.to_string(),
+            "<g>\n<text>\nfoo\n</text>\n<text>\nbar\n</text>\n</g>",
+        );
+        assert_eq!(
+            two.to_string(),
+            "<g>\n<text>\nfoo\n</text>\n<text>\nbuz\n</text>\n</g>",
+        );
+    }
 
     #[test]
     fn element_display() {
