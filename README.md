@@ -45,8 +45,8 @@ for event in svg::open(path, &mut content).unwrap() {
             let data = Data::parse(data).unwrap();
             for command in data.iter() {
                 match command {
-                    &Command::Move(..) => println!("Move!"),
-                    &Command::Line(..) => println!("Line!"),
+                    &Command::Move(..) => { /* … */ },
+                    &Command::Line(..) => { /* … */ },
                     _ => {}
                 }
             }
