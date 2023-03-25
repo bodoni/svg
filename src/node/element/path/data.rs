@@ -274,9 +274,9 @@ impl<'l> Parser<'l> {
         let number = self
             .reader
             .capture(|reader| reader.consume_number())
-            .and_then(|number| Some(String::from(number)));
+            .map(String::from);
         match number {
-            Some(number) => match (&number).parse() {
+            Some(number) => match number.parse() {
                 Ok(number) => Ok(Some(number)),
                 _ => raise!(self, "failed to parse a number '{}'", number),
             },

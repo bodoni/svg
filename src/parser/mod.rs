@@ -71,7 +71,7 @@ impl<'l> Parser<'l> {
     fn next_text(&mut self) -> Option<Event<'l>> {
         self.reader
             .capture(|reader| reader.consume_until_char('<'))
-            .map(|content| Event::Text(content))
+            .map(Event::Text)
     }
 
     fn read_comment(&mut self) -> Option<Event<'l>> {

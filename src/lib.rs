@@ -76,17 +76,17 @@ pub use crate::parser::Parser;
 pub type Document = node::element::SVG;
 
 /// Open a document.
-pub fn open<'l, T>(path: T, mut content: &'l mut String) -> io::Result<Parser<'l>>
+pub fn open<T>(path: T, content: &'_ mut String) -> io::Result<Parser<'_>>
 where
     T: AsRef<Path>,
 {
     let mut file = File::open(path)?;
-    file.read_to_string(&mut content)?;
+    file.read_to_string(content)?;
     read(content)
 }
 
 /// Read a document.
-pub fn read<'l>(content: &'l str) -> io::Result<Parser<'l>> {
+pub fn read(content: &'_ str) -> io::Result<Parser<'_>> {
     Ok(Parser::new(content))
 }
 

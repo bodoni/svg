@@ -140,13 +140,13 @@ impl<'l> Reader<'l> {
 
     #[inline]
     pub fn consume_digits(&mut self) -> bool {
-        self.consume_while(|c| ('0'..='9').contains(&c))
+        self.consume_while(|c| c.is_ascii_digit())
     }
 
     #[inline]
     pub fn consume_digits_hex(&mut self) -> bool {
         self.consume_while(|c| {
-            ('0'..='9').contains(&c) || ('a'..='f').contains(&c) || ('A'..='F').contains(&c)
+            c.is_ascii_digit() || ('a'..='f').contains(&c) || ('A'..='F').contains(&c)
         })
     }
 
@@ -253,7 +253,7 @@ impl<'l> Reader<'l> {
         F: Fn(char) -> bool,
     {
         let mut consumed = false;
-        while self.consume_if(|c| check(c)) {
+        while self.consume_if(&check) {
             consumed = true;
         }
         consumed
@@ -287,15 +287,15 @@ impl<'l> Reader<'l> {
 
     // https://www.w3.org/TR/REC-xml/#NT-Char
     fn check_character(target: char) -> bool {
-        match target {
+        matches!(
+            target,
             '\u{9}'
             | '\u{A}'
             | '\u{D}'
             | '\u{20}'..='\u{D7FF}'
             | '\u{E000}'..='\u{FFFD}'
-            | '\u{10000}'..='\u{10FFFF}' => true,
-            _ => false,
-        }
+            | '\u{10000}'..='\u{10FFFF}',
+        )
     }
 
     // https://www.w3.org/TR/REC-xml/#NT-NameChar
@@ -303,20 +303,21 @@ impl<'l> Reader<'l> {
         if Reader::check_name_start_character(target) {
             return true;
         }
-        match target {
+        matches!(
+            target,
             '-'
             | '.'
             | '0'..='9'
             | '\u{B7}'
             | '\u{0300}'..='\u{036F}'
-            | '\u{203F}'..='\u{2040}' => true,
-            _ => false,
-        }
+            | '\u{203F}'..='\u{2040}',
+        )
     }
 
     // https://www.w3.org/TR/REC-xml/#NT-NameStartChar
     fn check_name_start_character(target: char) -> bool {
-        match target {
+        matches!(
+            target,
             ':'
             | 'A'..='Z'
             | '_'
@@ -332,9 +333,8 @@ impl<'l> Reader<'l> {
             | '\u{3001}'..='\u{D7FF}'
             | '\u{F900}'..='\u{FDCF}'
             | '\u{FDF0}'..='\u{FFFD}'
-            | '\u{10000}'..='\u{EFFFF}' => true,
-            _ => false,
-        }
+            | '\u{10000}'..='\u{EFFFF}',
+        )
     }
 }
 

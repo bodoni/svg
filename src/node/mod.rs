@@ -146,10 +146,10 @@ macro_rules! node(
             }
         }
 
-        impl Into<Element> for $struct_name {
+        impl From<$struct_name> for Element {
             #[inline]
-            fn into(self) -> Element {
-                self.$field_name
+            fn from(value: $struct_name) -> Self {
+                value.$field_name
             }
         }
     );

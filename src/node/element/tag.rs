@@ -60,12 +60,12 @@ impl<'l> Parser<'l> {
         let attribute = self
             .reader
             .capture(|reader| reader.consume_attribute())
-            .and_then(|attribute| Some(String::from(attribute)));
+            .map(String::from);
         match attribute {
             Some(attribute) => {
-                let k = (&attribute).find('=').unwrap();
-                let name = (&attribute[0..k]).trim_end();
-                let value = (&attribute[(k + 1)..]).trim_start();
+                let k = attribute.find('=').unwrap();
+                let name = attribute[0..k].trim_end();
+                let value = attribute[(k + 1)..].trim_start();
                 let value = &value[1..(value.len() - 1)];
                 Ok(Some((String::from(name), String::from(value))))
             }
