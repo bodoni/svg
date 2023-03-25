@@ -1,31 +1,31 @@
 name: build
 
-on: [push, pull_request]
-
-env:
-  CARGO_TERM_COLOR: always
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
-  main:
-    runs-on: ubuntu-latest
+  check:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with: {toolchain: stable, components: clippy, rustfmt}
+      - run: cargo clippy -- -D warnings
+      - run: cargo fmt --all -- --check
+
+  test:
     strategy:
       matrix:
-        rust:
-          - stable
-          - beta
-          - nightly
+        os: [macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
     steps:
-      - name: Check out the code
-        uses: actions/checkout@v2
-
-      - name: Configure Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: ${{ matrix.rust }}
-          profile: minimal
-          override: true
-
-      - name: Run the test suite
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with: {toolchain: stable}
+      - run: cargo test
