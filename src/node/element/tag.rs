@@ -137,6 +137,7 @@ implement! {
     Filter: "filter",
     ForeignObject: "foreignObject",
     Group: "g",
+    HtmlLink: "link",
     Image: "image",
     Line: "line",
     LinearGradient: "linearGradient",

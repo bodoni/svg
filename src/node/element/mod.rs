@@ -195,6 +195,9 @@ implement! {
     #[doc = "A [`g`](https://www.w3.org/TR/SVG/struct.html#GElement) element."]
     struct Group
 
+    #[doc = "An HTML [`link`](https://www.w3.org/TR/SVG/styling.html#LinkElement) element, usually used for stylesheets."]
+    struct HtmlLink
+
     #[doc = "An [`image`](https://www.w3.org/TR/SVG/struct.html#ImageElement) element."]
     struct Image
 
