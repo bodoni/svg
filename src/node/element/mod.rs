@@ -190,79 +190,79 @@ implement! {
     struct Filter
 
     #[doc = "A [`feBlend`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feBlend) element."]
-    struct FeBlend
+    struct FilterEffectBlend
 
     #[doc = "A [`feColorMatrix`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feColorMatrix) element."]
-    struct FeColorMatrix
+    struct FilterEffectColorMatrix
 
     #[doc = "A [`feComponentTransfer`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feComponentTransfer) element."]
-    struct FeComponentTransfer
+    struct FilterEffectComponentTransfer
 
     #[doc = "A [`feComposite`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feComposite) element."]
-    struct FeComposite
+    struct FilterEffectComposite
 
     #[doc = "A [`feConvolveMatrix`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feConvolveMatrix) element."]
-    struct FeConvolveMatrix
+    struct FilterEffectConvolveMatrix
 
     #[doc = "A [`feDiffuseLighting`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feDiffuseLighting) element."]
-    struct FeDiffuseLighting
+    struct FilterEffectDiffuseLighting
 
     #[doc = "A [`feDisplacementMap`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feDisplacementMap) element."]
-    struct FeDisplacementMap
+    struct FilterEffectDisplacementMap
 
     #[doc = "A [`feDistantLight`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feDistantLight) element."]
-    struct FeDistantLight
+    struct FilterEffectDistantLight
 
     #[doc = "A [`feDropShadow`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feDropShadow) element."]
-    struct FeDropShadow
+    struct FilterEffectDropShadow
 
     #[doc = "A [`feFlood`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feFlood) element."]
-    struct FeFlood
+    struct FilterEffectFlood
 
     #[doc = "A [`feFuncA`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feFuncA) element."]
-    struct FeFuncA
+    struct FilterEffectFunctionA
 
     #[doc = "A [`feFuncB`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feFuncB) element."]
-    struct FeFuncB
+    struct FilterEffectFunctionB
 
     #[doc = "A [`feFuncG`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feFuncG) element."]
-    struct FeFuncG
+    struct FilterEffectFunctionG
 
     #[doc = "A [`feFuncR`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feFuncR) element."]
-    struct FeFuncR
+    struct FilterEffectFunctionR
 
     #[doc = "A [`feGaussianBlur`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feGaussianBlur) element."]
-    struct FeGaussianBlur
+    struct FilterEffectGaussianBlur
 
     #[doc = "A [`feImage`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feImage) element."]
-    struct FeImage
+    struct FilterEffectImage
 
     #[doc = "A [`feMerge`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feMerge) element."]
-    struct FeMerge
+    struct FilterEffectMerge
 
     #[doc = "A [`feMergeNode`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feMergeNode) element."]
-    struct FeMergeNode
+    struct FilterEffectMergeNode
 
     #[doc = "A [`feMorphology`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feMorphology) element."]
-    struct FeMorphology
+    struct FilterEffectMorphology
 
     #[doc = "A [`feOffset`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feOffset) element."]
-    struct FeOffset
+    struct FilterEffectOffset
 
     #[doc = "A [`fePointLight`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/fePointLight) element."]
-    struct FePointLight
+    struct FilterEffectPointLight
 
     #[doc = "A [`feSpecularLighting`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feSpecularLighting) element."]
-    struct FeSpecularLighting
+    struct FilterEffectSpecularLighting
 
     #[doc = "A [`feSpotLight`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feSpotLight) element."]
-    struct FeSpotLight
+    struct FilterEffectSpotLight
 
     #[doc = "A [`feTile`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feTile) element."]
-    struct FeTile
+    struct FilterEffectTile
 
     #[doc = "A [`feTurbulence`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feTurbulence) element."]
-    struct FeTurbulence
+    struct FilterEffectTurbulence
 
     #[doc = "A [`foreignObject`](https://www.w3.org/TR/SVG/embedded.html#ForeignObjectElement) element."]
     struct ForeignObject
