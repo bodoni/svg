@@ -189,6 +189,81 @@ implement! {
     #[doc = "A [`filter`](https://www.w3.org/TR/SVG/filters.html#FilterElement) element."]
     struct Filter
 
+    #[doc = "A [`feBlend`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feBlend) element."]
+    struct FilterEffectBlend
+
+    #[doc = "A [`feColorMatrix`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feColorMatrix) element."]
+    struct FilterEffectColorMatrix
+
+    #[doc = "A [`feComponentTransfer`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feComponentTransfer) element."]
+    struct FilterEffectComponentTransfer
+
+    #[doc = "A [`feComposite`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feComposite) element."]
+    struct FilterEffectComposite
+
+    #[doc = "A [`feConvolveMatrix`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feConvolveMatrix) element."]
+    struct FilterEffectConvolveMatrix
+
+    #[doc = "A [`feDiffuseLighting`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feDiffuseLighting) element."]
+    struct FilterEffectDiffuseLighting
+
+    #[doc = "A [`feDisplacementMap`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feDisplacementMap) element."]
+    struct FilterEffectDisplacementMap
+
+    #[doc = "A [`feDistantLight`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feDistantLight) element."]
+    struct FilterEffectDistantLight
+
+    #[doc = "A [`feDropShadow`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feDropShadow) element."]
+    struct FilterEffectDropShadow
+
+    #[doc = "A [`feFlood`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feFlood) element."]
+    struct FilterEffectFlood
+
+    #[doc = "A [`feFuncA`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feFuncA) element."]
+    struct FilterEffectFunctionA
+
+    #[doc = "A [`feFuncB`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feFuncB) element."]
+    struct FilterEffectFunctionB
+
+    #[doc = "A [`feFuncG`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feFuncG) element."]
+    struct FilterEffectFunctionG
+
+    #[doc = "A [`feFuncR`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feFuncR) element."]
+    struct FilterEffectFunctionR
+
+    #[doc = "A [`feGaussianBlur`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feGaussianBlur) element."]
+    struct FilterEffectGaussianBlur
+
+    #[doc = "A [`feImage`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feImage) element."]
+    struct FilterEffectImage
+
+    #[doc = "A [`feMerge`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feMerge) element."]
+    struct FilterEffectMerge
+
+    #[doc = "A [`feMergeNode`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feMergeNode) element."]
+    struct FilterEffectMergeNode
+
+    #[doc = "A [`feMorphology`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feMorphology) element."]
+    struct FilterEffectMorphology
+
+    #[doc = "A [`feOffset`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feOffset) element."]
+    struct FilterEffectOffset
+
+    #[doc = "A [`fePointLight`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/fePointLight) element."]
+    struct FilterEffectPointLight
+
+    #[doc = "A [`feSpecularLighting`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feSpecularLighting) element."]
+    struct FilterEffectSpecularLighting
+
+    #[doc = "A [`feSpotLight`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feSpotLight) element."]
+    struct FilterEffectSpotLight
+
+    #[doc = "A [`feTile`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feTile) element."]
+    struct FilterEffectTile
+
+    #[doc = "A [`feTurbulence`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feTurbulence) element."]
+    struct FilterEffectTurbulence
+
     #[doc = "A [`foreignObject`](https://www.w3.org/TR/SVG/embedded.html#ForeignObjectElement) element."]
     struct ForeignObject
 
