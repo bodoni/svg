@@ -125,6 +125,7 @@ macro_rules! implement {
 }
 
 implement! {
+    Anchor: "a",
     Animate: "animate",
     AnimateColor: "animateColor",
     AnimateMotion: "animateMotion",
@@ -165,7 +166,7 @@ implement! {
     Image: "image",
     Line: "line",
     LinearGradient: "linearGradient",
-    Link: "a",
+    Link: "link",
     Marker: "marker",
     Mask: "mask",
     MotionPath: "mpath",

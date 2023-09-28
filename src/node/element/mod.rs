@@ -159,6 +159,9 @@ impl super::NodeDefaultHash for Element {
 }
 
 implement! {
+    #[doc = "An [`a`](https://www.w3.org/TR/SVG/linking.html#AElement) element."]
+    struct Anchor
+
     #[doc = "An [`animate`](https://www.w3.org/TR/SVG/animate.html#AnimateElement) element."]
     struct Animate
 
@@ -279,7 +282,7 @@ implement! {
     #[doc = "A [`linearGradient`](https://www.w3.org/TR/SVG/pservers.html#LinearGradientElement) element."]
     struct LinearGradient
 
-    #[doc = "An [`a`](https://www.w3.org/TR/SVG/linking.html#AElement) element."]
+    #[doc = "An [`link`](https://www.w3.org/TR/SVG/styling.html#LinkElement) element."]
     struct Link
 
     #[doc = "A [`marker`](https://www.w3.org/TR/SVG/painting.html#MarkerElement) element."]
