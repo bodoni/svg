@@ -282,7 +282,7 @@ implement! {
     #[doc = "A [`linearGradient`](https://www.w3.org/TR/SVG/pservers.html#LinearGradientElement) element."]
     struct LinearGradient
 
-    #[doc = "An [`link`](https://www.w3.org/TR/SVG/styling.html#LinkElement) element."]
+    #[doc = "A [`link`](https://www.w3.org/TR/SVG/styling.html#LinkElement) element."]
     struct Link
 
     #[doc = "A [`marker`](https://www.w3.org/TR/SVG/painting.html#MarkerElement) element."]
