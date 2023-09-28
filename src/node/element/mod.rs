@@ -198,9 +198,6 @@ implement! {
     #[doc = "A [`g`](https://www.w3.org/TR/SVG/struct.html#GElement) element."]
     struct Group
 
-    #[doc = "An [`link`](https://www.w3.org/TR/SVG/styling.html#LinkElement) element, usually used for stylesheets."]
-    struct Link
-
     #[doc = "An [`image`](https://www.w3.org/TR/SVG/struct.html#ImageElement) element."]
     struct Image
 
@@ -209,6 +206,9 @@ implement! {
 
     #[doc = "A [`linearGradient`](https://www.w3.org/TR/SVG/pservers.html#LinearGradientElement) element."]
     struct LinearGradient
+
+    #[doc = "An [`link`](https://www.w3.org/TR/SVG/styling.html#LinkElement) element."]
+    struct Link
 
     #[doc = "A [`marker`](https://www.w3.org/TR/SVG/painting.html#MarkerElement) element."]
     struct Marker
