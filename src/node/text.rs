@@ -26,7 +26,7 @@ impl Text {
 impl fmt::Display for Text {
     #[inline]
     fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        self.content.fmt(formatter)
+        escape(&self.content).fmt(formatter)
     }
 }
 
@@ -52,4 +52,11 @@ impl super::NodeDefaultHash for Text {
     fn default_hash(&self, state: &mut DefaultHasher) {
         self.content.hash(state);
     }
+}
+
+pub(crate) fn escape(value: &str) -> String {
+    value
+        .replace('&', "&amp;")
+        .replace('<', "&lt;")
+        .replace('>', "&gt;")
 }

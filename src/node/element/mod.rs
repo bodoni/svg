@@ -70,15 +70,7 @@ impl fmt::Display for Element {
         let mut attributes = self.attributes.iter().collect::<Vec<_>>();
         attributes.sort_by_key(|pair| pair.0.as_str());
         for (name, value) in attributes {
-            match (value.contains('\''), value.contains('"')) {
-                (true, false) | (false, false) => {
-                    write!(formatter, r#" {}="{}""#, name, value)?;
-                }
-                (false, true) => {
-                    write!(formatter, r#" {}='{}'"#, name, value)?;
-                }
-                _ => {}
-            }
+            write!(formatter, r#" {}="{}""#, name, escape(value))?;
         }
         if self.children.is_empty() {
             return write!(formatter, "/>");
@@ -390,6 +382,12 @@ implement! {
     }
 }
 
+fn escape(value: &str) -> String {
+    crate::node::text::escape(value)
+        .replace('"', "&quot;")
+        .replace('\'', "&apos;")
+}
+
 #[cfg(test)]
 mod tests {
     use super::{Element, Style};
@@ -440,7 +438,10 @@ mod tests {
         element.assign("d", r#""double""#);
         element.assign("m", r#""mixed'"#);
 
-        assert_eq!(element.to_string(), r#"<foo d='"double"' s="'single'"/>"#);
+        assert_eq!(
+            element.to_string(),
+            r#"<foo d="&quot;double&quot;" m="&quot;mixed&apos;" s="&apos;single&apos;"/>"#,
+        );
     }
 
     #[test]
