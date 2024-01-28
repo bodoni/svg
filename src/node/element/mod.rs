@@ -390,7 +390,7 @@ fn escape(value: &str) -> String {
 
 #[cfg(test)]
 mod tests {
-    use super::{Element, Style};
+    use super::{Element, Rectangle, Style, Title};
     use crate::node::{self, element, Node};
 
     #[test]
@@ -423,11 +423,34 @@ mod tests {
         element.append(Element::new("bar"));
 
         assert_eq!(
-            element.to_string(),
-            "<foo c=\"green\" s=\"12.5 13\" x=\"-10\" y=\"10px\">\n\
-             <bar/>\n\
-             </foo>\
-             "
+            element.to_string().lines().collect::<Vec<_>>(),
+            &[
+                r#"<foo c="green" s="12.5 13" x="-10" y="10px">"#,
+                "<bar/>",
+                "</foo>",
+            ],
+        );
+    }
+
+    #[test]
+    fn element_display_angles() {
+        let element = Rectangle::new()
+            .set("fill", "#FF780088")
+            .set("height", 10)
+            .set("width", 0.3088995)
+            .set("x", 328.0725)
+            .set("y", 120)
+            .add(Title::new().add(node::Text::new("widgets >=3.0.9, <3.1.dev0")));
+
+        assert_eq!(
+            element.to_string().lines().collect::<Vec<_>>(),
+            &[
+                r###"<rect fill="#FF780088" height="10" width="0.3088995" x="328.0725" y="120">"###,
+                "<title>",
+                "widgets &gt;=3.0.9, &lt;3.1.dev0",
+                "</title>",
+                "</rect>",
+            ],
         );
     }
 
@@ -449,11 +472,8 @@ mod tests {
         let element = Style::new("* { font-family: foo; }");
 
         assert_eq!(
-            element.to_string(),
-            "<style>\n\
-             * { font-family: foo; }\n\
-             </style>\
-             "
+            element.to_string().lines().collect::<Vec<_>>(),
+            &["<style>", "* { font-family: foo; }", "</style>"],
         );
     }
 }
