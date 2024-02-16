@@ -4,10 +4,12 @@ use std::collections::hash_map::DefaultHasher;
 use std::collections::HashMap;
 use std::fmt;
 
+mod blob;
 mod comment;
 mod text;
 mod value;
 
+pub use self::blob::Blob;
 pub use self::comment::Comment;
 pub use self::text::Text;
 pub use self::value::Value;
