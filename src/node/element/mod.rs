@@ -321,9 +321,6 @@ implement! {
     #[doc = "A [`textPath`](https://www.w3.org/TR/SVG/text.html#TextPathElement) element."]
     struct TextPath
 
-    #[doc = "A [`tspan`](https://www.w3.org/TR/SVG/text.html#TextElement) element."]
-    struct TSpan
-
     #[doc = "A [`use`](https://www.w3.org/TR/SVG/struct.html#UseElement) element."]
     struct Use
 }
@@ -373,12 +370,17 @@ macro_rules! implement {
 
 implement! {
     #[doc = "A [`text`](https://www.w3.org/TR/SVG/text.html#TextElement) element."]
-    struct Text [] [T: Into<String>] [inner, content: T] {
+    struct Text [is_bareable] [T: Into<String>] [inner, content: T] {
         inner.append(crate::node::Text::new(content));
     }
 
     #[doc = "A [`title`](https://www.w3.org/TR/SVG/struct.html#TitleElement) element."]
     struct Title [] [T: Into<String>] [inner, content: T] {
+        inner.append(crate::node::Text::new(content));
+    }
+
+    #[doc = "A [`tspan`](https://www.w3.org/TR/SVG/text.html#TextElement) element."]
+    struct TSpan [] [T: Into<String>] [inner, content: T] {
         inner.append(crate::node::Text::new(content));
     }
 
@@ -421,11 +423,11 @@ mod tests {
 
         assert_eq!(
             one.to_string(),
-            "<g>\n<text>foo</text>\n<text>bar</text>\n</g>",
+            "<g>\n<text>\nfoo\n</text>\n<text>\nbar\n</text>\n</g>",
         );
         assert_eq!(
             two.to_string(),
-            "<g>\n<text>foo</text>\n<text>buz</text>\n</g>",
+            "<g>\n<text>\nfoo\n</text>\n<text>\nbuz\n</text>\n</g>",
         );
     }
 
