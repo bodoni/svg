@@ -25,17 +25,23 @@ pub trait Node:
     'static + fmt::Debug + fmt::Display + NodeClone + NodeDefaultHash + Send + Sync
 {
     /// Append a child node.
+    #[inline]
     fn append<T>(&mut self, _: T)
     where
         Self: Sized,
-        T: Into<Box<dyn Node>>;
+        T: Into<Box<dyn Node>>,
+    {
+    }
 
     /// Assign an attribute.
+    #[inline]
     fn assign<T, U>(&mut self, _: T, _: U)
     where
         Self: Sized,
         T: Into<String>,
-        U: Into<Value>;
+        U: Into<Value>,
+    {
+    }
 }
 
 #[doc(hidden)]

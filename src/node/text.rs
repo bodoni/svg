@@ -2,7 +2,7 @@ use std::collections::hash_map::DefaultHasher;
 use std::fmt;
 use std::hash::Hash;
 
-use crate::node::{Node, Value};
+use crate::node::Node;
 
 /// A text node.
 #[derive(Clone, Debug)]
@@ -30,22 +30,7 @@ impl fmt::Display for Text {
     }
 }
 
-impl Node for Text {
-    #[inline]
-    fn append<T>(&mut self, _: T)
-    where
-        T: Into<Box<dyn Node>>,
-    {
-    }
-
-    #[inline]
-    fn assign<T, U>(&mut self, _: T, _: U)
-    where
-        T: Into<String>,
-        U: Into<Value>,
-    {
-    }
-}
+impl Node for Text {}
 
 impl super::NodeDefaultHash for Text {
     #[inline]
