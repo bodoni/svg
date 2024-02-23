@@ -324,9 +324,6 @@ implement! {
     #[doc = "A [`textPath`](https://www.w3.org/TR/SVG/text.html#TextPathElement) element."]
     struct TextPath
 
-    #[doc = "A [`title`](https://www.w3.org/TR/SVG/struct.html#TitleElement) element."]
-    struct Title
-
     #[doc = "A [`tspan`](https://www.w3.org/TR/SVG/text.html#TextElement) element."]
     struct TSpan
 
@@ -339,7 +336,9 @@ macro_rules! implement {
     ($(
         #[$doc:meta]
         struct $struct_name:ident
-        [$($pn:ident: $($pt:tt)*),*] [$inner:ident $(,$an:ident: $at:ty)*] $body:block
+        [$($indicator_name:ident),*]
+        [$($trait_name:ident: $($trait_type:tt)*),*]
+        [$inner:ident $(,$argument_name:ident: $argument_type:ty)*] $body:block
     )*) => ($(
         #[$doc]
         #[derive(Clone, Debug)]
@@ -351,11 +350,13 @@ macro_rules! implement {
             impl $struct_name {
                 /// Create a node.
                 #[inline]
-                pub fn new<$($pn: $($pt)*),*>($($an: $at),*) -> Self {
+                pub fn new<$($trait_name: $($trait_type)*),*>($($argument_name: $argument_type),*) -> Self {
                     #[inline(always)]
-                    fn initialize<$($pn: $($pt)*),*>($inner: &mut Element $(, $an: $at)*) $body
+                    fn initialize<$($trait_name: $($trait_type)*),*>(
+                        $inner: &mut Element $(, $argument_name: $argument_type)*
+                    ) $body
                     let mut inner = Element::new(tag::$struct_name);
-                    initialize(&mut inner $(, $an)*);
+                    initialize(&mut inner $(, $argument_name)*);
                     $struct_name {
                         inner,
                     }
@@ -369,23 +370,28 @@ macro_rules! implement {
             }
         }
 
-        node! { $struct_name::inner [is_bareable] }
+        node! { $struct_name::inner [$($indicator_name),*] }
     )*);
 }
 
 implement! {
+    #[doc = "A [`title`](https://www.w3.org/TR/SVG/struct.html#TitleElement) element."]
+    struct Title [] [T: Into<String>] [inner, content: T] {
+        inner.append(crate::node::Text::new(content));
+    }
+
     #[doc = "An [`svg`](https://www.w3.org/TR/SVG/struct.html#SVGElement) element."]
-    struct SVG [] [inner] {
+    struct SVG [is_bareable] [] [inner] {
         inner.assign("xmlns", "http://www.w3.org/2000/svg");
     }
 
     #[doc = "A [`script`](https://www.w3.org/TR/SVG/script.html#ScriptElement) element."]
-    struct Script [T: Into<String>] [inner, content: T] {
+    struct Script [is_bareable] [T: Into<String>] [inner, content: T] {
         inner.append(crate::node::Text::new(content));
     }
 
     #[doc = "A [`style`](https://www.w3.org/TR/SVG/styling.html#StyleElement) element."]
-    struct Style [T: Into<String>] [inner, content: T] {
+    struct Style [is_bareable] [T: Into<String>] [inner, content: T] {
         inner.append(crate::node::Text::new(content));
     }
 }
@@ -448,7 +454,7 @@ mod tests {
             .set("width", 0.3088995)
             .set("x", 328.0725)
             .set("y", 120)
-            .add(Title::new().add(node::Text::new("widgets >=3.0.9, <3.1.dev0")));
+            .add(Title::new("widgets >=3.0.9, <3.1.dev0"));
 
         assert_eq!(
             element.to_string().lines().collect::<Vec<_>>(),
