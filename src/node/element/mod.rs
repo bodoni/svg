@@ -80,12 +80,12 @@ impl fmt::Display for Element {
         for child in self.children.iter() {
             bare = child.is_bare() && !formatter.alternate();
             if !bare {
-                write!(formatter, "\n")?;
+                writeln!(formatter)?;
             }
             write!(formatter, "{}", child)?;
         }
         if !bare {
-            write!(formatter, "\n")?;
+            writeln!(formatter)?;
         }
         write!(formatter, "</{}>", self.name)
     }
