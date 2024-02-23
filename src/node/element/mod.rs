@@ -76,10 +76,18 @@ impl fmt::Display for Element {
             return write!(formatter, "/>");
         }
         write!(formatter, ">")?;
+        let mut bare = false;
         for child in self.children.iter() {
-            write!(formatter, "\n{}", child)?;
+            bare = child.is_bare() && !formatter.alternate();
+            if !bare {
+                write!(formatter, "\n")?;
+            }
+            write!(formatter, "{}", child)?;
         }
-        write!(formatter, "\n</{}>", self.name)
+        if !bare {
+            write!(formatter, "\n")?;
+        }
+        write!(formatter, "</{}>", self.name)
     }
 }
 
@@ -361,7 +369,7 @@ macro_rules! implement {
             }
         }
 
-        node! { $struct_name::inner }
+        node! { $struct_name::inner [is_bareable] }
     )*);
 }
 
@@ -405,11 +413,11 @@ mod tests {
 
         assert_eq!(
             one.to_string(),
-            "<g>\n<text>\nfoo\n</text>\n<text>\nbar\n</text>\n</g>",
+            "<g>\n<text>foo</text>\n<text>bar</text>\n</g>",
         );
         assert_eq!(
             two.to_string(),
-            "<g>\n<text>\nfoo\n</text>\n<text>\nbuz\n</text>\n</g>",
+            "<g>\n<text>foo</text>\n<text>buz</text>\n</g>",
         );
     }
 
@@ -446,9 +454,7 @@ mod tests {
             element.to_string().lines().collect::<Vec<_>>(),
             &[
                 r###"<rect fill="#FF780088" height="10" width="0.3088995" x="328.0725" y="120">"###,
-                "<title>",
-                "widgets &gt;=3.0.9, &lt;3.1.dev0",
-                "</title>",
+                "<title>widgets &gt;=3.0.9, &lt;3.1.dev0</title>",
                 "</rect>",
             ],
         );

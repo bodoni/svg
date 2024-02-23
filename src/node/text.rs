@@ -30,7 +30,12 @@ impl fmt::Display for Text {
     }
 }
 
-impl Node for Text {}
+impl Node for Text {
+    #[inline]
+    fn is_bare(&self) -> bool {
+        true
+    }
+}
 
 impl super::NodeDefaultHash for Text {
     #[inline]

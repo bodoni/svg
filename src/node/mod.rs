@@ -42,6 +42,16 @@ pub trait Node:
         U: Into<Value>,
     {
     }
+
+    #[doc(hidden)]
+    fn is_bare(&self) -> bool {
+        false
+    }
+
+    #[doc(hidden)]
+    fn is_bareable(&self) -> bool {
+        false
+    }
 }
 
 #[doc(hidden)]
@@ -90,6 +100,9 @@ impl NodeDefaultHash for Box<dyn Node> {
 
 macro_rules! node(
     ($struct_name:ident::$field_name:ident) => (
+        node!($struct_name::$field_name []);
+    );
+    ($struct_name:ident::$field_name:ident [$($indicator_name:ident),*]) => (
         impl $struct_name {
             /// Append a node.
             pub fn add<T>(mut self, node: T) -> Self
@@ -129,6 +142,13 @@ macro_rules! node(
             {
                 self.$field_name.assign(name, value);
             }
+
+            $(
+                #[inline]
+                fn $indicator_name(&self) -> bool {
+                    true
+                }
+            )*
         }
 
         impl ::std::ops::Deref for $struct_name {
@@ -150,7 +170,11 @@ macro_rules! node(
         impl ::std::fmt::Display for $struct_name {
             #[inline]
             fn fmt(&self, formatter: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-                self.$field_name.fmt(formatter)
+                if self.is_bareable() {
+                    write!(formatter, "{:#}", self.$field_name)
+                } else {
+                    self.$field_name.fmt(formatter)
+                }
             }
         }
 
