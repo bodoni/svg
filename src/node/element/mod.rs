@@ -318,9 +318,6 @@ implement! {
     #[doc = "A [`symbol`](https://www.w3.org/TR/SVG/struct.html#SymbolElement) element."]
     struct Symbol
 
-    #[doc = "A [`text`](https://www.w3.org/TR/SVG/text.html#TextElement) element."]
-    struct Text
-
     #[doc = "A [`textPath`](https://www.w3.org/TR/SVG/text.html#TextPathElement) element."]
     struct TextPath
 
@@ -375,6 +372,11 @@ macro_rules! implement {
 }
 
 implement! {
+    #[doc = "A [`text`](https://www.w3.org/TR/SVG/text.html#TextElement) element."]
+    struct Text [] [T: Into<String>] [inner, content: T] {
+        inner.append(crate::node::Text::new(content));
+    }
+
     #[doc = "A [`title`](https://www.w3.org/TR/SVG/struct.html#TitleElement) element."]
     struct Title [] [T: Into<String>] [inner, content: T] {
         inner.append(crate::node::Text::new(content));
@@ -405,14 +407,14 @@ fn escape(value: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::{Element, Rectangle, Style, Title};
-    use crate::node::{self, element, Node};
+    use crate::node::{element, Node};
 
     #[test]
     fn element_children() {
         let mut one = element::Group::new()
-            .add(element::Text::new().add(node::Text::new("foo")))
-            .add(element::Text::new().add(node::Text::new("bar")))
-            .add(element::Text::new().add(node::Text::new("buz")));
+            .add(element::Text::new("foo"))
+            .add(element::Text::new("bar"))
+            .add(element::Text::new("buz"));
         let two = element::Group::new()
             .add(one.get_children()[0].clone())
             .add(one.get_children_mut().pop().unwrap());
