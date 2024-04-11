@@ -2,7 +2,7 @@
 name = "svg"
 version = "0.16.0"
 edition = "2021"
-license = "Apache-2.0/MIT"
+license = "Apache-2.0 OR MIT"
 authors = [
     "Adam Bryant <adam.w.bryant@outlook.com>",
     "Felix Schütt <felix.schuett@maps4print.com>",
