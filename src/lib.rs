@@ -63,7 +63,7 @@
 //! ```
 
 use std::fs::File;
-use std::io::{self, Read, Write};
+use std::io::{Read, Result, Write};
 use std::path::Path;
 
 pub mod node;
@@ -76,7 +76,7 @@ pub use crate::parser::Parser;
 pub type Document = node::element::SVG;
 
 /// Open a document.
-pub fn open<T>(path: T, content: &'_ mut String) -> io::Result<Parser<'_>>
+pub fn open<T>(path: T, content: &'_ mut String) -> Result<Parser<'_>>
 where
     T: AsRef<Path>,
 {
@@ -86,12 +86,12 @@ where
 }
 
 /// Read a document.
-pub fn read(content: &'_ str) -> io::Result<Parser<'_>> {
+pub fn read(content: &'_ str) -> Result<Parser<'_>> {
     Ok(Parser::new(content))
 }
 
 /// Save a document.
-pub fn save<T, U>(path: T, document: &U) -> io::Result<()>
+pub fn save<T, U>(path: T, document: &U) -> Result<()>
 where
     T: AsRef<Path>,
     U: Node,
@@ -101,7 +101,7 @@ where
 }
 
 /// Write a document.
-pub fn write<T, U>(mut target: T, document: &U) -> io::Result<()>
+pub fn write<T, U>(mut target: T, document: &U) -> Result<()>
 where
     T: Write,
     U: Node,
