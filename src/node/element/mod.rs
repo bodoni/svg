@@ -318,9 +318,6 @@ implement! {
     #[doc = "A [`symbol`](https://www.w3.org/TR/SVG/struct.html#SymbolElement) element."]
     struct Symbol
 
-    #[doc = "A [`textPath`](https://www.w3.org/TR/SVG/text.html#TextPathElement) element."]
-    struct TextPath
-
     #[doc = "A [`use`](https://www.w3.org/TR/SVG/struct.html#UseElement) element."]
     struct Use
 }
@@ -369,21 +366,6 @@ macro_rules! implement {
 }
 
 implement! {
-    #[doc = "A [`text`](https://www.w3.org/TR/SVG/text.html#TextElement) element."]
-    struct Text [is_bareable] [T: Into<String>] [inner, content: T] {
-        inner.append(crate::node::Text::new(content));
-    }
-
-    #[doc = "A [`title`](https://www.w3.org/TR/SVG/struct.html#TitleElement) element."]
-    struct Title [] [T: Into<String>] [inner, content: T] {
-        inner.append(crate::node::Text::new(content));
-    }
-
-    #[doc = "A [`tspan`](https://www.w3.org/TR/SVG/text.html#TextElement) element."]
-    struct TSpan [] [T: Into<String>] [inner, content: T] {
-        inner.append(crate::node::Text::new(content));
-    }
-
     #[doc = "An [`svg`](https://www.w3.org/TR/SVG/struct.html#SVGElement) element."]
     struct SVG [is_bareable] [] [inner] {
         inner.assign("xmlns", "http://www.w3.org/2000/svg");
@@ -396,6 +378,26 @@ implement! {
 
     #[doc = "A [`style`](https://www.w3.org/TR/SVG/styling.html#StyleElement) element."]
     struct Style [is_bareable] [T: Into<String>] [inner, content: T] {
+        inner.append(crate::node::Text::new(content));
+    }
+
+    #[doc = "A [`text`](https://www.w3.org/TR/SVG/text.html#TextElement) element."]
+    struct Text [is_bareable] [T: Into<String>] [inner, content: T] {
+        inner.append(crate::node::Text::new(content));
+    }
+
+    #[doc = "A [`textPath`](https://www.w3.org/TR/SVG/text.html#TextPathElement) element."]
+    struct TextPath [] [T: Into<String>] [inner, content: T] {
+        inner.append(crate::node::Text::new(content));
+    }
+
+    #[doc = "A [`title`](https://www.w3.org/TR/SVG/struct.html#TitleElement) element."]
+    struct Title [] [T: Into<String>] [inner, content: T] {
+        inner.append(crate::node::Text::new(content));
+    }
+
+    #[doc = "A [`tspan`](https://www.w3.org/TR/SVG/text.html#TextElement) element."]
+    struct TSpan [] [T: Into<String>] [inner, content: T] {
         inner.append(crate::node::Text::new(content));
     }
 }
