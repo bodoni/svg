@@ -30,7 +30,11 @@ impl fmt::Display for Blob {
     }
 }
 
-impl Node for Blob {}
+impl Node for Blob {
+    fn get_name(&self) -> &str {
+        "blob"
+    }
+}
 
 impl super::NodeDefaultHash for Blob {
     #[inline]

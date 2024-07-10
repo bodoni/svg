@@ -108,6 +108,26 @@ impl Node for Element {
     {
         self.attributes.insert(name.into(), value.into());
     }
+
+    fn get_attribute(&self, k: &str) -> Option<&Value> {
+        self.attributes.get(k)
+    }
+
+    fn set_attribute(&mut self, name: String, value: Value) {
+        self.attributes.insert(name, value);
+    }
+
+    fn get_name(&self) -> &str {
+        &self.name
+    }
+
+    fn iter_children(&self) -> super::ChildrenIter {
+        self.children.iter()
+    }
+
+    fn iter_children_mut(&mut self) -> super::ChildrenIterMut {
+        self.children.iter_mut()
+    }
 }
 
 macro_rules! implement {
@@ -410,6 +430,8 @@ fn escape(value: &str) -> String {
 
 #[cfg(test)]
 mod tests {
+    use std::ops::Deref;
+
     use super::{Element, Rectangle, Style, Title};
     use crate::node::{element, Node};
 
@@ -493,5 +515,30 @@ mod tests {
             element.to_string().lines().collect::<Vec<_>>(),
             &["<style>", "* { font-family: foo; }", "</style>"],
         );
+    }
+
+    #[test]
+    fn node_traversal() {
+        let group = element::Group::new().add(
+            element::Text::new("foo").set("font-family", "Times New Roman")
+        ).add(
+            element::Text::new("bar").set("font-family", "Arial, Helvetica, sans-serif")
+        ).add(
+            element::Text::new("baz").set("font-family", "Comic Sans")
+        );
+
+        for (i, child) in group.iter_children().enumerate() {
+            assert_eq!(child.get_name(), "text");
+            if i == 0 {
+                assert_eq!(child.get_attribute("font-family").unwrap().deref(), "Times New Roman");
+                assert_eq!(child.iter_children().next().unwrap().to_string(), "foo");
+            } else if i == 1 {
+                assert_eq!(child.get_attribute("font-family").unwrap().deref(), "Arial, Helvetica, sans-serif");
+                assert_eq!(child.iter_children().next().unwrap().to_string(), "bar");
+            } else if i == 2 {
+                assert_eq!(child.get_attribute("font-family").unwrap().deref(), "Comic Sans");
+                assert_eq!(child.iter_children().next().unwrap().to_string(), "baz");
+            }
+        }
     }
 }

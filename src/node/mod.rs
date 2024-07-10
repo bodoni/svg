@@ -20,6 +20,12 @@ pub type Attributes = HashMap<String, Value>;
 /// Child nodes.
 pub type Children = Vec<Box<dyn Node>>;
 
+pub type ChildrenIter<'a> = std::slice::Iter<'a, Box<dyn Node>>;
+pub type ChildrenIterMut<'a> = std::slice::IterMut<'a, Box<dyn Node>>;
+
+const FAKE_CHILDREN: &[Box<dyn Node>] = &[];
+static mut FAKE_CHILDREN_MUT: &mut [Box<dyn Node>] = &mut [];
+
 /// A node.
 pub trait Node:
     'static + fmt::Debug + fmt::Display + NodeClone + NodeDefaultHash + Send + Sync
@@ -41,6 +47,37 @@ pub trait Node:
         T: Into<String>,
         U: Into<Value>,
     {
+    }
+
+    #[allow(unused_variables)]
+    /// Get a reference to the [`Value`] associated with attribute name `k`,
+    /// if it is present.
+    fn get_attribute(&self, k: &str) -> Option<&Value>
+    {
+        None
+    }
+
+    #[allow(unused)]
+    /// Assign an attribute with a value explicitly.
+    ///
+    /// Ergonomically, [`Node::assign`] is easier to use
+    /// but is not dispatch-safe, while this method is.
+    fn set_attribute(&mut self, name: String, value: Value) {}
+
+    /// Get the name of the node type.
+    fn get_name(&self) -> &str;
+
+    /// Iterate over references to the children of this [`Node`].
+    fn iter_children(&self) -> ChildrenIter {
+        FAKE_CHILDREN.iter()
+    }
+
+    /// Iterate over mutable references to the children of this [`Node`]
+    fn iter_children_mut(&mut self) -> ChildrenIterMut {
+        // The default implementation uses a global shared mutable slice
+        // which requires using unsafe. Since this slice is private and is never
+        // filled with anything, this is reasonable to do.
+        unsafe { FAKE_CHILDREN_MUT.iter_mut() }
     }
 
     #[doc(hidden)]
@@ -102,6 +139,7 @@ macro_rules! node(
     ($struct_name:ident::$field_name:ident) => (
         node!($struct_name::$field_name []);
     );
+    // ($struct_name:ident::$field_name:ident [$($indicator_name:ident),*])
     ($struct_name:ident::$field_name:ident [$($indicator_name:ident),*]) => (
         impl $struct_name {
             /// Append a node.
@@ -134,6 +172,22 @@ macro_rules! node(
                 self.$field_name.append(node);
             }
 
+            fn get_attribute(&self, k: &str) -> Option<&Value> {
+                self.$field_name.get_attribute(k)
+            }
+
+            fn get_name(&self) -> &str {
+                self.$field_name.get_name()
+            }
+
+            fn iter_children(&self) -> crate::node::ChildrenIter {
+                self.$field_name.iter_children()
+            }
+
+            fn iter_children_mut(&mut self) -> crate::node::ChildrenIterMut {
+                self.$field_name.iter_children_mut()
+            }
+
             #[inline]
             fn assign<T, U>(&mut self, name: T, value: U)
             where
@@ -141,6 +195,12 @@ macro_rules! node(
                 U: Into<crate::node::Value>,
             {
                 self.$field_name.assign(name, value);
+            }
+
+            #[inline]
+            fn set_attribute(&mut self, name: String, value: Value)
+            {
+                self.$field_name.set_attribute(name, value);
             }
 
             $(

@@ -35,6 +35,10 @@ impl Node for Text {
     fn is_bare(&self) -> bool {
         true
     }
+
+    fn get_name(&self) -> &str {
+        "text-node"
+    }
 }
 
 impl super::NodeDefaultHash for Text {

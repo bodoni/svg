@@ -2,8 +2,14 @@ use std::fmt;
 use std::ops::Deref;
 
 /// A value of an attribute.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Value(String);
+
+impl PartialEq<&str> for Value {
+    fn eq(&self, other: &&str) -> bool {
+        self.0 == *other
+    }
+}
 
 impl Deref for Value {
     type Target = str;
