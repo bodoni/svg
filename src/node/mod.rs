@@ -65,7 +65,7 @@ pub trait Node:
     fn set_attribute(&mut self, name: String, value: Value) {}
 
     /// Get the name of the node type.
-    fn get_name(&self) -> &str;
+    fn get_name(&self) -> &'static str;
 
     /// Iterate over references to the children of this [`Node`].
     fn iter_children(&self) -> ChildrenIter {
