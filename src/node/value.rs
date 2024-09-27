@@ -2,7 +2,7 @@ use std::fmt;
 use std::ops::Deref;
 
 /// A value of an attribute.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Value(String);
 
 impl Deref for Value {
@@ -18,6 +18,16 @@ impl fmt::Display for Value {
     #[inline]
     fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
         self.0.fmt(formatter)
+    }
+}
+
+impl<T> PartialEq<T> for Value
+where
+    T: AsRef<str>,
+{
+    #[inline]
+    fn eq(&self, other: &T) -> bool {
+        self.0 == other.as_ref()
     }
 }
 

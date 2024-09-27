@@ -45,6 +45,10 @@ impl Node for Comment {
         U: Into<Value>,
     {
     }
+
+    fn get_name(&self) -> &str {
+        "comment"
+    }
 }
 
 impl super::NodeDefaultHash for Comment {

@@ -32,6 +32,11 @@ impl fmt::Display for Text {
 
 impl Node for Text {
     #[inline]
+    fn get_name(&self) -> &str {
+        "text"
+    }
+
+    #[inline]
     fn is_bare(&self) -> bool {
         true
     }
