@@ -46,6 +46,7 @@ impl Node for Comment {
     {
     }
 
+    #[inline]
     fn get_name(&self) -> &str {
         "comment"
     }
