@@ -34,7 +34,7 @@ pub enum Event<'l> {
 }
 
 /// A result.
-pub type Result<T> = ::std::result::Result<T, Error>;
+pub type Result<T> = std::result::Result<T, Error>;
 
 macro_rules! raise(
     ($parser:expr, $($argument:tt)*) => (

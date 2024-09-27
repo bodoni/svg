@@ -31,7 +31,8 @@ impl fmt::Display for Blob {
 }
 
 impl Node for Blob {
-    fn get_name(&self) -> &'static str {
+    #[inline]
+    fn get_name(&self) -> &str {
         "blob"
     }
 }

@@ -35,7 +35,7 @@ impl Element {
 
     /// Return the name.
     #[inline]
-    pub fn get_name(&self) -> &String {
+    pub fn get_name(&self) -> &str {
         &self.name
     }
 
@@ -109,26 +109,145 @@ impl Node for Element {
         self.attributes.insert(name.into(), value.into());
     }
 
-    fn get_attribute(&self, k: &str) -> Option<&Value> {
-        self.attributes.get(k)
-    }
-
-    fn set_attribute(&mut self, name: String, value: Value) {
-        self.attributes.insert(name, value);
-    }
-
+    #[inline]
     fn get_name(&self) -> &str {
-        &self.name
+        Self::get_name(self)
     }
 
-    fn iter_children(&self) -> super::ChildrenIter {
-        self.children.iter()
+    #[inline]
+    fn get_attributes(&self) -> Option<&Attributes> {
+        Self::get_attributes(self).into()
     }
 
-    fn iter_children_mut(&mut self) -> super::ChildrenIterMut {
-        self.children.iter_mut()
+    #[inline]
+    fn get_attributes_mut(&mut self) -> Option<&mut Attributes> {
+        Self::get_attributes_mut(self).into()
+    }
+
+    #[inline]
+    fn get_children(&self) -> Option<&Children> {
+        Self::get_children(self).into()
+    }
+
+    #[inline]
+    fn get_children_mut(&mut self) -> Option<&mut Children> {
+        Self::get_children_mut(self).into()
     }
 }
+
+macro_rules! implement_nested(
+    ($struct_name:ident::$field_name:ident) => (
+        implement_nested!($struct_name::$field_name []);
+    );
+    ($struct_name:ident::$field_name:ident [$($indicator_name:ident),*]) => (
+        impl $struct_name {
+            /// Append a node.
+            pub fn add<T>(mut self, node: T) -> Self
+            where
+                T: Into<Box<dyn Node>>,
+            {
+                Node::append(&mut self, node);
+                self
+            }
+
+            /// Assign an attribute.
+            #[inline]
+            pub fn set<T, U>(mut self, name: T, value: U) -> Self
+            where
+                T: Into<String>,
+                U: Into<Value>,
+            {
+                Node::assign(&mut self, name, value);
+                self
+            }
+        }
+
+        impl Node for $struct_name {
+            #[inline]
+            fn append<T>(&mut self, node: T)
+            where
+                T: Into<Box<dyn Node>>,
+            {
+                self.$field_name.append(node);
+            }
+
+            #[inline]
+            fn assign<T, U>(&mut self, name: T, value: U)
+            where
+                T: Into<String>,
+                U: Into<Value>,
+            {
+                self.$field_name.assign(name, value);
+            }
+
+            #[inline]
+            fn get_name(&self) -> &str {
+                self.$field_name.get_name()
+            }
+
+            #[inline]
+            fn get_attributes(&self) -> Option<&Attributes> {
+                self.$field_name.get_attributes().into()
+            }
+
+            #[inline]
+            fn get_attributes_mut(&mut self) -> Option<&mut Attributes> {
+                self.$field_name.get_attributes_mut().into()
+            }
+
+            #[inline]
+            fn get_children(&self) -> Option<&Children> {
+                self.$field_name.get_children().into()
+            }
+
+            #[inline]
+            fn get_children_mut(&mut self) -> Option<&mut Children> {
+                self.$field_name.get_children_mut().into()
+            }
+
+            $(
+                #[inline]
+                fn $indicator_name(&self) -> bool {
+                    true
+                }
+            )*
+        }
+
+        impl std::ops::Deref for $struct_name {
+            type Target = Element;
+
+            #[inline]
+            fn deref(&self) -> &Self::Target {
+                &self.$field_name
+            }
+        }
+
+        impl std::ops::DerefMut for $struct_name {
+            #[inline]
+            fn deref_mut(&mut self) -> &mut Self::Target {
+                &mut self.$field_name
+            }
+        }
+
+        impl std::fmt::Display for $struct_name {
+            #[inline]
+            fn fmt(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+                if self.is_bareable() {
+                    write!(formatter, "{:#}", self.$field_name)
+                } else {
+                    self.$field_name.fmt(formatter)
+                }
+            }
+        }
+
+        impl From<$struct_name> for Element {
+            #[inline]
+            fn from(value: $struct_name) -> Self {
+                value.$field_name
+            }
+        }
+    );
+);
 
 macro_rules! implement {
     ($(#[$doc:meta] struct $struct_name:ident)*) => ($(
@@ -161,7 +280,7 @@ macro_rules! implement {
             }
         }
 
-        node! { $struct_name::inner }
+        implement_nested! { $struct_name::inner }
     )*);
 }
 
@@ -381,7 +500,7 @@ macro_rules! implement {
             }
         }
 
-        node! { $struct_name::inner [$($indicator_name),*] }
+        implement_nested! { $struct_name::inner [$($indicator_name),*] }
     )*);
 }
 
@@ -430,10 +549,8 @@ fn escape(value: &str) -> String {
 
 #[cfg(test)]
 mod tests {
-    use std::ops::Deref;
-
     use super::{Element, Rectangle, Style, Title};
-    use crate::node::{element, Node};
+    use crate::node::element;
 
     #[test]
     fn element_children() {
@@ -457,6 +574,8 @@ mod tests {
 
     #[test]
     fn element_display() {
+        use crate::node::Node;
+
         let mut element = Element::new("foo");
         element.assign("x", -10);
         element.assign("y", "10px");
@@ -496,6 +615,8 @@ mod tests {
 
     #[test]
     fn element_display_quotes() {
+        use crate::node::Node;
+
         let mut element = Element::new("foo");
         element.assign("s", "'single'");
         element.assign("d", r#""double""#);
@@ -515,30 +636,5 @@ mod tests {
             element.to_string().lines().collect::<Vec<_>>(),
             &["<style>", "* { font-family: foo; }", "</style>"],
         );
-    }
-
-    #[test]
-    fn node_traversal() {
-        let group = element::Group::new().add(
-            element::Text::new("foo").set("font-family", "Times New Roman")
-        ).add(
-            element::Text::new("bar").set("font-family", "Arial, Helvetica, sans-serif")
-        ).add(
-            element::Text::new("baz").set("font-family", "Comic Sans")
-        );
-
-        for (i, child) in group.iter_children().enumerate() {
-            assert_eq!(child.get_name(), "text");
-            if i == 0 {
-                assert_eq!(child.get_attribute("font-family").unwrap().deref(), "Times New Roman");
-                assert_eq!(child.iter_children().next().unwrap().to_string(), "foo");
-            } else if i == 1 {
-                assert_eq!(child.get_attribute("font-family").unwrap().deref(), "Arial, Helvetica, sans-serif");
-                assert_eq!(child.iter_children().next().unwrap().to_string(), "bar");
-            } else if i == 2 {
-                assert_eq!(child.get_attribute("font-family").unwrap().deref(), "Comic Sans");
-                assert_eq!(child.iter_children().next().unwrap().to_string(), "baz");
-            }
-        }
     }
 }

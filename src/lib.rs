@@ -27,7 +27,7 @@
 //!     .add(path);
 //!
 //! svg::save("image.svg", &document).unwrap();
-//! # ::std::fs::remove_file("image.svg");
+//! # std::fs::remove_file("image.svg");
 //! # }
 //! ```
 //!

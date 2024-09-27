@@ -20,12 +20,6 @@ pub type Attributes = HashMap<String, Value>;
 /// Child nodes.
 pub type Children = Vec<Box<dyn Node>>;
 
-pub type ChildrenIter<'a> = std::slice::Iter<'a, Box<dyn Node>>;
-pub type ChildrenIterMut<'a> = std::slice::IterMut<'a, Box<dyn Node>>;
-
-const FAKE_CHILDREN: &[Box<dyn Node>] = &[];
-static mut FAKE_CHILDREN_MUT: &mut [Box<dyn Node>] = &mut [];
-
 /// A node.
 pub trait Node:
     'static + fmt::Debug + fmt::Display + NodeClone + NodeDefaultHash + Send + Sync
@@ -49,35 +43,28 @@ pub trait Node:
     {
     }
 
-    #[allow(unused_variables)]
-    /// Get a reference to the [`Value`] associated with attribute name `k`,
-    /// if it is present.
-    fn get_attribute(&self, k: &str) -> Option<&Value>
-    {
+    /// Return the name.
+    fn get_name(&self) -> &str;
+
+    /// Return the attributes.
+    #[inline]
+    fn get_attributes(&self) -> Option<&Attributes> {
         None
     }
 
-    #[allow(unused)]
-    /// Assign an attribute with a value explicitly.
-    ///
-    /// Ergonomically, [`Node::assign`] is easier to use
-    /// but is not dispatch-safe, while this method is.
-    fn set_attribute(&mut self, name: String, value: Value) {}
-
-    /// Get the name of the node type.
-    fn get_name(&self) -> &'static str;
-
-    /// Iterate over references to the children of this [`Node`].
-    fn iter_children(&self) -> ChildrenIter {
-        FAKE_CHILDREN.iter()
+    /// Return the attributes as mutable.
+    fn get_attributes_mut(&mut self) -> Option<&mut Attributes> {
+        None
     }
 
-    /// Iterate over mutable references to the children of this [`Node`]
-    fn iter_children_mut(&mut self) -> ChildrenIterMut {
-        // The default implementation uses a global shared mutable slice
-        // which requires using unsafe. Since this slice is private and is never
-        // filled with anything, this is reasonable to do.
-        unsafe { FAKE_CHILDREN_MUT.iter_mut() }
+    /// Return the children.
+    fn get_children(&self) -> Option<&Children> {
+        None
+    }
+
+    /// Return the children as mutable.
+    fn get_children_mut(&mut self) -> Option<&mut Children> {
+        None
     }
 
     #[doc(hidden)]
@@ -134,117 +121,5 @@ impl NodeDefaultHash for Box<dyn Node> {
         NodeDefaultHash::default_hash(&**self, state)
     }
 }
-
-macro_rules! node(
-    ($struct_name:ident::$field_name:ident) => (
-        node!($struct_name::$field_name []);
-    );
-    // ($struct_name:ident::$field_name:ident [$($indicator_name:ident),*])
-    ($struct_name:ident::$field_name:ident [$($indicator_name:ident),*]) => (
-        impl $struct_name {
-            /// Append a node.
-            pub fn add<T>(mut self, node: T) -> Self
-            where
-                T: Into<Box<dyn crate::node::Node>>,
-            {
-                crate::node::Node::append(&mut self, node);
-                self
-            }
-
-            /// Assign an attribute.
-            #[inline]
-            pub fn set<T, U>(mut self, name: T, value: U) -> Self
-            where
-                T: Into<String>,
-                U: Into<crate::node::Value>,
-            {
-                crate::node::Node::assign(&mut self, name, value);
-                self
-            }
-        }
-
-        impl crate::node::Node for $struct_name {
-            #[inline]
-            fn append<T>(&mut self, node: T)
-            where
-                T: Into<Box<dyn crate::node::Node>>,
-            {
-                self.$field_name.append(node);
-            }
-
-            fn get_attribute(&self, k: &str) -> Option<&Value> {
-                self.$field_name.get_attribute(k)
-            }
-
-            fn get_name(&self) -> &str {
-                self.$field_name.get_name()
-            }
-
-            fn iter_children(&self) -> crate::node::ChildrenIter {
-                self.$field_name.iter_children()
-            }
-
-            fn iter_children_mut(&mut self) -> crate::node::ChildrenIterMut {
-                self.$field_name.iter_children_mut()
-            }
-
-            #[inline]
-            fn assign<T, U>(&mut self, name: T, value: U)
-            where
-                T: Into<String>,
-                U: Into<crate::node::Value>,
-            {
-                self.$field_name.assign(name, value);
-            }
-
-            #[inline]
-            fn set_attribute(&mut self, name: String, value: Value)
-            {
-                self.$field_name.set_attribute(name, value);
-            }
-
-            $(
-                #[inline]
-                fn $indicator_name(&self) -> bool {
-                    true
-                }
-            )*
-        }
-
-        impl ::std::ops::Deref for $struct_name {
-            type Target = Element;
-
-            #[inline]
-            fn deref(&self) -> &Self::Target {
-                &self.$field_name
-            }
-        }
-
-        impl ::std::ops::DerefMut for $struct_name {
-            #[inline]
-            fn deref_mut(&mut self) -> &mut Self::Target {
-                &mut self.$field_name
-            }
-        }
-
-        impl ::std::fmt::Display for $struct_name {
-            #[inline]
-            fn fmt(&self, formatter: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-                if self.is_bareable() {
-                    write!(formatter, "{:#}", self.$field_name)
-                } else {
-                    self.$field_name.fmt(formatter)
-                }
-            }
-        }
-
-        impl From<$struct_name> for Element {
-            #[inline]
-            fn from(value: $struct_name) -> Self {
-                value.$field_name
-            }
-        }
-    );
-);
 
 pub mod element;

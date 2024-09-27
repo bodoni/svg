@@ -5,12 +5,6 @@ use std::ops::Deref;
 #[derive(Clone, Debug, PartialEq)]
 pub struct Value(String);
 
-impl PartialEq<&str> for Value {
-    fn eq(&self, other: &&str) -> bool {
-        self.0 == *other
-    }
-}
-
 impl Deref for Value {
     type Target = str;
 
@@ -24,6 +18,16 @@ impl fmt::Display for Value {
     #[inline]
     fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
         self.0.fmt(formatter)
+    }
+}
+
+impl<T> PartialEq<T> for Value
+where
+    T: AsRef<str>,
+{
+    #[inline]
+    fn eq(&self, other: &T) -> bool {
+        self.0 == other.as_ref()
     }
 }
 
