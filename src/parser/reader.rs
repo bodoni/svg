@@ -338,7 +338,7 @@ impl<'l> Reader<'l> {
     }
 }
 
-impl<'l> Iterator for Reader<'l> {
+impl Iterator for Reader<'_> {
     type Item = char;
 
     fn next(&mut self) -> Option<char> {
